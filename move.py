@@ -5,16 +5,6 @@ from datetime import datetime
 import click
 
 
-colors = {
-    "red": "31",
-    "green": "32",
-}
-
-
-def color_print(text: str, color: str):
-    print(f"\033[{color}m{text}\033[0m")
-
-
 class FileMover:
 
     def __init__(self, path: str):
@@ -58,6 +48,13 @@ class FileMover:
             color_print(f"Moved: {self.path} -> {dir_name}", colors["green"])
         except Exception as e:
             color_print(f"Error: {e}", colors["red"])
+
+
+colors = {"red": "31", "green": "32"}
+
+
+def color_print(text: str, color: str):
+    print(f"\033[{color}m{text}\033[0m")
 
 
 def get_suffixes():
