@@ -1,3 +1,4 @@
 black==24.10.0
 click==8.1.7
+light-progress==0.7.0.0
 opencv-python==4.10.0.84

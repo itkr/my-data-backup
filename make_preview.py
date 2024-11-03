@@ -1,5 +1,6 @@
 import os
 import cv2
+from light_progress import ProgressBar
 
 
 def color_print(text, color_name):
@@ -47,18 +48,20 @@ def make_preview_movie(movie_path, output_dir="preview"):
     writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, size)
 
     # make preview movie
-    while capture.isOpened():
-        ret, frame = capture.read()
-        if not ret:
-            color_print("Movie is finished.", "green")
-            break
+    with ProgressBar(int(capture.get(cv2.CAP_PROP_FRAME_COUNT))) as pbar:
+        while capture.isOpened():
+            ret, frame = capture.read()
+            if not ret:
+                color_print("Movie is finished.", "green")
+                break
 
-        if cv2.waitKey(10) == 27:  # ESC key
-            color_print("ESC key is pressed.", "red")
-            break
+            if cv2.waitKey(10) == 27:  # ESC key
+                color_print("ESC key is pressed.", "red")
+                break
 
-        frame = reduction_image(frame, 640, 480)
-        writer.write(frame)
+            frame = reduction_image(frame, 640, 480)
+            writer.write(frame)
+            pbar.update(int(capture.get(cv2.CAP_PROP_POS_FRAMES)))
 
     # release
     capture.release()
@@ -66,7 +69,7 @@ def make_preview_movie(movie_path, output_dir="preview"):
 
 
 def main():
-    make_preview_movie("movie.mp4", "preview")
+    make_preview_movie("movie2.mp4", "preview")
 
 
 if __name__ == "__main__":
