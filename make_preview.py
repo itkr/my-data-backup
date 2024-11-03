@@ -31,18 +31,22 @@ def make_preview_movie(movie_path, output_dir="preview"):
         color_print(f"{output_path} is already exists.", "red")
         return
 
+    # open movie
     capture = cv2.VideoCapture(movie_path)
     if not capture.isOpened():
         color_print(f"Failed to open {movie_path}.", "red")
         return
 
+    # get movie info
     fps = capture.get(cv2.CAP_PROP_FPS)
     width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    writer = cv2.VideoWriter(
-        output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (640, 480)
-    )
+    size = (640, 480)
 
+    # make writer
+    writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, size)
+
+    # make preview movie
     while capture.isOpened():
         ret, frame = capture.read()
         if not ret:
@@ -50,12 +54,13 @@ def make_preview_movie(movie_path, output_dir="preview"):
             break
 
         if cv2.waitKey(10) == 27:  # ESC key
-            color_print("ESC key is pressed.", "green")
+            color_print("ESC key is pressed.", "red")
             break
 
         frame = reduction_image(frame, 640, 480)
         writer.write(frame)
 
+    # release
     capture.release()
     writer.release()
 
