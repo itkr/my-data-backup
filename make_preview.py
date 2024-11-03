@@ -9,13 +9,19 @@ def color_print(text, color_name):
 
 
 def reduction_image(img, width=640, height=480):
-    return cv2.resize(img, (width, height))
+    img = cv2.resize(img, (width, height))
+    # ビットレートを下げる
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
+    _, img = cv2.imencode(".jpg", img, encode_param)
+    img = cv2.imdecode(img, 1)
+    # return img
+
     # h, w = img.shape[:2]
     # if w > h:
     #     img = cv2.resize(img, (width, int(h * width / w)))
     # else:
     #     img = cv2.resize(img, (int(w * height / h), height))
-    # return img
+    return img
 
 
 def make_preview_movie(movie_path, output_dir="preview"):
@@ -69,7 +75,7 @@ def make_preview_movie(movie_path, output_dir="preview"):
 
 
 def main():
-    make_preview_movie("movie2.mp4", "preview")
+    make_preview_movie("movie.mp4", "preview")
 
 
 if __name__ == "__main__":
