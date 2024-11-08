@@ -74,8 +74,10 @@ def move_files(suffix: str, import_dir: str = ".", export_dir: str = "."):
 
 @click.command()
 @click.option("--import_dir", default=".", help="Import directory")
-@click.option("--export_dir", default="export", help="Export directory")
+@click.option("--export_dir", default="", help="Export directory")
 def main(import_dir, export_dir):
+    if not export_dir:
+        export_dir = import_dir
     for suffix in get_suffixes():
         move_files(suffix, import_dir, export_dir)
 
