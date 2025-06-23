@@ -59,9 +59,11 @@ def color_print(text: str, color: str):
 
 def get_suffixes():
     suffixes = []
-    suffixes.extend(["JPEG", "JPG", "PNG", "GIF", "BMP"])
-    suffixes.extend(["MOV", "MP4", "MPG", "MTS", "LRF"])
+    suffixes.extend(["JPEG", "JPG", "PNG", "GIF", "BMP", "HIF", "ARW"])
+    suffixes.extend(["MOV", "MP4", "MPG", "MTS", "LRF", "LRV"])
     suffixes.extend(["XML"])
+    suffixes.extend(["WAV", "MP3"])
+    suffixes.extend(["PSD"])
     suffixes.extend([suffix.lower() for suffix in suffixes])
     suffixes.extend([suffix.upper() for suffix in suffixes])
     return sorted(list(set(suffixes)))
@@ -74,11 +76,19 @@ def move_files(suffix: str, import_dir: str = ".", export_dir: str = "."):
 
 @click.command()
 @click.option("--import_dir", default=".", help="Import directory")
+<<<<<<< HEAD
 @click.option("--export_dir", default="", help="Export directory")
 def main(import_dir, export_dir):
     if not export_dir:
         export_dir = import_dir
     for suffix in get_suffixes():
+=======
+@click.option("--export_dir", default="export", help="Export directory")
+@click.option("--suffix", default=None, help="File suffix to move")
+def main(import_dir, export_dir, suffix):
+    suffixes = get_suffixes() if suffix is None else [suffix]
+    for suffix in suffixes:
+>>>>>>> d0106c5 (サフィックスを引数に追加)
         move_files(suffix, import_dir, export_dir)
 
 
