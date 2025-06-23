@@ -76,19 +76,13 @@ def move_files(suffix: str, import_dir: str = ".", export_dir: str = "."):
 
 @click.command()
 @click.option("--import_dir", default=".", help="Import directory")
-<<<<<<< HEAD
-@click.option("--export_dir", default="", help="Export directory")
-def main(import_dir, export_dir):
-    if not export_dir:
-        export_dir = import_dir
-    for suffix in get_suffixes():
-=======
 @click.option("--export_dir", default="export", help="Export directory")
 @click.option("--suffix", default=None, help="File suffix to move")
 def main(import_dir, export_dir, suffix):
+    if not export_dir:
+        export_dir = import_dir
     suffixes = get_suffixes() if suffix is None else [suffix]
     for suffix in suffixes:
->>>>>>> d0106c5 (サフィックスを引数に追加)
         move_files(suffix, import_dir, export_dir)
 
 
