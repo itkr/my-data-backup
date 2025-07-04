@@ -29,7 +29,10 @@ def find_raw_files(raw_dir, raw_extensions):
 
 
 def log_and_echo(message, logfile=None, error=False):
-    click.echo(message, err=error)
+    if error:
+        click.echo(message, err=True)
+    else:
+        click.echo(message)
     if logfile:
         with open(logfile, "a", encoding="utf-8") as f:
             f.write(message + "\n")
