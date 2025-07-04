@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ```bash
 cd photo_organizer
-python photo_organizer_gui.py
+python gui.py
 ```
 
 GUI版の特徴:
@@ -47,26 +47,26 @@ GUI版の特徴:
 
 ```bash
 cd photo_organizer
-python sync_photos.py [オプション]
+python main.py [オプション]
 ```
 
 #### 基本的な使用例
 
 ```bash
 # 基本的な同期（移動）
-python sync_photos.py --root-dir /path/to/photos
+python main.py --root-dir /path/to/photos
 
 # ドライラン（実行せずに確認）
-python sync_photos.py --root-dir /path/to/photos --dry-run
+python main.py --root-dir /path/to/photos --dry-run
 
 # ファイルをコピー（移動しない）
-python sync_photos.py --root-dir /path/to/photos --copy
+python main.py --root-dir /path/to/photos --copy
 
 # 孤立RAWファイルを隔離
-python sync_photos.py --root-dir /path/to/photos --isolate-orphans
+python main.py --root-dir /path/to/photos --isolate-orphans
 
 # ログファイルを作成
-python sync_photos.py --root-dir /path/to/photos --log-file sync.log
+python main.py --root-dir /path/to/photos --log-file sync.log
 ```
 
 #### オプション詳細
@@ -214,7 +214,7 @@ DEFAULT_CONFIG = {
 
 ```bash
 # ログファイルを指定して実行
-python sync_photos.py --root-dir /path/to/photos --log-file sync.log
+python main.py --root-dir /path/to/photos --log-file sync.log
 
 # ログファイルの内容を確認
 cat sync.log
@@ -241,8 +241,8 @@ python -m pytest tests/
 photo_organizer/
 ├── config.py              # 設定管理
 ├── logger.py              # ログ機能
-├── photo_organizer_gui.py # GUI版
-└── sync_photos.py         # CLI版
+├── gui.py                 # GUI版
+└── main.py                # CLI版
 ```
 
 ## ライセンス

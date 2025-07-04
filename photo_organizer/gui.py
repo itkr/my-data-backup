@@ -33,7 +33,7 @@ class PhotoOrganizerGUI:
         self.log_path = tk.StringVar()
         self.copy_var = tk.BooleanVar()
         self.isolate_var = tk.BooleanVar()
-        self.dryrun_var = tk.BooleanVar()
+        self.dryrun_var = tk.BooleanVar(value=True)  # デフォルトでオン
         
     def setup_widgets(self):
         """ウィジェットの配置"""
@@ -295,7 +295,7 @@ class PhotoOrganizerGUI:
             self.clear_log()
             
             # コマンド構築
-            command = [sys.executable, "sync_photos.py"]
+            command = [sys.executable, "main.py"]
             command.extend(["--root-dir", self.root_dir.get()])
             
             if self.copy_var.get():
