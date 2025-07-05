@@ -75,19 +75,31 @@ class FileOrganizerGUI:
         import_frame = tk.Frame(dir_frame)
         import_frame.pack(fill="x", pady=(0, 8))
 
-        tk.Label(import_frame, text="インポート元:", width=12, anchor="w").pack(side="left")
-        self.import_entry = tk.Entry(import_frame, textvariable=self.import_dir, font=("Arial", 10))
+        tk.Label(import_frame, text="インポート元:", width=12, anchor="w").pack(
+            side="left"
+        )
+        self.import_entry = tk.Entry(
+            import_frame, textvariable=self.import_dir, font=("Arial", 10)
+        )
         self.import_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(import_frame, text="参照...", command=self.choose_import_directory).pack(side="right")
+        tk.Button(
+            import_frame, text="参照...", command=self.choose_import_directory
+        ).pack(side="right")
 
         # エクスポートディレクトリ
         export_frame = tk.Frame(dir_frame)
         export_frame.pack(fill="x")
 
-        tk.Label(export_frame, text="エクスポート先:", width=12, anchor="w").pack(side="left")
-        self.export_entry = tk.Entry(export_frame, textvariable=self.export_dir, font=("Arial", 10))
+        tk.Label(export_frame, text="エクスポート先:", width=12, anchor="w").pack(
+            side="left"
+        )
+        self.export_entry = tk.Entry(
+            export_frame, textvariable=self.export_dir, font=("Arial", 10)
+        )
         self.export_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(export_frame, text="参照...", command=self.choose_export_directory).pack(side="right")
+        tk.Button(
+            export_frame, text="参照...", command=self.choose_export_directory
+        ).pack(side="right")
 
         # ファイル統計
         self.stats_label = tk.Label(dir_frame, text="", font=("Arial", 9), fg="gray")
@@ -103,13 +115,21 @@ class FileOrganizerGUI:
         suffix_frame.pack(fill="x")
 
         tk.Label(suffix_frame, text="拡張子:", width=12, anchor="w").pack(side="left")
-        self.suffix_entry = tk.Entry(suffix_frame, textvariable=self.suffix, font=("Arial", 10))
+        self.suffix_entry = tk.Entry(
+            suffix_frame, textvariable=self.suffix, font=("Arial", 10)
+        )
         self.suffix_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(suffix_frame, text="すべて", command=self.clear_suffix).pack(side="right")
+        tk.Button(suffix_frame, text="すべて", command=self.clear_suffix).pack(
+            side="right"
+        )
 
         # 説明
-        tk.Label(ext_frame, text="※ 空欄の場合、すべての対応拡張子を処理します", 
-                font=("Arial", 9), fg="gray").pack(anchor="w", pady=(5, 0))
+        tk.Label(
+            ext_frame,
+            text="※ 空欄の場合、すべての対応拡張子を処理します",
+            font=("Arial", 9),
+            fg="gray",
+        ).pack(anchor="w", pady=(5, 0))
 
     def create_options_section(self, parent):
         """オプションセクション"""
@@ -132,7 +152,9 @@ class FileOrganizerGUI:
 
     def create_log_section(self, parent):
         """ログファイルセクション"""
-        log_frame = tk.LabelFrame(parent, text="📝 ログファイル（任意）", padx=10, pady=8)
+        log_frame = tk.LabelFrame(
+            parent, text="📝 ログファイル（任意）", padx=10, pady=8
+        )
         log_frame.pack(fill="x", pady=(0, 10))
 
         entry_frame = tk.Frame(log_frame)
@@ -202,8 +224,13 @@ class FileOrganizerGUI:
 
         # 対応拡張子の情報表示
         extensions_text = self.get_supported_extensions_text()
-        tk.Label(info_frame, text=extensions_text, font=("Arial", 9), fg="gray", 
-                justify="left").pack(anchor="w")
+        tk.Label(
+            info_frame,
+            text=extensions_text,
+            font=("Arial", 9),
+            fg="gray",
+            justify="left",
+        ).pack(anchor="w")
 
     def get_supported_extensions_text(self):
         """対応拡張子のテキストを取得"""
@@ -215,13 +242,13 @@ class FileOrganizerGUI:
             "音声": ["WAV", "MP3"],
             "デザイン": ["PSD"],
         }
-        
+
         lines = []
         for category, exts in extensions.items():
             lines.append(f"• {category}: {', '.join(exts[:5])}")
             if len(exts) > 5:
                 lines.append(f"  {', '.join(exts[5:])}")
-        
+
         return "\n".join(lines)
 
     def add_log(self, message):
@@ -237,8 +264,7 @@ class FileOrganizerGUI:
     def choose_import_directory(self):
         """インポートディレクトリを選択"""
         directory = filedialog.askdirectory(
-            title="インポート元ディレクトリを選択",
-            initialdir=self.import_dir.get()
+            title="インポート元ディレクトリを選択", initialdir=self.import_dir.get()
         )
         if directory:
             self.import_dir.set(directory)
@@ -247,8 +273,7 @@ class FileOrganizerGUI:
     def choose_export_directory(self):
         """エクスポートディレクトリを選択"""
         directory = filedialog.askdirectory(
-            title="エクスポート先ディレクトリを選択",
-            initialdir=self.export_dir.get()
+            title="エクスポート先ディレクトリを選択", initialdir=self.export_dir.get()
         )
         if directory:
             self.export_dir.set(directory)
@@ -276,7 +301,7 @@ class FileOrganizerGUI:
         try:
             import_path = Path(self.import_dir.get())
             total_files = sum(1 for f in import_path.iterdir() if f.is_file())
-            
+
             # 拡張子別カウント
             ext_counts = {}
             for f in import_path.iterdir():
@@ -288,9 +313,11 @@ class FileOrganizerGUI:
             # 上位3拡張子を表示
             top_exts = sorted(ext_counts.items(), key=lambda x: x[1], reverse=True)[:3]
             ext_text = ", ".join([f"{ext}({count})" for ext, count in top_exts])
-            
-            self.stats_label.config(text=f"📁 総ファイル数: {total_files}個  主要拡張子: {ext_text}")
-            
+
+            self.stats_label.config(
+                text=f"📁 総ファイル数: {total_files}個  主要拡張子: {ext_text}"
+            )
+
         except Exception as e:
             self.stats_label.config(text=f"⚠️ エラー: {str(e)}")
 
@@ -305,7 +332,9 @@ class FileOrganizerGUI:
             return False
 
         if not self.export_dir.get():
-            messagebox.showerror("エラー", "エクスポート先ディレクトリを指定してください")
+            messagebox.showerror(
+                "エラー", "エクスポート先ディレクトリを指定してください"
+            )
             return False
 
         return True
@@ -386,7 +415,9 @@ class FileOrganizerGUI:
                 self.status_label.config(text="✅ 完了")
                 messagebox.showinfo("完了", "ファイル整理が正常に完了しました")
             else:
-                self.add_log(f"❌ 処理がエラーで終了しました (終了コード: {process.returncode})")
+                self.add_log(
+                    f"❌ 処理がエラーで終了しました (終了コード: {process.returncode})"
+                )
                 self.status_label.config(text="❌ エラー")
                 messagebox.showerror(
                     "エラー",
