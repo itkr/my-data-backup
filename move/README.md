@@ -160,7 +160,3 @@ tail -f organize.log
 # エラーのみを確認
 grep "ERROR" organize.log
 ```
-
-## ライセンス
-
-このプロジェクトはMITライセンスの下で公開されています。
