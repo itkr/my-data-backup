@@ -29,11 +29,14 @@ my-data-backup/
 ├── README.md             # このファイル
 ├── requirements.txt      # Python 依存パッケージ
 ├── venv/                 # Python 仮想環境
+├── common/               # 共通ライブラリ
+│   ├── __init__.py      # 初期化ファイル
+│   └── logger.py        # 統一ログ機構
 ├── photo_organizer/      # Photo Organizer ツール
 │   ├── main.py          # CLI インターフェース
 │   ├── gui.py           # GUI インターフェース
 │   ├── config.py        # 設定ファイル
-│   └── logger.py        # ログ機能
+│   └── logger.py        # ログ機能（共通ログ機構を使用）
 └── move/                 # Move ツール
     ├── main.py          # CLI インターフェース
     └── gui.py           # GUI インターフェース
@@ -121,6 +124,7 @@ make move-cli SRC=~/Downloads DEST=~/Documents/Organized
 | コマンド | 説明 |
 |----------|------|
 | `make format` | コードを black でフォーマット |
+| `make test-logger` | 共通ログ機構のテスト実行 |
 | `make list-packages` | インストール済みパッケージの一覧 |
 | `make update-packages` | 依存パッケージのアップデート |
 | `make freeze` | requirements.txt の生成 |
@@ -209,12 +213,27 @@ make move-cli SRC=~/Pictures/Organized DEST=~/Pictures/Archive
 
 ## 📝 ログ機能
 
-両ツールともログ機能を提供しており、処理の詳細を記録できます：
+プロジェクト全体で統一されたログ機構を提供しており、処理の詳細を記録できます：
 
+### 🔧 統一ログ機構の特徴
+- **統一されたインターフェース**: 全ツールで同じログ機能を使用
+- **柔軟な出力先**: コンソール、ファイル、または両方に出力可能
+- **豊富なログレベル**: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- **特殊メソッド**: success(), progress(), start_operation(), end_operation()
+- **後方互換性**: 既存のSyncLoggerとの互換性を維持
+
+### 📊 ログ出力内容
 - **処理されたファイルの一覧**
 - **エラーの詳細**
 - **実行時間の記録**
 - **統計情報**
+- **操作の開始・終了**
+
+### 🧪 テスト方法
+```bash
+# 共通ログ機構のテスト
+make test-logger
+```
 
 ## 🐛 トラブルシューティング
 

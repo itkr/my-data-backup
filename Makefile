@@ -88,8 +88,15 @@ move-cli: venv ## Move CLI を実行（引数: SRC=ソース DEST=移動先）
 .PHONY: format
 format: venv ## Python コードを black でフォーマット
 	@echo "コードをフォーマット中..."
-	$(PYTHON) -m black photo_organizer/ move/ --line-length 88
+	$(PYTHON) -m black photo_organizer/ move/ common/ --line-length 88
 	@echo "フォーマットが完了しました"
+
+# 共通ログ機構のテスト
+.PHONY: test-logger
+test-logger: venv ## 共通ログ機構のテスト実行
+	@echo "共通ログ機構をテスト中..."
+	$(PYTHON) test_common_logger.py
+	@echo "ログ機構のテストが完了しました"
 
 # 依存パッケージのバージョン確認
 .PHONY: list-packages

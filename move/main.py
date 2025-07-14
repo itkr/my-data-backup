@@ -1,11 +1,15 @@
 import os
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-import logging
 
 import click
+
+# 共通ログ機構をインポート
+sys.path.append(str(Path(__file__).parent.parent))
+from common.logger import UnifiedLogger
 
 
 # 対応ファイル拡張子の定義
@@ -69,7 +73,7 @@ class FileMover:
         self,
         export_dir: str = ".",
         dry_run: bool = False,
-        logger: Optional[logging.Logger] = None,
+        logger: Optional[UnifiedLogger] = None,
     ) -> bool:
         """ファイルを移動"""
         dir_name = self._get_export_dir(export_dir)
@@ -140,24 +144,9 @@ def get_suffixes() -> List[str]:
     return sorted(list(set(all_suffixes)))
 
 
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None) -> UnifiedLogger:
     """ログ設定"""
-    logger = logging.getLogger("file_mover")
-    logger.setLevel(logging.INFO)
-
-    # 既存のハンドラーをクリア
-    logger.handlers.clear()
-
-    # フォーマッター
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-    # ファイルハンドラー
-    if log_file:
-        file_handler = logging.FileHandler(log_file, encoding="utf-8")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    return logger
+    return UnifiedLogger(name="file_mover", log_file=log_file, console=False)
 
 
 def move_files(
@@ -165,7 +154,7 @@ def move_files(
     import_dir: str = ".",
     export_dir: str = ".",
     dry_run: bool = False,
-    logger: Optional[logging.Logger] = None,
+    logger: Optional[UnifiedLogger] = None,
 ) -> tuple:
     """指定した拡張子のファイルを移動"""
     try:
@@ -202,7 +191,7 @@ def _process_single_file(
     import_dir: str,
     export_dir: str,
     dry_run: bool,
-    logger: Optional[logging.Logger],
+    logger: Optional[UnifiedLogger],
 ) -> tuple:
     """単一ファイルの処理"""
     try:
@@ -250,8 +239,9 @@ def main(import_dir, export_dir, suffix, dry_run, log_file, verbose):
     color_print(f"Export directory: {export_dir}", COLORS["blue"])
 
     if logger:
-        logger.info(f"Started file organization ({mode})")
-        logger.info(f"Import: {import_dir}, Export: {export_dir}")
+        logger.start_operation(
+            "File Organization", mode=mode, import_dir=import_dir, export_dir=export_dir
+        )
 
     # ディレクトリ存在確認
     if not os.path.exists(import_dir):
@@ -278,7 +268,7 @@ def _process_all_suffixes(
     import_dir: str,
     export_dir: str,
     dry_run: bool,
-    logger: Optional[logging.Logger],
+    logger: Optional[UnifiedLogger],
     verbose: bool,
 ) -> tuple:
     """全ての拡張子について処理を実行"""
@@ -300,7 +290,7 @@ def _print_summary(
     total_success: int,
     total_errors: int,
     dry_run: bool,
-    logger: Optional[logging.Logger],
+    logger: Optional[UnifiedLogger],
 ):
     """処理結果のサマリーを表示"""
     color_print(f"\n=== Summary ===", COLORS["blue"])
@@ -310,7 +300,7 @@ def _print_summary(
         color_print(f"Errors: {total_errors} files", COLORS["red"])
 
     if logger:
-        logger.info(f"Completed: {total_success} success, {total_errors} errors")
+        logger.end_operation("File Organization", total_success, total_errors)
 
     if dry_run:
         color_print(
