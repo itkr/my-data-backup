@@ -30,11 +30,14 @@ class FileOrganizerGUI:
     def setup_variables(self):
         """変数の初期化"""
         self.import_dir = tk.StringVar(value=".")
-        self.export_dir = tk.StringVar(value="export")
+        self.export_dir = tk.StringVar(value="./export")
         self.suffix = tk.StringVar()
         self.log_path = tk.StringVar()
         self.dry_run_var = tk.BooleanVar(value=True)  # デフォルトでオン
         self.verbose_var = tk.BooleanVar()
+
+        # インポートディレクトリが変更された時にエクスポートディレクトリも更新
+        self.import_dir.trace_add("write", self.on_import_dir_changed)
 
     def setup_widgets(self):
         """ウィジェットの配置"""
@@ -269,6 +272,26 @@ class FileOrganizerGUI:
         if directory:
             self.import_dir.set(directory)
             self.update_file_stats()
+
+    def on_import_dir_changed(self, *args):
+        """インポートディレクトリが変更された時の処理"""
+        import_path = self.import_dir.get()
+        if import_path and import_path != ".":
+            # インポートディレクトリ配下にexportディレクトリを設定
+            export_path = os.path.join(import_path, "export")
+        else:
+            # カレントディレクトリの場合は./export
+            export_path = "./export"
+
+        # 現在のエクスポートディレクトリが変更されていない場合のみ更新
+        current_export = self.export_dir.get()
+        if (
+            current_export == "export"
+            or current_export == "./export"
+            or current_export.endswith("/export")
+            or current_export == ""
+        ):
+            self.export_dir.set(export_path)
 
     def choose_export_directory(self):
         """エクスポートディレクトリを選択"""
