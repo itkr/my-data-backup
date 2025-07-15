@@ -3,8 +3,8 @@
 
 # 設定
 VENV_DIR = venv
-PYTHON = $(VENV_DIR)/bin/python
-PIP = $(VENV_DIR)/bin/pip
+PYTHON = $(shell pwd)/$(VENV_DIR)/bin/python
+PIP = $(shell pwd)/$(VENV_DIR)/bin/pip
 REQUIREMENTS = requirements.txt
 
 # デフォルトターゲット
@@ -18,7 +18,7 @@ help: ## ヘルプを表示
 .PHONY: venv
 venv: ## 仮想環境を作成（既に存在する場合はスキップ）
 	@if [ -d "$(VENV_DIR)" ]; then \
-		echo "仮想環境 '$(VENV_DIR)' は既に存在します"; \
+		echo "仮想環境 '$(VENV_DIR)'"; \
 	else \
 		echo "仮想環境 '$(VENV_DIR)' を作成中..."; \
 		python3 -m venv $(VENV_DIR); \
@@ -54,13 +54,13 @@ setup: venv install ## 開発環境を初期セットアップ
 
 # Photo Organizer GUI を実行
 .PHONY: run-photo-organizer
-run-photo-organizer: venv ## Photo Organizer GUI を実行
+run-photo-organizer: venv check-env ## Photo Organizer GUI を実行
 	@echo "Photo Organizer GUI を起動中..."
 	cd photo_organizer && $(PYTHON) gui.py
 
 # Move GUI を実行
 .PHONY: run-move
-run-move: venv ## Move GUI を実行
+run-move: venv check-env ## Move GUI を実行
 	@echo "Move GUI を起動中..."
 	cd move && $(PYTHON) gui.py
 
@@ -129,6 +129,25 @@ info: ## 環境情報を表示
 	@echo "利用可能なツール:"
 	@echo "  - Photo Organizer (photo_organizer/)"
 	@echo "  - Move (move/)"
+	@echo ""
+
+# 環境チェック
+.PHONY: check-env
+check-env: venv ## 実行環境をチェック
+	@echo "=== 環境チェック ==="
+	@echo "Python バージョン: $(shell $(PYTHON) --version)"
+	@echo "tkinter チェック中..."
+	@$(PYTHON) -c "import tkinter; print('✓ tkinter: 利用可能')" || echo "✗ tkinter: 利用不可 - sudo apt-get install python3-tk (Ubuntu) または brew install python-tk (macOS) が必要"
+	@echo "OpenCV チェック中..."
+	@$(PYTHON) -c "import cv2; print('✓ OpenCV:', cv2.__version__)" || echo "✗ OpenCV: 利用不可"
+	@echo "ディスプレイ環境チェック中..."
+	@if [ -z "$$DISPLAY" ] && [ "$$(uname)" != "Darwin" ]; then \
+		echo "✗ DISPLAY: X11ディスプレイが設定されていません"; \
+		echo "  リモート環境の場合: ssh -X または ssh -Y でログイン"; \
+		echo "  WSLの場合: X11サーバー (VcXsrv等) が必要"; \
+	else \
+		echo "✓ DISPLAY: 設定済み"; \
+	fi
 	@echo ""
 
 # クリーンアップ
