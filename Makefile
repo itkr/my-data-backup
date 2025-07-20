@@ -138,6 +138,8 @@ check-env: venv ## 実行環境をチェック
 	@echo "Python バージョン: $(shell $(PYTHON) --version)"
 	@echo "tkinter チェック中..."
 	@$(PYTHON) -c "import tkinter; print('✓ tkinter: 利用可能')" || echo "✗ tkinter: 利用不可 - sudo apt-get install python3-tk (Ubuntu) または brew install python-tk (macOS) が必要"
+	@echo "customtkinter チェック中..."
+	@$(PYTHON) -c "import customtkinter; print('✓ customtkinter:', customtkinter.__version__)" || echo "✗ customtkinter: 利用不可 - pip install customtkinter が必要"
 	@echo "OpenCV チェック中..."
 	@$(PYTHON) -c "import cv2; print('✓ OpenCV:', cv2.__version__)" || echo "✗ OpenCV: 利用不可"
 	@echo "ディスプレイ環境チェック中..."
@@ -168,6 +170,6 @@ clean-all: clean ## 仮想環境を含む全ての一時ファイルを削除
 
 # 開発用のクイックスタート
 .PHONY: dev
-dev: setup ## 開発環境を構築してPhoto Organizer GUIを起動
+dev: setup ## 開発環境を構築してPhoto Organizer GUI を起動
 	@echo "開発環境構築後、Photo Organizer GUI を起動します..."
 	$(MAKE) run-photo-organizer

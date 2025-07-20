@@ -1,40 +1,44 @@
 #!/usr/bin/env python3
 """
-ファイル整理ツール GUI
-- ファイルを日付・拡張子ごとに整理
-- move/main.pyの機能をGUIで提供
+ファイル整理ツール GUI (CustomTkinter版)
+- モダンなUIでファイルを日付・拡張子ごとに整理
+- move/main.pyの機能をカスタムtkinterGUIで提供
 """
 
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk, scrolledtext
+import customtkinter as ctk
+from tkinter import filedialog, messagebox
 import subprocess
 import threading
 import sys
 import os
 from pathlib import Path
 
+# CustomTkinter の外観設定
+ctk.set_appearance_mode("auto")  # "dark", "light", "auto"
+ctk.set_default_color_theme("blue")  # "blue", "green", "dark-blue"
 
-class FileOrganizerGUI:
+
+class ModernFileOrganizerGUI:
     def __init__(self):
-        self.root = tk.Tk()
+        self.root = ctk.CTk()
         self.setup_window()
         self.setup_variables()
         self.setup_widgets()
 
     def setup_window(self):
         """ウィンドウの基本設定"""
-        self.root.title("ファイル整理ツール")
-        self.root.geometry("700x700")
+        self.root.title("📁 ファイル整理ツール (Modern)")
+        self.root.geometry("800x750")
         self.root.resizable(True, True)
 
     def setup_variables(self):
         """変数の初期化"""
-        self.import_dir = tk.StringVar(value=".")
-        self.export_dir = tk.StringVar(value="./export")
-        self.suffix = tk.StringVar()
-        self.log_path = tk.StringVar()
-        self.dry_run_var = tk.BooleanVar(value=True)  # デフォルトでオン
-        self.verbose_var = tk.BooleanVar()
+        self.import_dir = ctk.StringVar(value=".")
+        self.export_dir = ctk.StringVar(value="./export")
+        self.suffix = ctk.StringVar()
+        self.log_path = ctk.StringVar()
+        self.dry_run_var = ctk.BooleanVar(value=True)  # デフォルトでオン
+        self.verbose_var = ctk.BooleanVar()
 
         # インポートディレクトリが変更された時にエクスポートディレクトリも更新
         self.import_dir.trace_add("write", self.on_import_dir_changed)
@@ -42,8 +46,16 @@ class FileOrganizerGUI:
     def setup_widgets(self):
         """ウィジェットの配置"""
         # メインフレーム
-        main_frame = tk.Frame(self.root, padx=15, pady=15)
-        main_frame.pack(fill="both", expand=True)
+        main_frame = ctk.CTkScrollableFrame(self.root)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # タイトル
+        title_label = ctk.CTkLabel(
+            main_frame,
+            text="📁 ファイル整理ツール",
+            font=ctk.CTkFont(size=24, weight="bold"),
+        )
+        title_label.pack(pady=(0, 20))
 
         # ディレクトリ選択セクション
         self.create_directory_section(main_frame)
@@ -71,148 +83,162 @@ class FileOrganizerGUI:
 
     def create_directory_section(self, parent):
         """ディレクトリ選択セクション"""
-        dir_frame = tk.LabelFrame(parent, text="📁 ディレクトリ設定", padx=10, pady=8)
-        dir_frame.pack(fill="x", pady=(0, 10))
+        dir_frame = ctk.CTkFrame(parent)
+        dir_frame.pack(fill="x", pady=(0, 15))
+
+        # セクションタイトル
+        ctk.CTkLabel(
+            dir_frame,
+            text="📂 ディレクトリ設定",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).pack(anchor="w", padx=20, pady=(15, 10))
 
         # インポートディレクトリ
-        import_frame = tk.Frame(dir_frame)
-        import_frame.pack(fill="x", pady=(0, 8))
+        import_frame = ctk.CTkFrame(dir_frame)
+        import_frame.pack(fill="x", padx=20, pady=(0, 10))
 
-        tk.Label(import_frame, text="インポート元:", width=12, anchor="w").pack(
-            side="left"
+        ctk.CTkLabel(import_frame, text="インポート元:", width=100).pack(
+            side="left", padx=(10, 10), pady=10
         )
-        self.import_entry = tk.Entry(
-            import_frame, textvariable=self.import_dir, font=("Arial", 10)
+        self.import_entry = ctk.CTkEntry(import_frame, textvariable=self.import_dir)
+        self.import_entry.pack(
+            side="left", fill="x", expand=True, padx=(0, 10), pady=10
         )
-        self.import_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(
-            import_frame, text="参照...", command=self.choose_import_directory
-        ).pack(side="right")
+        ctk.CTkButton(
+            import_frame, text="参照...", command=self.choose_import_directory, width=80
+        ).pack(side="right", padx=(0, 10), pady=10)
 
         # エクスポートディレクトリ
-        export_frame = tk.Frame(dir_frame)
-        export_frame.pack(fill="x")
+        export_frame = ctk.CTkFrame(dir_frame)
+        export_frame.pack(fill="x", padx=20, pady=(0, 10))
 
-        tk.Label(export_frame, text="エクスポート先:", width=12, anchor="w").pack(
-            side="left"
+        ctk.CTkLabel(export_frame, text="エクスポート先:", width=100).pack(
+            side="left", padx=(10, 10), pady=10
         )
-        self.export_entry = tk.Entry(
-            export_frame, textvariable=self.export_dir, font=("Arial", 10)
+        self.export_entry = ctk.CTkEntry(export_frame, textvariable=self.export_dir)
+        self.export_entry.pack(
+            side="left", fill="x", expand=True, padx=(0, 10), pady=10
         )
-        self.export_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(
-            export_frame, text="参照...", command=self.choose_export_directory
-        ).pack(side="right")
+        ctk.CTkButton(
+            export_frame, text="参照...", command=self.choose_export_directory, width=80
+        ).pack(side="right", padx=(0, 10), pady=10)
 
         # ファイル統計
-        self.stats_label = tk.Label(dir_frame, text="", font=("Arial", 9), fg="gray")
-        self.stats_label.pack(anchor="w", pady=(8, 0))
+        self.stats_label = ctk.CTkLabel(dir_frame, text="", text_color="gray")
+        self.stats_label.pack(anchor="w", padx=20, pady=(0, 15))
 
     def create_extension_section(self, parent):
         """拡張子選択セクション"""
-        ext_frame = tk.LabelFrame(parent, text="📄 拡張子設定", padx=10, pady=8)
-        ext_frame.pack(fill="x", pady=(0, 10))
+        ext_frame = ctk.CTkFrame(parent)
+        ext_frame.pack(fill="x", pady=(0, 15))
+
+        ctk.CTkLabel(
+            ext_frame, text="📄 拡張子設定", font=ctk.CTkFont(size=16, weight="bold")
+        ).pack(anchor="w", padx=20, pady=(15, 10))
 
         # 拡張子選択
-        suffix_frame = tk.Frame(ext_frame)
-        suffix_frame.pack(fill="x")
+        suffix_frame = ctk.CTkFrame(ext_frame)
+        suffix_frame.pack(fill="x", padx=20, pady=(0, 10))
 
-        tk.Label(suffix_frame, text="拡張子:", width=12, anchor="w").pack(side="left")
-        self.suffix_entry = tk.Entry(
-            suffix_frame, textvariable=self.suffix, font=("Arial", 10)
+        ctk.CTkLabel(suffix_frame, text="拡張子:", width=100).pack(
+            side="left", padx=(10, 10), pady=10
         )
-        self.suffix_entry.pack(side="left", fill="x", expand=True, padx=(5, 5))
-        tk.Button(suffix_frame, text="すべて", command=self.clear_suffix).pack(
-            side="right"
+        self.suffix_entry = ctk.CTkEntry(suffix_frame, textvariable=self.suffix)
+        self.suffix_entry.pack(
+            side="left", fill="x", expand=True, padx=(0, 10), pady=10
         )
+        ctk.CTkButton(
+            suffix_frame, text="すべて", command=self.clear_suffix, width=80
+        ).pack(side="right", padx=(0, 10), pady=10)
 
         # 説明
-        tk.Label(
+        ctk.CTkLabel(
             ext_frame,
             text="※ 空欄の場合、すべての対応拡張子を処理します",
-            font=("Arial", 9),
-            fg="gray",
-        ).pack(anchor="w", pady=(5, 0))
+            text_color="gray",
+        ).pack(anchor="w", padx=20, pady=(0, 15))
 
     def create_options_section(self, parent):
         """オプションセクション"""
-        options_frame = tk.LabelFrame(parent, text="⚙️ オプション", padx=10, pady=8)
-        options_frame.pack(fill="x", pady=(0, 10))
+        options_frame = ctk.CTkFrame(parent)
+        options_frame.pack(fill="x", pady=(0, 15))
 
-        tk.Checkbutton(
+        ctk.CTkLabel(
+            options_frame, text="⚙️ オプション", font=ctk.CTkFont(size=16, weight="bold")
+        ).pack(anchor="w", padx=20, pady=(15, 10))
+
+        ctk.CTkCheckBox(
             options_frame,
             text="ドライラン（実行しない）",
             variable=self.dry_run_var,
-            font=("Arial", 10),
-        ).pack(anchor="w")
+        ).pack(anchor="w", padx=20, pady=5)
 
-        tk.Checkbutton(
+        ctk.CTkCheckBox(
             options_frame,
             text="詳細出力",
             variable=self.verbose_var,
-            font=("Arial", 10),
-        ).pack(anchor="w")
+        ).pack(anchor="w", padx=20, pady=(5, 15))
 
     def create_log_section(self, parent):
         """ログファイルセクション"""
-        log_frame = tk.LabelFrame(
-            parent, text="📝 ログファイル（任意）", padx=10, pady=8
-        )
-        log_frame.pack(fill="x", pady=(0, 10))
+        log_frame = ctk.CTkFrame(parent)
+        log_frame.pack(fill="x", pady=(0, 15))
 
-        entry_frame = tk.Frame(log_frame)
-        entry_frame.pack(fill="x")
+        ctk.CTkLabel(
+            log_frame,
+            text="📝 ログファイル（任意）",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).pack(anchor="w", padx=20, pady=(15, 10))
 
-        tk.Entry(entry_frame, textvariable=self.log_path, font=("Arial", 10)).pack(
-            side="left", fill="x", expand=True
+        entry_frame = ctk.CTkFrame(log_frame)
+        entry_frame.pack(fill="x", padx=20, pady=(0, 15))
+
+        ctk.CTkEntry(entry_frame, textvariable=self.log_path).pack(
+            side="left", fill="x", expand=True, padx=(10, 10), pady=10
         )
-        tk.Button(entry_frame, text="選択...", command=self.choose_logfile).pack(
-            side="right", padx=(5, 0)
-        )
+        ctk.CTkButton(
+            entry_frame, text="選択...", command=self.choose_logfile, width=80
+        ).pack(side="right", padx=(0, 10), pady=10)
 
     def create_execute_button(self, parent):
         """実行ボタン"""
-        tk.Button(
+        self.execute_btn = ctk.CTkButton(
             parent,
             text="🚀 ファイル整理を実行",
             command=self.execute_process,
-            bg="#4CAF50",
-            fg="white",
-            font=("Arial", 12, "bold"),
-            height=2,
-            cursor="hand2",
-        ).pack(pady=15)
+            font=ctk.CTkFont(size=16, weight="bold"),
+            height=50,
+        )
+        self.execute_btn.pack(pady=20)
 
     def create_progress_section(self, parent):
         """進捗セクション"""
-        progress_frame = tk.Frame(parent)
-        progress_frame.pack(fill="x", pady=(0, 10))
+        progress_frame = ctk.CTkFrame(parent)
+        progress_frame.pack(fill="x", pady=(0, 15))
 
-        self.progress_bar = ttk.Progressbar(progress_frame, mode="indeterminate")
-        self.progress_bar.pack(fill="x", pady=(0, 5))
+        self.progress_bar = ctk.CTkProgressBar(progress_frame)
+        self.progress_bar.pack(fill="x", padx=20, pady=(15, 5))
+        self.progress_bar.set(0)
 
-        self.status_label = tk.Label(
-            progress_frame, text="⏳ 待機中", font=("Arial", 10), fg="#666"
+        self.status_label = ctk.CTkLabel(
+            progress_frame, text="⏳ 待機中", text_color="gray"
         )
-        self.status_label.pack()
+        self.status_label.pack(padx=20, pady=(0, 15))
 
     def create_output_section(self, parent):
         """出力セクション"""
-        output_frame = tk.LabelFrame(parent, text="📄 実行ログ", padx=10, pady=8)
-        output_frame.pack(fill="both", expand=True, pady=(0, 10))
+        output_frame = ctk.CTkFrame(parent)
+        output_frame.pack(fill="both", expand=True, pady=(0, 15))
 
-        self.output_text = scrolledtext.ScrolledText(
-            output_frame,
-            height=12,
-            font=("Courier New", 10),
-            bg="white",
-            fg="black",
-            wrap=tk.WORD,
-        )
-        self.output_text.pack(fill="both", expand=True)
+        ctk.CTkLabel(
+            output_frame, text="📄 実行ログ", font=ctk.CTkFont(size=16, weight="bold")
+        ).pack(anchor="w", padx=20, pady=(15, 10))
+
+        self.output_text = ctk.CTkTextbox(output_frame, height=200)
+        self.output_text.pack(fill="both", expand=True, padx=20, pady=(0, 15))
 
         # 初期メッセージ
-        self.add_log("ファイル整理ツール")
+        self.add_log("📁 ファイル整理ツール (Modern UI)")
         self.add_log("使用方法:")
         self.add_log("1. インポート元とエクスポート先を設定")
         self.add_log("2. 拡張子を指定（任意）")
@@ -222,22 +248,24 @@ class FileOrganizerGUI:
 
     def create_extension_info_section(self, parent):
         """拡張子情報セクション"""
-        info_frame = tk.LabelFrame(parent, text="📚 対応拡張子", padx=10, pady=8)
+        info_frame = ctk.CTkFrame(parent)
         info_frame.pack(fill="x")
+
+        ctk.CTkLabel(
+            info_frame, text="📚 対応拡張子", font=ctk.CTkFont(size=16, weight="bold")
+        ).pack(anchor="w", padx=20, pady=(15, 10))
 
         # 対応拡張子の情報表示
         extensions_text = self.get_supported_extensions_text()
-        tk.Label(
+        ctk.CTkLabel(
             info_frame,
             text=extensions_text,
-            font=("Arial", 9),
-            fg="gray",
+            text_color="gray",
             justify="left",
-        ).pack(anchor="w")
+        ).pack(anchor="w", padx=20, pady=(0, 15))
 
     def get_supported_extensions_text(self):
         """対応拡張子のテキストを取得"""
-        # main.pyから拡張子情報を読み込む
         extensions = {
             "画像": ["JPEG", "JPG", "PNG", "GIF", "BMP", "HIF", "ARW"],
             "動画": ["MOV", "MP4", "MPG", "MTS", "LRF", "LRV"],
@@ -256,13 +284,13 @@ class FileOrganizerGUI:
 
     def add_log(self, message):
         """ログメッセージを追加"""
-        self.output_text.insert(tk.END, message + "\n")
-        self.output_text.see(tk.END)
+        self.output_text.insert("end", message + "\n")
+        self.output_text.see("end")
         self.root.update_idletasks()
 
     def clear_log(self):
         """ログをクリア"""
-        self.output_text.delete(1.0, tk.END)
+        self.output_text.delete("1.0", "end")
 
     def choose_import_directory(self):
         """インポートディレクトリを選択"""
@@ -318,7 +346,7 @@ class FileOrganizerGUI:
     def update_file_stats(self):
         """ファイル統計を更新"""
         if not self.import_dir.get() or not os.path.exists(self.import_dir.get()):
-            self.stats_label.config(text="")
+            self.stats_label.configure(text="")
             return
 
         try:
@@ -337,12 +365,12 @@ class FileOrganizerGUI:
             top_exts = sorted(ext_counts.items(), key=lambda x: x[1], reverse=True)[:3]
             ext_text = ", ".join([f"{ext}({count})" for ext, count in top_exts])
 
-            self.stats_label.config(
+            self.stats_label.configure(
                 text=f"📁 総ファイル数: {total_files}個  主要拡張子: {ext_text}"
             )
 
         except Exception as e:
-            self.stats_label.config(text=f"⚠️ エラー: {str(e)}")
+            self.stats_label.configure(text=f"⚠️ エラー: {str(e)}")
 
     def validate_inputs(self):
         """入力値を検証"""
@@ -389,8 +417,10 @@ class FileOrganizerGUI:
         """ファイル整理処理を実行"""
         try:
             # UI更新
+            self.progress_bar.set(0.1)
             self.progress_bar.start()
-            self.status_label.config(text="🔄 処理中...")
+            self.status_label.configure(text="🔄 処理中...")
+            self.execute_btn.configure(state="disabled")
             self.clear_log()
 
             # コマンド構築
@@ -430,18 +460,19 @@ class FileOrganizerGUI:
                     self.add_log(line.rstrip())
 
             process.wait()
+            self.progress_bar.set(1.0)
 
             # 結果表示
             self.add_log("=" * 50)
             if process.returncode == 0:
                 self.add_log("✅ ファイル整理が正常に完了しました")
-                self.status_label.config(text="✅ 完了")
+                self.status_label.configure(text="✅ 完了")
                 messagebox.showinfo("完了", "ファイル整理が正常に完了しました")
             else:
                 self.add_log(
                     f"❌ 処理がエラーで終了しました (終了コード: {process.returncode})"
                 )
-                self.status_label.config(text="❌ エラー")
+                self.status_label.configure(text="❌ エラー")
                 messagebox.showerror(
                     "エラー",
                     f"処理がエラーで終了しました\n終了コード: {process.returncode}",
@@ -449,11 +480,12 @@ class FileOrganizerGUI:
 
         except Exception as e:
             self.add_log(f"❌ 実行エラー: {str(e)}")
-            self.status_label.config(text="❌ エラー")
+            self.status_label.configure(text="❌ エラー")
             messagebox.showerror("エラー", f"実行エラー:\n{str(e)}")
 
         finally:
             self.progress_bar.stop()
+            self.execute_btn.configure(state="normal")
 
     def run(self):
         """アプリケーションを起動"""
@@ -462,7 +494,7 @@ class FileOrganizerGUI:
 
 def main():
     """メイン関数"""
-    app = FileOrganizerGUI()
+    app = ModernFileOrganizerGUI()
     app.run()
 
 
