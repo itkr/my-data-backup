@@ -1,6 +1,14 @@
 import os
+import sys
 import shutil
 import click
+
+# プロジェクトルートをパスに追加
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+
+from common.logger import UnifiedLogger
 
 # デフォルト値を定数として定義
 DEFAULT_RAW_DIR = "ARW"
@@ -194,6 +202,16 @@ def cli(
     log_file,
 ):
     """Sync RAW/ folder structure to match JPG/ structure in ROOT_DIR."""
+
+    # ログ機能を初期化
+    logger = UnifiedLogger(name="photo_organizer", log_file=log_file, console=True)
+
+    logger.info("🎯 Photo Organizer ツールを開始")
+    logger.info(f"📁 処理ディレクトリ: {root_dir}")
+    logger.info(f"🎞️ RAW ディレクトリ: {raw_dir}")
+    logger.info(f"📸 JPG ディレクトリ: {jpg_dir}")
+    logger.info(f"🔄 ドライラン: {'有効' if dry_run else '無効'}")
+
     # 初期化処理
     raw_ext_list, jpg_ext_list, raw_dir_path, jpg_dir_path, orphan_dir = (
         initialize_sync(

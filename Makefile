@@ -159,6 +159,7 @@ clean: ## 一時ファイルを削除
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name ".DS_Store" -delete
+	find . -type f -name "*_old.py" -exec rm -f {} + 2>/dev/null || true
 	@echo "クリーンアップが完了しました"
 
 # 完全なクリーンアップ（仮想環境も削除）

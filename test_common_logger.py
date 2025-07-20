@@ -67,23 +67,9 @@ def test_unified_logger():
     Path(log_file).unlink()
 
 
-def test_backward_compatibility():
-    """後方互換性のテスト"""
-    print("\n=== Backward Compatibility Test ===")
-    
-    # photo_organizerのSyncLoggerと同じインターフェース
-    from photo_organizer.logger import SyncLogger
-    
-    logger = SyncLogger(console=True)
-    logger.info("SyncLogger compatibility test")
-    logger.success("Backward compatibility works!")
-    logger.progress("Migration completed")
-
-
 if __name__ == "__main__":
     test_console_logger()
     test_file_logger()
     test_unified_logger()
-    test_backward_compatibility()
     
     print("\n✅ All tests completed successfully!")

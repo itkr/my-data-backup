@@ -232,6 +232,16 @@ def main(import_dir, export_dir, suffix, dry_run, log_file, verbose):
     # ログ設定
     logger = setup_logging(log_file) if log_file else None
 
+    if logger:
+        logger.info("🚀 Move ツールを開始")
+        logger.info(f"📁 インポートディレクトリ: {import_dir}")
+        logger.info(f"📁 エクスポートディレクトリ: {export_dir}")
+        logger.info(f"🔄 ドライラン: {'有効' if dry_run else '無効'}")
+        if suffix:
+            logger.info(f"📄 対象拡張子: {suffix}")
+        else:
+            logger.info("📄 対象拡張子: すべての対応拡張子")
+
     # 開始メッセージ
     mode = "DRY RUN" if dry_run else "ACTUAL RUN"
     color_print(f"=== File Organizer ({mode}) ===", COLORS["blue"])
