@@ -10,9 +10,23 @@ REQUIREMENTS = requirements.txt
 # デフォルトターゲット
 .PHONY: help
 help: ## ヘルプを表示
-	@echo "利用可能なコマンド:"
+	@echo "=== 🐍 ローカル開発環境コマンド ==="
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "=== 🐳 Docker環境コマンド ==="
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*🐳.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[34m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "=== 📱 Docker アプリケーション実行 ==="
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*(📸|📁|🎨).*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[35m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "=== 🔧 Docker 管理・監視 ==="
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*(📊|📋|🐚|🧹).*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[33m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "💡 詳細なDockerヘルプ: make docker-help"
 
 # 仮想環境構築
 .PHONY: venv
@@ -174,3 +188,49 @@ clean-all: clean ## 仮想環境を含む全ての一時ファイルを削除
 dev: setup ## 開発環境を構築してPhoto Organizer GUI を起動
 	@echo "開発環境構築後、Photo Organizer GUI を起動します..."
 	$(MAKE) run-photo-organizer
+
+# ================================
+# Docker コマンドエイリアス
+# ================================
+
+# Docker環境の管理
+.PHONY: docker-help docker-build-image docker-run-cli docker-run-gui
+docker-help: ## 🐳 Dockerコマンドのヘルプを表示
+	@$(MAKE) -f Makefile.docker help
+
+docker-build-image: ## 🐳 Dockerイメージをビルド
+	@$(MAKE) -f Makefile.docker docker-build
+
+docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動
+	@$(MAKE) -f Makefile.docker docker-run
+
+docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動
+	@$(MAKE) -f Makefile.docker docker-gui
+
+# Dockerでアプリケーション実行
+.PHONY: docker-photo docker-move docker-photo-gui docker-move-gui
+docker-photo: ## 📸 Photo Organizer CLI をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-photo-organizer
+
+docker-move: ## 📁 Move CLI をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-move
+
+docker-photo-gui: ## 🎨 Photo Organizer GUI をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-photo-organizer-gui
+
+docker-move-gui: ## 🎨 Move GUI をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-move-gui
+
+# Docker管理
+.PHONY: docker-status docker-logs docker-shell docker-clean-docker
+docker-status: ## 📊 Docker環境の状態確認
+	@$(MAKE) -f Makefile.docker docker-status
+
+docker-logs: ## 📋 Dockerコンテナのログを表示
+	@$(MAKE) -f Makefile.docker docker-logs
+
+docker-shell: ## 🐚 Dockerコンテナのシェルにアクセス
+	@$(MAKE) -f Makefile.docker docker-shell
+
+docker-clean-docker: ## 🧹 Dockerコンテナ・イメージをクリーンアップ
+	@$(MAKE) -f Makefile.docker docker-clean-all

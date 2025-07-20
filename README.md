@@ -65,6 +65,20 @@ make setup
 make info
 ```
 
+### 4. Docker での使用（推奨）
+```bash
+# Dockerイメージをビルド
+docker-compose build
+
+# CLIモードで起動
+docker-compose up -d my-data-backup-cli
+
+# GUIモードで起動（macOS/Linux）
+./docker-gui.sh
+```
+
+詳細なDocker使用方法は [DOCKER.md](DOCKER.md) を参照してください。
+
 ## 🎮 使用方法
 
 ### GUI での使用

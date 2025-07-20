@@ -1,0 +1,75 @@
+# Docker用 .dockerignore
+# Dockerイメージから除外するファイル・ディレクトリを指定
+
+# Python関連
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# 開発環境
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ログファイル
+*.log
+logs/
+*.log.*
+
+# 一時ファイル
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# テストデータ
+test_data/
+sample_data/
+*/test/
+**/test_data/
+
+# 設定ファイル（機密情報を含む可能性）
+.env
+.env.local
+config.local.json
+
+# ドキュメント生成
+docs/_build/
+site/
+
+# 依存関係（Dockerで再インストール）
+node_modules/
+
+# ビルド成果物
+dist/
+build/
+*.egg-info/
+
+# キャッシュ
+.cache/
+.pytest_cache/
+
+# Docker関連（ネストを避ける）
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# プロジェクト固有
+data/
+export/
+*.arw
+*.jpg
+*.jpeg
+*.png
+*.mov
+*.mp4
