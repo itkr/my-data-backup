@@ -85,12 +85,12 @@ docker-compose up -d my-data-backup-cli
 
 #### Photo Organizer GUI
 ```bash
-make run-photo-organizer
+make run-photo-organizer-gui
 ```
 
 #### Move GUI
 ```bash
-make run-move
+make run-move-gui
 ```
 
 ### CLI での使用
@@ -98,19 +98,19 @@ make run-move
 #### Photo Organizer CLI
 ```bash
 # 基本的な使用方法
-make photo-cli SRC=/path/to/source DIR=/path/to/output
+make run-photo-organizer SRC=/path/to/source DIR=/path/to/output
 
 # 実際の例
-make photo-cli SRC=~/Pictures/Camera DIR=~/Pictures/Organized
+make run-photo-organizer SRC=~/Pictures/Camera DIR=~/Pictures/Organized
 ```
 
 #### Move CLI
 ```bash
 # 基本的な使用方法
-make move-cli SRC=/path/to/source DEST=/path/to/destination
+make run-move SRC=/path/to/source DEST=/path/to/destination
 
 # 実際の例
-make move-cli SRC=~/Downloads DEST=~/Documents/Organized
+make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ```
 
 ## 📋 Makefile コマンド一覧
@@ -126,13 +126,22 @@ make move-cli SRC=~/Downloads DEST=~/Documents/Organized
 ### 🚀 アプリケーション実行
 | コマンド | 説明 |
 |----------|------|
-| `make run-photo-organizer` | Photo Organizer GUI を起動 |
-| `make run-move` | Move GUI を起動 |
-| `make photo-cli SRC=<path> DIR=<path>` | Photo Organizer CLI を実行 |
-| `make move-cli SRC=<path> DEST=<path>` | Move CLI を実行 |
+| `make run-photo-organizer-gui` | Photo Organizer GUI を起動 |
+| `make run-move-gui` | Move GUI を起動 |
+| `make run-photo-organizer SRC=<path> DIR=<path>` | Photo Organizer CLI を実行 |
+| `make run-move SRC=<path> DEST=<path>` | Move CLI を実行 |
 | `make dev` | 開発環境構築 + Photo Organizer GUI 起動 |
 
-### 🛠️ 開発用コマンド
+### 🐳 Docker でのアプリケーション実行
+| コマンド | 説明 |
+|----------|------|
+| `make docker-run-photo-organizer-gui` | Photo Organizer GUI をDockerで起動 |
+| `make docker-run-move-gui` | Move GUI をDockerで起動 |
+| `make docker-run-photo-organizer` | Photo Organizer CLI をDockerで実行 |
+| `make docker-run-move` | Move CLI をDockerで実行 |
+| `make docker-help` | Docker専用ヘルプを表示 |
+
+### ️ 開発用コマンド
 | コマンド | 説明 |
 |----------|------|
 | `make format` | コードを black でフォーマット |
@@ -208,19 +217,19 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 make setup
 
 # 2. Photo Organizer GUI で RAW/JPG を同期
-make run-photo-organizer
+make run-photo-organizer-gui
 
 # 3. Move GUI で日付ごとに整理
-make run-move
+make run-move-gui
 ```
 
 ### 2. CLI でのバッチ処理
 ```bash
 # RAW/JPG の同期処理
-make photo-cli SRC=~/Pictures/Camera DIR=~/Pictures/Organized
+make run-photo-organizer SRC=~/Pictures/Camera DIR=~/Pictures/Organized
 
 # 日付ごとの整理
-make move-cli SRC=~/Pictures/Organized DEST=~/Pictures/Archive
+make run-move SRC=~/Pictures/Organized DEST=~/Pictures/Archive
 ```
 
 ## 📝 ログ機能

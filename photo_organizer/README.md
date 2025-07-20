@@ -30,43 +30,76 @@ pip install -r requirements.txt
 
 ## 使用方法
 
-### GUI版の使用
+### Makefileを使用（推奨）
 
+#### GUI版の実行
 ```bash
-cd photo_organizer
-python gui.py
+# プロジェクトルートから
+make run-photo-organizer-gui
 ```
 
-GUI版の特徴:
+#### CLI版の実行
+```bash
+# プロジェクトルートから
+make run-photo-organizer SRC=/path/to/source DIR=/path/to/output
+
+# 例
+make run-photo-organizer SRC=~/Pictures/Camera DIR=~/Pictures/Organized
+```
+
+### 直接Pythonで実行
+
+#### GUI版の使用
+
+```bash
+# プロジェクトルートから実行
+PYTHONPATH=/path/to/my-data-backup python photo_organizer/gui.py
+```
+
+#### CLI版の使用
+
+```bash
+# プロジェクトルートから実行
+PYTHONPATH=/path/to/my-data-backup python photo_organizer/main.py [オプション]
+```
+
+#### GUI版の特徴:
 - 📊 **リアルタイム進捗**: 処理の進捗をリアルタイムで表示
 - 📈 **統計情報**: ファイル数やディレクトリ情報を事前表示
 - 🎨 **視覚的操作**: 直感的なインターフェース
 - 📄 **ログ表示**: 処理結果をGUI内で確認
 
-### CLI版の使用
-
-```bash
-cd photo_organizer
-python main.py [オプション]
-```
-
 #### 基本的な使用例
 
 ```bash
-# 基本的な同期（移動）
-python main.py --root-dir /path/to/photos
+# Makefileを使用（推奨）
+make run-photo-organizer-gui  # GUI版
+make run-photo-organizer SRC=/path/to/photos DIR=/path/to/output  # CLI版
+
+# 直接Python実行（プロジェクトルートから）
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos
 
 # ドライラン（実行せずに確認）
-python main.py --root-dir /path/to/photos --dry-run
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos --dry-run
 
 # ファイルをコピー（移動しない）
-python main.py --root-dir /path/to/photos --copy
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos --copy
 
 # 孤立RAWファイルを隔離
-python main.py --root-dir /path/to/photos --isolate-orphans
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos --isolate-orphans
 
 # ログファイルを作成
-python main.py --root-dir /path/to/photos --log-file sync.log
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos --log-file sync.log
+```
+
+### Docker での実行
+
+```bash
+# GUI版
+make docker-run-photo-organizer-gui
+
+# CLI版
+make docker-run-photo-organizer
 ```
 
 #### オプション詳細
@@ -196,8 +229,11 @@ photos/
 ### ログの確認
 
 ```bash
-# ログファイルを指定して実行
-python main.py --root-dir /path/to/photos --log-file sync.log
+# Makefileを使用してログファイルを指定
+# (注意: Makefileでは直接ログオプションは提供されていません。直接Python実行を使用してください)
+
+# 直接Python実行でログファイルを指定
+PYTHONPATH=$(pwd) python photo_organizer/main.py --root-dir /path/to/photos --log-file sync.log
 
 # ログファイルの内容を確認
 cat sync.log
@@ -208,14 +244,14 @@ cat sync.log
 ### 開発環境のセットアップ
 
 ```bash
-# 開発用依存関係のインストール
-pip install -r requirements.txt
+# プロジェクトルートから開発環境をセットアップ
+make setup
 
 # コードフォーマット
-black photo_organizer/
+make format
 
-# テスト実行
-python -m pytest tests/
+# 共通ログ機構のテスト
+make test-logger
 ```
 
 ### プロジェクト構造

@@ -18,18 +18,38 @@ pip install click
 
 ## 使用方法
 
-### 基本的な使用方法
+### Makefileを使用（推奨）
+
+#### GUI版の実行
+```bash
+# プロジェクトルートから
+make run-move-gui
+```
+
+#### CLI版の実行
+```bash
+# プロジェクトルートから
+make run-move SRC=/path/to/source DEST=/path/to/destination
+
+# 例
+make run-move SRC=~/Downloads DEST=~/Documents/Organized
+```
+
+### 直接Pythonで実行
+
+#### 基本的な使用方法
 
 ```bash
-python main.py --import_dir /path/to/source --export_dir /path/to/destination
+# プロジェクトルートから実行
+PYTHONPATH=/path/to/my-data-backup python move/main.py --import-dir /path/to/source --export-dir /path/to/destination
 ```
 
 ### オプション
 
 | オプション | 説明 | デフォルト |
 |-----------|------|----------|
-| `--import_dir` | 整理元ディレクトリ | 現在のディレクトリ |
-| `--export_dir` | 整理先ディレクトリ | "export" |
+| `--import-dir` | 整理元ディレクトリ | 現在のディレクトリ |
+| `--export-dir` | 整理先ディレクトリ | "export" |
 | `--suffix` | 特定の拡張子のみ処理 | 全対応拡張子 |
 | `--dry-run` | 実際の移動を行わず、処理内容を表示 | False |
 | `--log-file` | ログファイルのパス | なし |
@@ -37,22 +57,46 @@ python main.py --import_dir /path/to/source --export_dir /path/to/destination
 
 ### 使用例
 
-#### 1. ドライランで処理内容を確認
+#### 1. Makefileを使用（推奨）
 
 ```bash
-python main.py --import_dir ./photos --export_dir ./organized --dry-run
+# GUI版で実行
+make run-move-gui
+
+# CLI版で実行
+make run-move SRC=./photos DEST=./organized
+
+# ドライランで確認（直接Python実行）
+PYTHONPATH=$(pwd) python move/main.py --import-dir ./photos --export-dir ./organized --dry-run
 ```
 
-#### 2. 特定の拡張子のみ処理
+#### 2. 直接Python実行（プロジェクトルートから）
 
 ```bash
-python main.py --import_dir ./photos --export_dir ./organized --suffix jpg
+# ドライランで処理内容を確認
+PYTHONPATH=$(pwd) python move/main.py --import-dir ./photos --export-dir ./organized --dry-run
 ```
 
-#### 3. ログ出力付きで実行
+#### 3. 特定の拡張子のみ処理
 
 ```bash
-python main.py --import_dir ./photos --export_dir ./organized --log-file organize.log --verbose
+PYTHONPATH=$(pwd) python move/main.py --import-dir ./photos --export-dir ./organized --suffix jpg
+```
+
+#### 4. ログ出力付きで実行
+
+```bash
+PYTHONPATH=$(pwd) python move/main.py --import-dir ./photos --export-dir ./organized --log-file organize.log --verbose
+```
+
+### Docker での実行
+
+```bash
+# GUI版
+make docker-run-move-gui
+
+# CLI版
+make docker-run-move
 ```
 
 ## ディレクトリ構造

@@ -41,8 +41,8 @@ docker-compose up -d my-data-backup-cli
 docker exec -it my-data-backup-cli bash
 
 # ツールを実行
-make run-photo-organizer
-make run-move
+make run-photo-organizer-gui  # Photo Organizer GUI
+make run-move-gui             # Move GUI
 ```
 
 #### GUIモードの場合
@@ -122,12 +122,29 @@ docker exec -it my-data-backup-gui python photo_organizer/gui.py
 
 ## 📋 利用可能なコマンド
 
-### Makefileコマンド（Docker拡張）
+### Makefileコマンド（統一インターフェース）
 
 ```bash
-# Dockerイメージをビルド
-make -f Makefile.docker docker-build
+# 新しい統一コマンド（推奨）
+# Photo Organizer CLI をDockerで実行
+make docker-run-photo-organizer
 
+# Move CLI をDockerで実行
+make docker-run-move
+
+# Photo Organizer GUI をDockerで実行
+make docker-run-photo-organizer-gui
+
+# Move GUI をDockerで実行
+make docker-run-move-gui
+
+# Docker専用ヘルプを表示
+make docker-help
+```
+
+### Makefile.docker直接実行
+
+```bash
 # CLIモードでコンテナを起動
 make -f Makefile.docker docker-run
 

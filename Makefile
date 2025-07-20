@@ -78,33 +78,33 @@ setup: venv install ## 🏗️ 開発環境を初期セットアップ
 	@echo "  make move-cli            # Move CLI"
 
 # Photo Organizer GUI を実行
-.PHONY: run-photo-organizer
-run-photo-organizer: venv check-env ## 🚀 Photo Organizer GUI を実行
+.PHONY: run-photo-organizer-gui
+run-photo-organizer-gui: venv check-env ## 🚀 Photo Organizer GUI を実行
 	@echo "Photo Organizer GUI を起動中..."
 	cd photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
 # Move GUI を実行
-.PHONY: run-move
-run-move: venv check-env ## 🚀 Move GUI を実行
+.PHONY: run-move-gui
+run-move-gui: venv check-env ## 🚀 Move GUI を実行
 	@echo "Move GUI を起動中..."
 	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
 # Photo Organizer CLI を実行
-.PHONY: photo-cli
-photo-cli: venv ## 🚀 Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
+.PHONY: run-photo-organizer
+run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
-		echo "使用方法: make photo-cli SRC=<ソースディレクトリ> DIR=<出力先ディレクトリ>"; \
-		echo "例: make photo-cli SRC=/path/to/source DIR=/path/to/output"; \
+		echo "使用方法: make run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力先ディレクトリ>"; \
+		echo "例: make run-photo-organizer SRC=/path/to/source DIR=/path/to/output"; \
 		exit 1; \
 	fi
 	cd photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DIR)"
 
 # Move CLI を実行
-.PHONY: move-cli
-move-cli: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先）
+.PHONY: run-move
+run-move: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
-		echo "使用方法: make move-cli SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
-		echo "例: make move-cli SRC=/path/to/source DEST=/path/to/destination"; \
+		echo "使用方法: make run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
+		echo "例: make run-move SRC=/path/to/source DEST=/path/to/destination"; \
 		exit 1; \
 	fi
 	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DEST)"
@@ -198,7 +198,7 @@ clean-all: clean ## ✨ 仮想環境を含む全ての一時ファイルを削�
 .PHONY: dev
 dev: setup ## 🎯 開発環境を構築してPhoto Organizer GUI を起動
 	@echo "開発環境構築後、Photo Organizer GUI を起動します..."
-	$(MAKE) run-photo-organizer
+	$(MAKE) run-photo-organizer-gui
 
 # ================================
 # Docker コマンドエイリアス
@@ -219,17 +219,17 @@ docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動
 	@$(MAKE) -f Makefile.docker docker-gui
 
 # Dockerでアプリケーション実行
-.PHONY: docker-photo docker-move docker-photo-gui docker-move-gui
-docker-photo: ## 📸 Photo Organizer CLI をDockerで実行
+.PHONY: docker-run-photo-organizer docker-run-move docker-run-photo-organizer-gui docker-run-move-gui
+docker-run-photo-organizer: ## 📸 Photo Organizer CLI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-photo-organizer
 
-docker-move: ## 📁 Move CLI をDockerで実行
+docker-run-move: ## 📁 Move CLI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-move
 
-docker-photo-gui: ## 🎨 Photo Organizer GUI をDockerで実行
+docker-run-photo-organizer-gui: ## 🎨 Photo Organizer GUI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-photo-organizer-gui
 
-docker-move-gui: ## 🎨 Move GUI をDockerで実行
+docker-run-move-gui: ## 🎨 Move GUI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-move-gui
 
 # Docker管理
