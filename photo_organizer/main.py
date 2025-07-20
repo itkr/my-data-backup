@@ -3,11 +3,6 @@ import sys
 import shutil
 import click
 
-# プロジェクトルートをパスに追加
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
-sys.path.insert(0, project_root)
-
 from common.logger import UnifiedLogger
 
 # デフォルト値を定数として定義

@@ -8,7 +8,6 @@ from typing import List, Optional
 import click
 
 # 共通ログ機構をインポート
-sys.path.append(str(Path(__file__).parent.parent))
 from common.logger import UnifiedLogger
 
 
