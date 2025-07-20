@@ -163,23 +163,6 @@ photos/
 - **ログ表示**: 処理結果をGUI内でリアルタイム表示
 - **設定保存**: 前回の設定を記憶
 
-## 設定ファイル
-
-`config.py`を使用してデフォルト設定をカスタマイズできます：
-
-```python
-DEFAULT_CONFIG = {
-    "raw_dir": "ARW",
-    "jpg_dir": "JPG", 
-    "raw_extensions": [".arw"],
-    "jpg_extensions": [".jpg", ".jpeg"],
-    "orphan_dir": "orphans",
-    "default_copy": False,
-    "default_isolate_orphans": False,
-    "default_dry_run": False,
-}
-```
-
 ## 対応ファイル形式
 
 ### RAWファイル
@@ -239,8 +222,6 @@ python -m pytest tests/
 
 ```
 photo_organizer/
-├── config.py              # 設定管理
-├── logger.py              # ログ機能
 ├── gui.py                 # GUI版
 └── main.py                # CLI版
 ```

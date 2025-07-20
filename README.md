@@ -34,9 +34,7 @@ my-data-backup/
 │   └── logger.py        # 統一ログ機構
 ├── photo_organizer/      # Photo Organizer ツール
 │   ├── main.py          # CLI インターフェース
-│   ├── gui.py           # GUI インターフェース
-│   ├── config.py        # 設定ファイル
-│   └── logger.py        # ログ機能（共通ログ機構を使用）
+│   └── gui.py           # GUI インターフェース
 └── move/                 # Move ツール
     ├── main.py          # CLI インターフェース
     └── gui.py           # GUI インターフェース
