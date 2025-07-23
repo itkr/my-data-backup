@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-0 \
     # その他の必要なパッケージ
     curl \
+    make \
     && rm -rf /var/lib/apt/lists/*
 
 # Pythonの依存関係をコピーしてインストール
@@ -33,9 +34,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # プロジェクトファイルをコピー
 COPY . .
-
-# 実行権限を設定
-RUN chmod +x Makefile
 
 # 環境変数を設定
 ENV PYTHONPATH=/app

@@ -50,15 +50,6 @@ venv: ## 🏗️ 仮想環境を作成（既に存在する場合はスキップ
 		echo "仮想環境を作成しました"; \
 	fi
 
-# 仮想環境を削除して再作成
-.PHONY: clean-venv
-clean-venv: ## 🏗️ 仮想環境を削除して再作成
-	@echo "仮想環境を削除中..."
-	rm -rf $(VENV_DIR)
-	@echo "仮想環境を再作成中..."
-	python3 -m venv $(VENV_DIR)
-	@echo "仮想環境を再作成しました"
-
 # 依存パッケージのインストール
 .PHONY: install
 install: venv ## 🏗️ 依存パッケージをインストール
@@ -186,6 +177,15 @@ clean: ## ✨ 一時ファイルを削除
 	find . -type f -name ".DS_Store" -delete
 	find . -type f -name "*_old.py" -exec rm -f {} + 2>/dev/null || true
 	@echo "クリーンアップが完了しました"
+
+# 仮想環境を削除して再作成
+.PHONY: clean-venv
+clean-venv: ## ✨ 仮想環境を削除して再作成
+	@echo "仮想環境を削除中..."
+	rm -rf $(VENV_DIR)
+	@echo "仮想環境を再作成中..."
+	python3 -m venv $(VENV_DIR)
+	@echo "仮想環境を再作成しました"
 
 # 完全なクリーンアップ（仮想環境も削除）
 .PHONY: clean-all
