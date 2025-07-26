@@ -4,8 +4,12 @@
 import tempfile
 from pathlib import Path
 
-from common.logger import (UnifiedLogger, create_console_logger,
-                           create_file_logger, create_logger)
+from common.logger import (
+    UnifiedLogger,
+    create_console_logger,
+    create_file_logger,
+    create_logger,
+)
 
 
 def test_console_logger():

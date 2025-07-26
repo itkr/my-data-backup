@@ -10,22 +10,22 @@ from tkinter import filedialog
 import customtkinter
 
 from src.app.gui.base.base_tab import BaseTab
-from src.app.services.move_service import MoveService
+from src.core.services.move_service import MoveService
 
 
 class MoveTab(BaseTab):
     """Move機能のタブクラス"""
 
-    def __init__(self, parent, config_manager, logger):
-        super().__init__(parent, config_manager, logger)
-
-        # Variables
+    def __init__(self, parent, logger):
+        # Variables (setup_widgets()で使用するため先に初期化)
         self.var_copy_mode = customtkinter.BooleanVar()
         self.var_dry_run = customtkinter.BooleanVar()
 
         # Move service
         self.move_service = None
         self.move_thread = None
+
+        super().__init__(parent, logger)
 
     def setup_widgets(self):
         """UI要素のセットアップ"""

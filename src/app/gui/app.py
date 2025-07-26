@@ -119,28 +119,20 @@ class UnifiedDataBackupApp:
         self.log_tab = self.tabview.add("📋 ログ")
         self.setup_log_tab()
 
-        # Photo Organizer Tab
-        self.setup_photo_organizer_tab()
-
     def setup_photo_organizer_tab(self):
         """Photo Organizer タブの設定"""
         from src.app.gui.modules.photo_organizer.tab import PhotoOrganizerTab
 
         self.photo_organizer_tab = PhotoOrganizerTab(
             parent=self.photo_tab,
-            config_manager=self.config_manager,
             logger=self.logger,
         )
-        self.photo_organizer_tab.setup_widgets()
 
     def setup_move_tab(self):
         """Move タブの設定"""
         from src.app.gui.modules.move.tab import MoveTab
 
-        self.move_tab_instance = MoveTab(
-            parent=self.move_tab, config_manager=self.config_manager, logger=self.logger
-        )
-        self.move_tab_instance.setup_widgets()
+        self.move_tab_instance = MoveTab(parent=self.move_tab, logger=self.logger)
 
     def setup_settings_tab(self):
         """設定タブの設定"""
@@ -265,15 +257,8 @@ class UnifiedDataBackupApp:
 
     def load_saved_settings(self):
         """保存された設定を読み込み"""
-        # 最後に使用したディレクトリを復元
-        if self.config.photo_last_source_dir:
-            self.photo_source_entry.insert(0, self.config.photo_last_source_dir)
-        if self.config.photo_last_output_dir:
-            self.photo_output_entry.insert(0, self.config.photo_last_output_dir)
-        if self.config.move_last_import_dir:
-            self.move_import_entry.insert(0, self.config.move_last_import_dir)
-        if self.config.move_last_export_dir:
-            self.move_export_entry.insert(0, self.config.move_last_export_dir)
+        # モジュール化後は各タブが独自に設定を管理
+        pass
 
     def select_directory(self, entry_widget, config_key: str):
         """ディレクトリ選択ダイアログ"""
@@ -419,192 +404,10 @@ class UnifiedDataBackupApp:
         self.config_info_text.delete("1.0", "end")
         self.config_info_text.insert("1.0", info_text)
 
-    def execute_photo_organizer(self):
-        """Photo Organizerを実行"""
-        if self.processing:
-            messagebox.showwarning("警告", "別の処理が実行中です")
-            return
-
-        source_dir = self.photo_source_entry.get().strip()
-        output_dir = self.photo_output_entry.get().strip()
-
-        if not source_dir or not output_dir:
-            messagebox.showerror(
-                "エラー", "ソースディレクトリと出力ディレクトリを選択してください"
-            )
-            return
-
-        if not Path(source_dir).exists():
-            messagebox.showerror(
-                "エラー", f"ソースディレクトリが存在しません: {source_dir}"
-            )
-            return
-
-        # 設定作成
-        config = OrganizationConfig(
-            dry_run=self.photo_dry_run_var.get(),
-            preserve_original=self.photo_preserve_var.get(),
-            log_operations=True,
-        )
-
-        # バックグラウンドで実行
-        self.processing = True
-        self.photo_execute_button.configure(state="disabled", text="🔄 実行中...")
-        self.update_status("📸 Photo Organizer実行中...")
-
-        def run_photo_organizer():
-            try:
-                result = self.photo_service.organize_photos(
-                    source_dir=Path(source_dir),
-                    target_dir=Path(output_dir),
-                    config=config,
-                    progress_callback=self.update_photo_progress,
-                )
-
-                # 結果表示
-                self.root.after(0, lambda: self.show_photo_result(result))
-
-            except Exception as error:
-                error_msg = str(error)
-                self.root.after(
-                    0, lambda: self.show_error("Photo Organizer", error_msg)
-                )
-            finally:
-                self.root.after(0, self.reset_photo_organizer_ui)
-
-        threading.Thread(target=run_photo_organizer, daemon=True).start()
-
-    def execute_move(self):
-        """Moveを実行"""
-        if self.processing:
-            messagebox.showwarning("警告", "別の処理が実行中です")
-            return
-
-        import_dir = self.move_import_entry.get().strip()
-        export_dir = self.move_export_entry.get().strip()
-
-        if not import_dir or not export_dir:
-            messagebox.showerror(
-                "エラー",
-                "インポートディレクトリとエクスポートディレクトリを選択してください",
-            )
-            return
-
-        if not Path(import_dir).exists():
-            messagebox.showerror(
-                "エラー", f"インポートディレクトリが存在しません: {import_dir}"
-            )
-            return
-
-        # 設定作成
-        config = OrganizationConfig(
-            dry_run=self.move_dry_run_var.get(),
-            create_date_dirs=self.move_date_dirs_var.get(),
-            create_type_dirs=self.move_type_dirs_var.get(),
-            log_operations=True,
-        )
-
-        # バックグラウンドで実行
-        self.processing = True
-        self.move_execute_button.configure(state="disabled", text="🔄 実行中...")
-        self.update_status("🗂️ Move実行中...")
-
-        def run_move():
-            try:
-                result = self.move_service.organize_by_date(
-                    source_dir=Path(import_dir),
-                    target_dir=Path(export_dir),
-                    config=config,
-                    progress_callback=self.update_move_progress,
-                )
-
-                # 結果表示
-                self.root.after(0, lambda: self.show_move_result(result))
-
-            except Exception as error:
-                error_msg = str(error)
-                self.root.after(0, lambda: self.show_error("Move", error_msg))
-            finally:
-                self.root.after(0, self.reset_move_ui)
-
-        threading.Thread(target=run_move, daemon=True).start()
-
-    def update_photo_progress(self, current: int, total: int):
-        """Photo Organizer進捗更新"""
-        if total > 0:
-            progress = current / total
-            self.root.after(0, lambda: self.photo_progress.set(progress))
-            self.root.after(
-                0,
-                lambda: self.update_status(
-                    f"📸 処理中: {current}/{total} ({progress * 100:.1f}%)"
-                ),
-            )
-
-    def update_move_progress(self, current: int, total: int):
-        """Move進捗更新"""
-        if total > 0:
-            progress = current / total
-            self.root.after(0, lambda: self.move_progress.set(progress))
-            self.root.after(
-                0,
-                lambda: self.update_status(
-                    f"🗂️ 処理中: {current}/{total} ({progress * 100:.1f}%)"
-                ),
-            )
-
-    def show_photo_result(self, result):
-        """Photo Organizer結果表示"""
-        message = f"""Photo Organizer実行完了！
-
-✅ 成功: {result.success_count} ファイル
-❌ 失敗: {result.error_count} ファイル
-📈 成功率: {result.success_rate * 100:.1f}%
-
-処理済みファイル: {len(result.processed_files)} 件
-"""
-
-        messagebox.showinfo("Photo Organizer完了", message)
-        self.log_message(
-            f"📸 Photo Organizer完了: 成功 {result.success_count}, 失敗 {result.error_count}"
-        )
-
-    def show_move_result(self, result):
-        """Move結果表示"""
-        message = f"""Move実行完了！
-
-✅ 成功: {result.success_count} ファイル
-❌ 失敗: {result.error_count} ファイル
-📈 成功率: {result.success_rate * 100:.1f}%
-
-処理済みファイル: {len(result.processed_files)} 件
-"""
-
-        messagebox.showinfo("Move完了", message)
-        self.log_message(
-            f"🗂️ Move完了: 成功 {result.success_count}, 失敗 {result.error_count}"
-        )
-
     def show_error(self, operation: str, error: str):
         """エラー表示"""
         messagebox.showerror(f"{operation}エラー", f"エラーが発生しました:\n{error}")
         self.log_message(f"❌ {operation}エラー: {error}")
-
-    def reset_photo_organizer_ui(self):
-        """Photo Organizer UI リセット"""
-        self.processing = False
-        self.photo_execute_button.configure(
-            state="normal", text="🚀 Photo Organizer実行"
-        )
-        self.photo_progress.set(0)
-        self.update_status("📍 準備完了")
-
-    def reset_move_ui(self):
-        """Move UI リセット"""
-        self.processing = False
-        self.move_execute_button.configure(state="normal", text="🚀 Move実行")
-        self.move_progress.set(0)
-        self.update_status("📍 準備完了")
 
     def update_status(self, message: str):
         """ステータス更新"""

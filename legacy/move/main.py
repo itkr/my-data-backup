@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import click
+
 # 共通ログ機構をインポート
 from common.logger import UnifiedLogger
 

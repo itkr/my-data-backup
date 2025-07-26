@@ -6,8 +6,13 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-from src.core.domain.models import (FileInfo, FileType, OrganizationConfig,
-                                    PhotoPair, ProcessResult)
+from src.core.domain.models import (
+    FileInfo,
+    FileType,
+    OrganizationConfig,
+    PhotoPair,
+    ProcessResult,
+)
 
 
 class TestFileInfo(unittest.TestCase):
