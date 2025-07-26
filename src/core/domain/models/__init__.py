@@ -128,6 +128,7 @@ class OrganizationConfig:
     log_operations: bool = True
     preserve_original: bool = False
     file_extensions: List[str] = None
+    recursive: bool = True
 
     def __post_init__(self):
         """デフォルト拡張子の設定"""

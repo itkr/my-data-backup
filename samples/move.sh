@@ -17,4 +17,5 @@ fi
 python src/main.py cli move \
     --import-dir=${current_dir} \
     --export-dir=${current_dir} \
+    --no-recursive \
     --dry-run

@@ -48,9 +48,13 @@ class MoveService:
         """
         self.logger.info(f"日付ベース整理を開始: {source_dir} -> {target_dir}")
 
-        # 1. ファイルスキャン
-        files = self.file_repository.scan_directory(source_dir)
-        self.logger.info(f"スキャン完了: {len(files)} ファイル")
+        # 1. ファイルスキャン（recursive設定を使用）
+        files = self.file_repository.scan_directory(
+            source_dir, recursive=config.recursive
+        )
+        self.logger.info(
+            f"スキャン完了: {len(files)} ファイル (recursive={config.recursive})"
+        )
 
         # 2. 拡張子フィルタリング
         filtered_files = [f for f in files if config.should_process_file(f.path)]
@@ -128,7 +132,9 @@ class MoveService:
         """
         self.logger.info(f"タイプベース整理を開始: {source_dir} -> {target_dir}")
 
-        files = self.file_repository.scan_directory(source_dir)
+        files = self.file_repository.scan_directory(
+            source_dir, recursive=config.recursive
+        )
         type_groups = self._group_by_type(files)
 
         result = ProcessResult()

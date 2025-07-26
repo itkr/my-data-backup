@@ -42,6 +42,10 @@ class MoveCLI(BaseCLI):
                 "action": "append",
                 "help": "処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
             },
+            "no_recursive": {
+                "action": "store_true",
+                "help": "再帰検索を無効化（現在のディレクトリのみ検索）",
+            },
         }
 
     def run_from_args(self, args) -> None:
@@ -51,6 +55,7 @@ class MoveCLI(BaseCLI):
             export_dir=args.export_dir,
             dry_run=args.dry_run,
             suffixes=args.suffix or [],
+            no_recursive=getattr(args, "no_recursive", False),
         )
 
     def run(
@@ -59,6 +64,7 @@ class MoveCLI(BaseCLI):
         export_dir: str,
         dry_run: bool = True,
         suffixes: Optional[List[str]] = None,
+        no_recursive: bool = False,
     ):
         """Move CLIメイン実行"""
 
@@ -92,6 +98,7 @@ class MoveCLI(BaseCLI):
                 log_operations=True,
                 preserve_original=False,
                 file_extensions=file_extensions,
+                recursive=not no_recursive,
             )
 
             # 実行情報表示
@@ -100,6 +107,9 @@ class MoveCLI(BaseCLI):
             click.echo(f"インポート: {source_path}")
             click.echo(f"エクスポート: {target_path}")
             click.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
+            click.echo(
+                f"検索: {'再帰的' if not no_recursive else 'カレントディレクトリのみ'}"
+            )
             if suffixes:
                 click.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
             else:
@@ -179,7 +189,15 @@ class MoveCLI(BaseCLI):
     type=str,
     help="処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
 )
-def main(import_dir: str, export_dir: str, dry_run: bool, suffixes: tuple):
+@click.option(
+    "--no-recursive",
+    is_flag=True,
+    default=False,
+    help="再帰検索を無効化（現在のディレクトリのみ検索）",
+)
+def main(
+    import_dir: str, export_dir: str, dry_run: bool, suffixes: tuple, no_recursive: bool
+):
     """
     Move CLI - 日付ベースファイル整理
 
@@ -192,6 +210,7 @@ def main(import_dir: str, export_dir: str, dry_run: bool, suffixes: tuple):
         export_dir=export_dir,
         dry_run=dry_run,
         suffixes=list(suffixes),
+        no_recursive=no_recursive,
     )
 
 
