@@ -101,16 +101,6 @@ run-move: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先
 	fi
 	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
 
-# Move CLI を実行（Docker用）
-.PHONY: run-move-docker
-run-move-docker: ## 🐳 Move CLI を実行（Docker内用）
-	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
-		echo "使用方法: make run-move-docker SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
-		echo "例: make run-move-docker SRC=/path/to/source DEST=/path/to/destination"; \
-		exit 1; \
-	fi
-	cd move && PYTHONPATH=/app python main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
-
 # コードフォーマット
 .PHONY: format
 format: venv ## 🔍 Python コードを black でフォーマット
