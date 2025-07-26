@@ -45,6 +45,35 @@ class FileSystemRepository(FileRepository):
         self.logger.info(f"スキャン完了: {len(files)} ファイル in {directory}")
         return files
 
+    def get_files_by_extensions(
+        self, directory: Path, extensions: List[str]
+    ) -> List[FileInfo]:
+        """
+        指定された拡張子のファイルを取得
+        """
+        if not directory.exists() or not directory.is_dir():
+            self.logger.warning(f"ディレクトリが存在しません: {directory}")
+            return []
+
+        files = []
+        # 拡張子を小文字に正規化
+        normalized_extensions = [ext.lower() for ext in extensions]
+
+        try:
+            for path in directory.rglob("*"):
+                if path.is_file() and path.suffix.lower() in normalized_extensions:
+                    file_info = self.get_file_info(path)
+                    if file_info:
+                        files.append(file_info)
+
+        except Exception as e:
+            self.logger.error(f"拡張子別ファイル取得エラー {directory}: {e}")
+
+        self.logger.debug(
+            f"拡張子別ファイル取得完了: {len(files)} ファイル ({extensions}) in {directory}"
+        )
+        return files
+
     def get_file_info(self, file_path: Path) -> Optional[FileInfo]:
         """
         単一ファイルの情報を取得
