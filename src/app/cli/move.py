@@ -4,21 +4,54 @@ Move CLI - 新アーキテクチャ版
 
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import click
 
+from src.app.cli.base import BaseCLI
 from src.core.domain.models import OrganizationConfig
 from src.core.services import MoveService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
 
 
-class MoveCLI:
+class MoveCLI(BaseCLI):
     """Move CLI実装"""
 
     def __init__(self):
         self.logger = get_logger("MoveCLI")
+
+    @classmethod
+    def get_command_name(cls) -> str:
+        """コマンド名を返す"""
+        return "move"
+
+    @classmethod
+    def get_description(cls) -> str:
+        """コマンドの説明を返す"""
+        return "Move CLI - 日付ベースファイル整理"
+
+    @classmethod
+    def get_argument_spec(cls) -> Dict[str, Any]:
+        """argparse用の引数仕様を返す"""
+        return {
+            "import_dir": {"required": True, "help": "インポートディレクトリ"},
+            "export_dir": {"required": True, "help": "エクスポートディレクトリ"},
+            "dry_run": {"action": "store_true", "help": "ドライランモード"},
+            "suffix": {
+                "action": "append",
+                "help": "処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
+            },
+        }
+
+    def run_from_args(self, args) -> None:
+        """argparseで解析された引数から実行"""
+        self.run(
+            import_dir=args.import_dir,
+            export_dir=args.export_dir,
+            dry_run=args.dry_run,
+            suffixes=args.suffix or [],
+        )
 
     def run(
         self,

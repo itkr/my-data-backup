@@ -3,27 +3,62 @@
 My Data Backup - 統一アプリケーションのメインエントリーポイント
 
 モジュラー・コンポーネント構造を採用した統一GUI/CLIアプリケーション
+オプション定義は各CLIモジュールから自動取得して重複を排除
 """
 
 import argparse
 import sys
+from typing import Dict, Type
+
+from src.app.cli.base import BaseCLI
+
+
+def get_available_cli_modules() -> Dict[str, Type[BaseCLI]]:
+    """利用可能なCLIモジュールを取得"""
+    try:
+        from src.app.cli.move import MoveCLI
+        from src.app.cli.photo_organizer import PhotoOrganizerCLI
+
+        return {
+            PhotoOrganizerCLI.get_command_name(): PhotoOrganizerCLI,
+            MoveCLI.get_command_name(): MoveCLI,
+        }
+    except ImportError as e:
+        print(f"❌ CLIモジュールのインポートに失敗しました: {e}")
+        return {}
+
+
+def setup_cli_parsers(cli_subparsers, cli_modules: Dict[str, Type[BaseCLI]]):
+    """CLIサブパーサーを自動設定"""
+    for command_name, cli_class in cli_modules.items():
+        # サブパーサー作成
+        cli_parser = cli_subparsers.add_parser(
+            command_name, help=cli_class.get_description()
+        )
+
+        # 引数仕様を取得して自動設定
+        arg_spec = cli_class.get_argument_spec()
+        for arg_name, arg_config in arg_spec.items():
+            arg_flags = [f"--{arg_name.replace('_', '-')}"]
+            cli_parser.add_argument(*arg_flags, **arg_config)
 
 
 def main():
     """メインエントリーポイント"""
+    # 利用可能なCLIモジュールを取得
+    cli_modules = get_available_cli_modules()
+
     parser = argparse.ArgumentParser(
         description="My Data Backup - RAW/JPGファイル整理ツール統合版",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+        epilog=f"""
 利用可能なモード:
   gui                 統一GUIアプリケーションを起動
-  cli photo           Photo Organizer CLI
-  cli move            Move CLI
+  {' '.join([f'cli {name}' for name in cli_modules.keys()])}
 
 例:
   python main.py gui                           # 統一GUIを起動
-  python main.py cli photo --help              # Photo Organizer CLIのヘルプ
-  python main.py cli move --help               # Move CLIのヘルプ
+  {chr(10).join([f'  python main.py cli {name} --help              # {cls.get_description()}のヘルプ' for name, cls in cli_modules.items()])}
         """,
     )
 
@@ -39,36 +74,16 @@ def main():
     cli_parser = subparsers.add_parser("cli", help="CLIモード")
     cli_subparsers = cli_parser.add_subparsers(dest="tool", help="使用するツール")
 
-    # Photo Organizer CLI
-    photo_parser = cli_subparsers.add_parser("photo", help="Photo Organizer CLI")
-    photo_parser.add_argument("--src", required=True, help="ソースディレクトリ")
-    photo_parser.add_argument("--dir", required=True, help="出力ディレクトリ")
-    photo_parser.add_argument("--dry-run", action="store_true", help="ドライランモード")
-
-    # Move CLI
-    move_parser = cli_subparsers.add_parser("move", help="Move CLI")
-    move_parser.add_argument(
-        "--import-dir", required=True, help="インポートディレクトリ"
-    )
-    move_parser.add_argument(
-        "--export-dir", required=True, help="エクスポートディレクトリ"
-    )
-    move_parser.add_argument("--dry-run", action="store_true", help="ドライランモード")
-    move_parser.add_argument(
-        "--suffix",
-        action="append",
-        help="処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
-    )
+    # CLIサブコマンドを自動設定
+    setup_cli_parsers(cli_subparsers, cli_modules)
 
     args = parser.parse_args()
 
     if args.mode == "gui":
         launch_gui(args.theme)
     elif args.mode == "cli":
-        if args.tool == "photo":
-            launch_photo_cli(args)
-        elif args.tool == "move":
-            launch_move_cli(args)
+        if args.tool in cli_modules:
+            launch_cli(cli_modules[args.tool], args)
         else:
             cli_parser.print_help()
     else:
@@ -78,7 +93,7 @@ def main():
 def launch_gui(theme="auto"):
     """統一GUIアプリケーションを起動"""
     try:
-        from app.gui.app import UnifiedDataBackupApp
+        from src.app.gui.app import UnifiedDataBackupApp
 
         print("🚀 統一GUIアプリケーションを起動中...")
         app = UnifiedDataBackupApp()
@@ -94,40 +109,19 @@ def launch_gui(theme="auto"):
         sys.exit(1)
 
 
-def launch_photo_cli(args):
-    """Photo Organizer CLIを起動"""
+def launch_cli(cli_class: Type[BaseCLI], args):
+    """汎用CLI起動関数"""
     try:
-        from app.cli.photo_organizer import PhotoOrganizerCLI
-
-        cli = PhotoOrganizerCLI()
-        cli.run(src=args.src, dir=args.dir, dry_run=args.dry_run)
+        cli = cli_class()
+        cli.run_from_args(args)
 
     except ImportError as e:
-        print(f"❌ Photo Organizer CLIモジュールのインポートに失敗しました: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Photo Organizer CLIの実行に失敗しました: {e}")
-        sys.exit(1)
-
-
-def launch_move_cli(args):
-    """Move CLIを起動"""
-    try:
-        from app.cli.move import MoveCLI
-
-        cli = MoveCLI()
-        cli.run(
-            import_dir=args.import_dir,
-            export_dir=args.export_dir,
-            dry_run=args.dry_run,
-            suffixes=args.suffix or [],
+        print(
+            f"❌ {cli_class.get_command_name()} CLIモジュールのインポートに失敗しました: {e}"
         )
-
-    except ImportError as e:
-        print(f"❌ Move CLIモジュールのインポートに失敗しました: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Move CLIの実行に失敗しました: {e}")
+        print(f"❌ {cli_class.get_command_name()} CLIの実行に失敗しました: {e}")
         sys.exit(1)
 
 

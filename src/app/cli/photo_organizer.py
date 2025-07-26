@@ -4,20 +4,45 @@ Photo Organizer CLI - 新アーキテクチャ版
 
 import sys
 from pathlib import Path
+from typing import Any, Dict
 
 import click
 
+from src.app.cli.base import BaseCLI
 from src.core.domain.models import OrganizationConfig
 from src.core.services import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
 
 
-class PhotoOrganizerCLI:
+class PhotoOrganizerCLI(BaseCLI):
     """Photo Organizer CLI実装"""
 
     def __init__(self):
         self.logger = get_logger("PhotoOrganizerCLI")
+
+    @classmethod
+    def get_command_name(cls) -> str:
+        """コマンド名を返す"""
+        return "photo"
+
+    @classmethod
+    def get_description(cls) -> str:
+        """コマンドの説明を返す"""
+        return "Photo Organizer CLI - RAW/JPGファイル同期整理"
+
+    @classmethod
+    def get_argument_spec(cls) -> Dict[str, Any]:
+        """argparse用の引数仕様を返す"""
+        return {
+            "src": {"required": True, "help": "ソースディレクトリ"},
+            "dir": {"required": True, "help": "出力ディレクトリ"},
+            "dry_run": {"action": "store_true", "help": "ドライランモード"},
+        }
+
+    def run_from_args(self, args) -> None:
+        """argparseで解析された引数から実行"""
+        self.run(src=args.src, dir=args.dir, dry_run=args.dry_run)
 
     def run(
         self,
