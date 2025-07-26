@@ -12,8 +12,6 @@ import customtkinter as ctk
 from src.core.config import ConfigManager
 from src.core.domain.models import OrganizationConfig
 from src.core.services.move_service import MoveService
-
-# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.services.photo_organizer_service import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
@@ -121,282 +119,28 @@ class UnifiedDataBackupApp:
         self.log_tab = self.tabview.add("📋 ログ")
         self.setup_log_tab()
 
+        # Photo Organizer Tab
+        self.setup_photo_organizer_tab()
+
     def setup_photo_organizer_tab(self):
-        """Photo Organizerタブの設定"""
-        # スクロールフレーム
-        scroll_frame = ctk.CTkScrollableFrame(self.photo_tab)
-        scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        """Photo Organizer タブの設定"""
+        from src.app.gui.modules.photo_organizer.tab import PhotoOrganizerTab
 
-        # 説明
-        description = ctk.CTkLabel(
-            scroll_frame,
-            text="📸 RAW/JPGファイルの同期処理\n対応関係のないファイルを孤立ファイルとして管理します",
-            font=ctk.CTkFont(size=14),
+        self.photo_organizer_tab = PhotoOrganizerTab(
+            parent=self.photo_tab,
+            config_manager=self.config_manager,
+            logger=self.logger,
         )
-        description.pack(pady=(0, 20))
-
-        # ソースディレクトリ選択
-        source_frame = ctk.CTkFrame(scroll_frame)
-        source_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            source_frame, text="📂 ソースディレクトリ:", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        source_input_frame = ctk.CTkFrame(source_frame)
-        source_input_frame.pack(fill="x", padx=10, pady=(0, 10))
-
-        self.photo_source_entry = ctk.CTkEntry(
-            source_input_frame,
-            placeholder_text="RAW/JPGファイルのソースディレクトリを選択",
-        )
-        self.photo_source_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
-
-        ctk.CTkButton(
-            source_input_frame,
-            text="参照",
-            command=lambda: self.select_directory(
-                self.photo_source_entry, "photo_last_source_dir"
-            ),
-            width=60,
-        ).pack(side="right", padx=(0, 5))
-
-        # 最近使用したディレクトリボタン
-        if self.config.recent_directories:
-            recent_button = ctk.CTkButton(
-                source_input_frame,
-                text="📋",
-                command=lambda: self.show_recent_directories(self.photo_source_entry),
-                width=30,
-            )
-            recent_button.pack(side="right")
-
-        # 出力ディレクトリ選択
-        output_frame = ctk.CTkFrame(scroll_frame)
-        output_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            output_frame, text="📁 出力ディレクトリ:", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        output_input_frame = ctk.CTkFrame(output_frame)
-        output_input_frame.pack(fill="x", padx=10, pady=(0, 10))
-
-        self.photo_output_entry = ctk.CTkEntry(
-            output_input_frame, placeholder_text="整理されたファイルの出力先を選択"
-        )
-        self.photo_output_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
-
-        ctk.CTkButton(
-            output_input_frame,
-            text="参照",
-            command=lambda: self.select_directory(
-                self.photo_output_entry, "photo_last_output_dir"
-            ),
-            width=60,
-        ).pack(side="right", padx=(0, 5))
-
-        if self.config.recent_directories:
-            recent_button = ctk.CTkButton(
-                output_input_frame,
-                text="📋",
-                command=lambda: self.show_recent_directories(self.photo_output_entry),
-                width=30,
-            )
-            recent_button.pack(side="right")
-
-        # オプション設定
-        options_frame = ctk.CTkFrame(scroll_frame)
-        options_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            options_frame, text="⚙️ オプション:", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        self.photo_dry_run_var = ctk.BooleanVar(value=self.config.photo_default_dry_run)
-        dry_run_check = ctk.CTkCheckBox(
-            options_frame,
-            text="ドライランモード（実際のファイル操作を行わない）",
-            variable=self.photo_dry_run_var,
-            command=lambda: self.config_manager.update_photo_settings(
-                default_dry_run=self.photo_dry_run_var.get()
-            ),
-        )
-        dry_run_check.pack(anchor="w", padx=20, pady=5)
-
-        self.photo_preserve_var = ctk.BooleanVar(
-            value=self.config.photo_default_preserve
-        )
-        preserve_check = ctk.CTkCheckBox(
-            options_frame,
-            text="オリジナルファイルを保持（コピーモード）",
-            variable=self.photo_preserve_var,
-            command=lambda: self.config_manager.update_photo_settings(
-                default_preserve=self.photo_preserve_var.get()
-            ),
-        )
-        preserve_check.pack(anchor="w", padx=20, pady=(0, 10))
-
-        # 実行ボタン
-        self.photo_execute_button = ctk.CTkButton(
-            scroll_frame,
-            text="🚀 Photo Organizer実行",
-            command=self.execute_photo_organizer,
-            height=40,
-            font=ctk.CTkFont(size=16, weight="bold"),
-        )
-        self.photo_execute_button.pack(pady=20)
-
-        # 進捗バー
-        self.photo_progress = ctk.CTkProgressBar(scroll_frame)
-        self.photo_progress.pack(fill="x", padx=20, pady=(0, 10))
-        self.photo_progress.set(0)
+        self.photo_organizer_tab.setup_widgets()
 
     def setup_move_tab(self):
-        """Moveタブの設定"""
-        # スクロールフレーム
-        scroll_frame = ctk.CTkScrollableFrame(self.move_tab)
-        scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        """Move タブの設定"""
+        from src.app.gui.modules.move.tab import MoveTab
 
-        # 説明
-        description = ctk.CTkLabel(
-            scroll_frame,
-            text="🗂️ 日付・拡張子ごとのファイル整理\n画像、動画、音声、ドキュメントファイルを日付別に整理します",
-            font=ctk.CTkFont(size=14),
+        self.move_tab_instance = MoveTab(
+            parent=self.move_tab, config_manager=self.config_manager, logger=self.logger
         )
-        description.pack(pady=(0, 20))
-
-        # インポートディレクトリ選択
-        import_frame = ctk.CTkFrame(scroll_frame)
-        import_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            import_frame,
-            text="📥 インポートディレクトリ:",
-            font=ctk.CTkFont(weight="bold"),
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        import_input_frame = ctk.CTkFrame(import_frame)
-        import_input_frame.pack(fill="x", padx=10, pady=(0, 10))
-
-        self.move_import_entry = ctk.CTkEntry(
-            import_input_frame, placeholder_text="整理するファイルのディレクトリを選択"
-        )
-        self.move_import_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
-
-        ctk.CTkButton(
-            import_input_frame,
-            text="参照",
-            command=lambda: self.select_directory(
-                self.move_import_entry, "move_last_import_dir"
-            ),
-            width=60,
-        ).pack(side="right", padx=(0, 5))
-
-        if self.config.recent_directories:
-            recent_button = ctk.CTkButton(
-                import_input_frame,
-                text="📋",
-                command=lambda: self.show_recent_directories(self.move_import_entry),
-                width=30,
-            )
-            recent_button.pack(side="right")
-
-        # エクスポートディレクトリ選択
-        export_frame = ctk.CTkFrame(scroll_frame)
-        export_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            export_frame,
-            text="📤 エクスポートディレクトリ:",
-            font=ctk.CTkFont(weight="bold"),
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        export_input_frame = ctk.CTkFrame(export_frame)
-        export_input_frame.pack(fill="x", padx=10, pady=(0, 10))
-
-        self.move_export_entry = ctk.CTkEntry(
-            export_input_frame, placeholder_text="整理されたファイルの出力先を選択"
-        )
-        self.move_export_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
-
-        ctk.CTkButton(
-            export_input_frame,
-            text="参照",
-            command=lambda: self.select_directory(
-                self.move_export_entry, "move_last_export_dir"
-            ),
-            width=60,
-        ).pack(side="right", padx=(0, 5))
-
-        if self.config.recent_directories:
-            recent_button = ctk.CTkButton(
-                export_input_frame,
-                text="📋",
-                command=lambda: self.show_recent_directories(self.move_export_entry),
-                width=30,
-            )
-            recent_button.pack(side="right")
-
-        # オプション設定
-        options_frame = ctk.CTkFrame(scroll_frame)
-        options_frame.pack(fill="x", pady=(0, 10))
-
-        ctk.CTkLabel(
-            options_frame, text="⚙️ オプション:", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        self.move_dry_run_var = ctk.BooleanVar(value=self.config.move_default_dry_run)
-        dry_run_check = ctk.CTkCheckBox(
-            options_frame,
-            text="ドライランモード（実際のファイル操作を行わない）",
-            variable=self.move_dry_run_var,
-            command=lambda: self.config_manager.update_move_settings(
-                default_dry_run=self.move_dry_run_var.get()
-            ),
-        )
-        dry_run_check.pack(anchor="w", padx=20, pady=5)
-
-        self.move_date_dirs_var = ctk.BooleanVar(
-            value=self.config.move_default_date_dirs
-        )
-        date_dirs_check = ctk.CTkCheckBox(
-            options_frame,
-            text="日付ディレクトリを作成",
-            variable=self.move_date_dirs_var,
-            command=lambda: self.config_manager.update_move_settings(
-                default_date_dirs=self.move_date_dirs_var.get()
-            ),
-        )
-        date_dirs_check.pack(anchor="w", padx=20, pady=5)
-
-        self.move_type_dirs_var = ctk.BooleanVar(
-            value=self.config.move_default_type_dirs
-        )
-        type_dirs_check = ctk.CTkCheckBox(
-            options_frame,
-            text="ファイルタイプディレクトリを作成",
-            variable=self.move_type_dirs_var,
-            command=lambda: self.config_manager.update_move_settings(
-                default_type_dirs=self.move_type_dirs_var.get()
-            ),
-        )
-        type_dirs_check.pack(anchor="w", padx=20, pady=(0, 10))
-
-        # 実行ボタン
-        self.move_execute_button = ctk.CTkButton(
-            scroll_frame,
-            text="🚀 Move実行",
-            command=self.execute_move,
-            height=40,
-            font=ctk.CTkFont(size=16, weight="bold"),
-        )
-        self.move_execute_button.pack(pady=20)
-
-        # 進捗バー
-        self.move_progress = ctk.CTkProgressBar(scroll_frame)
-        self.move_progress.pack(fill="x", padx=20, pady=(0, 10))
-        self.move_progress.set(0)
+        self.move_tab_instance.setup_widgets()
 
     def setup_settings_tab(self):
         """設定タブの設定"""

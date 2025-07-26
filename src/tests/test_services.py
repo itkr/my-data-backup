@@ -12,8 +12,6 @@ from unittest.mock import Mock, patch
 
 from src.core.domain.models import FileInfo, FileType, OrganizationConfig
 from src.core.services.move_service import MoveService
-
-# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.services.photo_organizer_service import PhotoOrganizerService
 
 

@@ -6,10 +6,8 @@ from pathlib import Path
 from typing import List, Optional
 
 import click
-
 # 共通ログ機構をインポート
 from common.logger import UnifiedLogger
-
 
 # 対応ファイル拡張子の定義
 SUPPORTED_EXTENSIONS = {

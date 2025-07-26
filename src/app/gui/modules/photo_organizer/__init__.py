@@ -1,3 +1,7 @@
 """
-Photo Organizer モジュール - __init__.py
+Photo Organizer モジュール
 """
+
+from .tab import PhotoOrganizerTab
+
+__all__ = ["PhotoOrganizerTab"]

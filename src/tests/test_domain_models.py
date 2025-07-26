@@ -6,14 +6,8 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
-from src.core.domain.models import (
-    FileInfo,
-    FileType,
-    OrganizationConfig,
-    PhotoPair,
-    ProcessResult,
-)
+from src.core.domain.models import (FileInfo, FileType, OrganizationConfig,
+                                    PhotoPair, ProcessResult)
 
 
 class TestFileInfo(unittest.TestCase):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+import os
+import subprocess
+import sys
+import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-import subprocess
-import threading
-import sys
-import os
 
 
 def main():

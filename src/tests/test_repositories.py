@@ -8,7 +8,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.infrastructure.repositories import FileSystemRepository
 
 

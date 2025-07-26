@@ -6,7 +6,8 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from ..domain.models import FileInfo, FileType, OrganizationConfig, ProcessResult
+from ..domain.models import (FileInfo, FileType, OrganizationConfig,
+                             ProcessResult)
 from ..domain.repositories import FileRepository
 
 

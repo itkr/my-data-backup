@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from core.domain.models import FileInfo, FileType
-from core.domain.repositories import FileRepository
+from src.core.domain.models import FileInfo, FileType
+from src.core.domain.repositories import FileRepository
 
 
 class FileSystemRepository(FileRepository):

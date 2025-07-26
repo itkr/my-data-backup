@@ -172,7 +172,7 @@ fix-lint: venv ## 🔍 リントエラーを自動修正
 	@echo "リントエラーを自動修正中..."
 	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --recursive src/
 	$(PYTHON) -m autopep8 --in-place --aggressive --aggressive --recursive src/
-	$(PYTHON) -m isort src/
+	# $(PYTHON) -m isort src/
 	$(PYTHON) -m black src/
 	@echo "自動修正が完了しました"
 	@echo "結果を確認中..."

@@ -8,8 +8,6 @@ from pathlib import Path
 import click
 
 from src.core.domain.models import OrganizationConfig
-
-# パッケージインストール後は動的パス追加不要
 from src.core.services import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
