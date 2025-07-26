@@ -48,17 +48,26 @@ def main():
     # 利用可能なCLIモジュールを取得
     cli_modules = get_available_cli_modules()
 
+    # ヘルプメッセージを動的に生成
+    cli_commands = " ".join([f"cli {name}" for name in cli_modules.keys()])
+    cli_help_lines = []
+    for name, cls in cli_modules.items():
+        help_text = f"  python main.py cli {name} --help"
+        desc_text = f"# {cls.get_description()}のヘルプ"
+        cli_help_lines.append(f"{help_text.ljust(48)} {desc_text}")
+    cli_help = "\n".join(cli_help_lines)
+
     parser = argparse.ArgumentParser(
         description="My Data Backup - RAW/JPGファイル整理ツール統合版",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 利用可能なモード:
   gui                 統一GUIアプリケーションを起動
-  {' '.join([f'cli {name}' for name in cli_modules.keys()])}
+  {cli_commands}
 
 例:
   python main.py gui                           # 統一GUIを起動
-  {chr(10).join([f'  python main.py cli {name} --help              # {cls.get_description()}のヘルプ' for name, cls in cli_modules.items()])}
+  {cli_help}
         """,
     )
 
