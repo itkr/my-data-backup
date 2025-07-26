@@ -98,7 +98,7 @@ docker-run: ## 🚀 CLIモードでDockerコンテナを起動
 # GUI対応でDockerコンテナを起動
 docker-gui: ## 🎨 GUIモードの設定と起動（X11フォワーディング）
 	@echo "🎨 Setting up GUI environment..."
-	./docker-gui.sh
+	./scripts/docker-gui.sh
 
 # Photo Organizer CLIをDockerで実行
 docker-photo-organizer: ## 📸 Photo Organizer CLIをDockerで実行
