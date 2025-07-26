@@ -5,6 +5,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional
+
 from ..models import FileInfo, FileOperation
 
 
@@ -23,7 +24,6 @@ class FileRepository(ABC):
         Returns:
             ファイル情報のリスト
         """
-        pass
 
     @abstractmethod
     def get_file_info(self, file_path: Path) -> Optional[FileInfo]:
@@ -36,7 +36,6 @@ class FileRepository(ABC):
         Returns:
             ファイル情報、存在しない場合はNone
         """
-        pass
 
     @abstractmethod
     def move_file(self, source: Path, destination: Path) -> bool:
@@ -50,7 +49,6 @@ class FileRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass
 
     @abstractmethod
     def copy_file(self, source: Path, destination: Path) -> bool:
@@ -64,7 +62,6 @@ class FileRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass
 
     @abstractmethod
     def delete_file(self, file_path: Path) -> bool:
@@ -77,7 +74,6 @@ class FileRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass
 
     @abstractmethod
     def create_directory(self, directory: Path) -> bool:
@@ -90,7 +86,6 @@ class FileRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass
 
     @abstractmethod
     def exists(self, path: Path) -> bool:
@@ -103,7 +98,6 @@ class FileRepository(ABC):
         Returns:
             存在する場合はTrue
         """
-        pass
 
     @abstractmethod
     def calculate_checksum(self, file_path: Path) -> Optional[str]:
@@ -116,7 +110,6 @@ class FileRepository(ABC):
         Returns:
             チェックサム文字列、計算できない場合はNone
         """
-        pass
 
 
 class OperationRepository(ABC):
@@ -133,7 +126,6 @@ class OperationRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass
 
     @abstractmethod
     def get_operations(self, file_path: Optional[Path] = None) -> List[FileOperation]:
@@ -146,7 +138,6 @@ class OperationRepository(ABC):
         Returns:
             操作履歴のリスト
         """
-        pass
 
     @abstractmethod
     def rollback_operation(self, operation: FileOperation) -> bool:
@@ -159,4 +150,3 @@ class OperationRepository(ABC):
         Returns:
             成功した場合はTrue
         """
-        pass

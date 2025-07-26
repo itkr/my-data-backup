@@ -3,14 +3,13 @@
 """
 
 import hashlib
+import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-import os
-import logging
 
-from core.domain.models import FileInfo, FileType, FileOperation, OperationType
+from core.domain.models import FileInfo, FileType
 from core.domain.repositories import FileRepository
 
 

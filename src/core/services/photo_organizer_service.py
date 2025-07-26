@@ -2,16 +2,16 @@
 Photo Organizer サービス
 """
 
-from pathlib import Path
-from typing import List, Tuple, Optional, Callable
 import logging
+from pathlib import Path
+from typing import Callable, List, Optional, Tuple
 
 from ..domain.models import (
     FileInfo,
     FileType,
-    ProcessResult,
-    PhotoPair,
     OrganizationConfig,
+    PhotoPair,
+    ProcessResult,
 )
 from ..domain.repositories import FileRepository
 
@@ -69,7 +69,8 @@ class PhotoOrganizerService:
         orphan_jpgs = [p for p in pairs if p.is_orphan_jpg]
 
         self.logger.info(
-            f"ペア分析完了: 完全ペア={len(complete_pairs)}, 孤立RAW={len(orphan_raws)}, 孤立JPG={len(orphan_jpgs)}"
+            f"ペア分析完了: 完全ペア={len(complete_pairs)}, "
+            f"孤立RAW={len(orphan_raws)}, 孤立JPG={len(orphan_jpgs)}"
         )
 
         # 4. ファイル処理

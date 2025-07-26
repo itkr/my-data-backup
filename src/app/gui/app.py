@@ -2,20 +2,21 @@
 統合GUIアプリケーション
 """
 
-import customtkinter as ctk
-import tkinter as tk
-from tkinter import filedialog, messagebox
 import threading
+import tkinter as tk
 from pathlib import Path
+from tkinter import filedialog, messagebox
+
+import customtkinter as ctk
+
+from src.core.config import ConfigManager
+from src.core.domain.models import OrganizationConfig
+from src.core.services.move_service import MoveService
 
 # 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.services.photo_organizer_service import PhotoOrganizerService
-from src.core.services.move_service import MoveService
-from src.core.domain.models import OrganizationConfig
-from src.core.config import ConfigManager
-from src.infrastructure.repositories import FileSystemRepository
 from src.infrastructure.logging import get_logger
-
+from src.infrastructure.repositories import FileSystemRepository
 
 # CustomTkinter の外観設定
 ctk.set_appearance_mode("auto")
@@ -719,8 +720,11 @@ class UnifiedDataBackupApp:
                 # 結果表示
                 self.root.after(0, lambda: self.show_photo_result(result))
 
-            except Exception as e:
-                self.root.after(0, lambda: self.show_error("Photo Organizer", str(e)))
+            except Exception as error:
+                error_msg = str(error)
+                self.root.after(
+                    0, lambda: self.show_error("Photo Organizer", error_msg)
+                )
             finally:
                 self.root.after(0, self.reset_photo_organizer_ui)
 
@@ -773,8 +777,9 @@ class UnifiedDataBackupApp:
                 # 結果表示
                 self.root.after(0, lambda: self.show_move_result(result))
 
-            except Exception as e:
-                self.root.after(0, lambda: self.show_error("Move", str(e)))
+            except Exception as error:
+                error_msg = str(error)
+                self.root.after(0, lambda: self.show_error("Move", error_msg))
             finally:
                 self.root.after(0, self.reset_move_ui)
 
@@ -788,7 +793,7 @@ class UnifiedDataBackupApp:
             self.root.after(
                 0,
                 lambda: self.update_status(
-                    f"📸 処理中: {current}/{total} ({progress*100:.1f}%)"
+                    f"📸 処理中: {current}/{total} ({progress * 100:.1f}%)"
                 ),
             )
 
@@ -800,17 +805,17 @@ class UnifiedDataBackupApp:
             self.root.after(
                 0,
                 lambda: self.update_status(
-                    f"🗂️ 処理中: {current}/{total} ({progress*100:.1f}%)"
+                    f"🗂️ 処理中: {current}/{total} ({progress * 100:.1f}%)"
                 ),
             )
 
     def show_photo_result(self, result):
         """Photo Organizer結果表示"""
         message = f"""Photo Organizer実行完了！
-        
+
 ✅ 成功: {result.success_count} ファイル
 ❌ 失敗: {result.error_count} ファイル
-📈 成功率: {result.success_rate*100:.1f}%
+📈 成功率: {result.success_rate * 100:.1f}%
 
 処理済みファイル: {len(result.processed_files)} 件
 """
@@ -823,10 +828,10 @@ class UnifiedDataBackupApp:
     def show_move_result(self, result):
         """Move結果表示"""
         message = f"""Move実行完了！
-        
+
 ✅ 成功: {result.success_count} ファイル
 ❌ 失敗: {result.error_count} ファイル
-📈 成功率: {result.success_rate*100:.1f}%
+📈 成功率: {result.success_rate * 100:.1f}%
 
 処理済みファイル: {len(result.processed_files)} 件
 """

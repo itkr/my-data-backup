@@ -2,13 +2,14 @@
 Photo Organizer タブビュー
 """
 
-import customtkinter as ctk
-from tkinter import filedialog, messagebox
-from pathlib import Path
 import threading
+from pathlib import Path
+from tkinter import filedialog, messagebox
 
-from src.core.services import PhotoOrganizerService
+import customtkinter as ctk
+
 from src.core.domain.models import OrganizationConfig
+from src.core.services import PhotoOrganizerService
 from src.infrastructure.repositories import FileSystemRepository
 
 
@@ -306,7 +307,7 @@ class PhotoOrganizerTab:
             progress = current / total
             self.progress_bar.set(progress)
             self.progress_label.configure(
-                text=f"進捗: {current}/{total} ({progress*100:.1f}%)"
+                text=f"進捗: {current}/{total} ({progress * 100:.1f}%)"
             )
 
     def _display_result(self, result):
@@ -317,7 +318,7 @@ class PhotoOrganizerTab:
 
 ✅ 成功: {result.success_count} ファイル
 ❌ 失敗: {result.error_count} ファイル
-📈 成功率: {result.success_rate*100:.1f}%
+📈 成功率: {result.success_rate * 100:.1f}%
 
 処理済みファイル:
 """

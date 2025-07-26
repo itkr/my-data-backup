@@ -63,9 +63,11 @@ venv: ## 🏗️ 仮想環境を作成（既に存在する場合はスキップ
 install: venv ## 🏗️ 依存パッケージをインストール
 	@echo "依存パッケージをインストール中..."
 	$(PIP) install --upgrade pip
+	# 本番用依存関係
 	$(PIP) install -r $(REQUIREMENTS)
 	@echo "開発可能パッケージとしてインストール中..."
-	$(PIP) install -e .
+	# 開発用依存関係を含めてインストール
+	$(PIP) install -e ".[dev]"
 	@echo "依存パッケージのインストールが完了しました"
 
 # 開発用セットアップ（初回実行時）
@@ -164,6 +166,18 @@ lint: venv ## 🔍 flake8 でコード品質をチェック
 	$(PYTHON) -m flake8 src/ --statistics
 	@echo "コード品質チェックが完了しました"
 
+# リントエラーの自動修正
+.PHONY: fix-lint
+fix-lint: venv ## 🔍 リントエラーを自動修正
+	@echo "リントエラーを自動修正中..."
+	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --recursive src/
+	$(PYTHON) -m autopep8 --in-place --aggressive --aggressive --recursive src/
+	$(PYTHON) -m isort src/
+	$(PYTHON) -m black src/
+	@echo "自動修正が完了しました"
+	@echo "結果を確認中..."
+	$(PYTHON) -m flake8 src/ --statistics || echo "まだいくつかのエラーが残っています"
+
 # 共通ログ機構のテスト
 .PHONY: test-logger
 test-logger: venv ## 🔍 共通ログ機構のテスト実行
@@ -185,10 +199,10 @@ check-package: venv ## 🔍 開発可能パッケージの状態をチェック
 
 # パッケージ再インストール
 .PHONY: reinstall
-reinstall: venv ## 🔧 開発可能パッケージを再インストール
+reinstall: venv ## 🏗️ 開発可能パッケージを再インストール
 	@echo "パッケージを再インストール中..."
 	$(PIP) uninstall -y my-data-backup || true
-	$(PIP) install -e .
+	$(PIP) install -e ".[dev]"
 	@echo "再インストールが完了しました"
 
 # 依存パッケージのアップデート

@@ -2,9 +2,8 @@
 テスト実行用スクリプト
 """
 
-import unittest
 import sys
-from pathlib import Path
+import unittest
 
 
 def run_all_tests():

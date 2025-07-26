@@ -2,16 +2,14 @@
 リポジトリのテスト
 """
 
-import unittest
-import tempfile
-import shutil
-from pathlib import Path
-from datetime import datetime
 import logging
+import shutil
+import tempfile
+import unittest
+from pathlib import Path
 
 # 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.infrastructure.repositories import FileSystemRepository
-from src.core.domain.models import FileInfo
 
 
 class TestFileSystemRepository(unittest.TestCase):

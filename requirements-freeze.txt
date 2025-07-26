@@ -1,0 +1,20 @@
+autoflake==2.3.1
+autopep8==2.3.2
+black==24.10.0
+click==8.1.7
+customtkinter==5.2.1
+darkdetect==0.8.0
+flake8==7.3.0
+isort==6.0.1
+light-progress==0.7.0.0
+mccabe==0.7.0
+-e git+ssh://git@github.com/itkr/my-data-backup.git@a550502c211ed32a3444ecd3a3ef4e134d11dc1c#egg=my_data_backup
+mypy_extensions==1.1.0
+numpy==2.3.1
+opencv-python==4.10.0.84
+packaging==25.0
+pathspec==0.12.1
+pillow==11.3.0
+platformdirs==4.3.8
+pycodestyle==2.14.0
+pyflakes==3.4.0

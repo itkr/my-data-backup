@@ -5,9 +5,8 @@ My Data Backup - 統一アプリケーションのメインエントリーポイ
 モジュラー・コンポーネント構造を採用した統一GUI/CLIアプリケーション
 """
 
-import sys
 import argparse
-from pathlib import Path
+import sys
 
 
 def main():
@@ -20,7 +19,7 @@ def main():
   gui                 統一GUIアプリケーションを起動
   cli photo           Photo Organizer CLI
   cli move            Move CLI
-  
+
 例:
   python main.py gui                           # 統一GUIを起動
   python main.py cli photo --help              # Photo Organizer CLIのヘルプ

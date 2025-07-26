@@ -2,19 +2,19 @@
 サービス層のテスト
 """
 
-import unittest
-import tempfile
-import shutil
-from pathlib import Path
-from datetime import datetime
 import logging
+import shutil
+import tempfile
+import unittest
+from datetime import datetime
+from pathlib import Path
 from unittest.mock import Mock, patch
+
+from src.core.domain.models import FileInfo, FileType, OrganizationConfig
+from src.core.services.move_service import MoveService
 
 # 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.services.photo_organizer_service import PhotoOrganizerService
-from src.core.services.move_service import MoveService
-from src.core.domain.models import FileInfo, OrganizationConfig, FileType
-from src.infrastructure.repositories import FileSystemRepository
 
 
 class TestPhotoOrganizerService(unittest.TestCase):

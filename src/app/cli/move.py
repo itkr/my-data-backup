@@ -2,16 +2,18 @@
 Move CLI - 新アーキテクチャ版
 """
 
-import click
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Optional
+
+import click
+
+from src.core.domain.models import OrganizationConfig
 
 # パッケージインストール後は動的パス追加不要
 from src.core.services import MoveService
-from src.core.domain.models import OrganizationConfig
-from src.infrastructure.repositories import FileSystemRepository
 from src.infrastructure.logging import get_logger
+from src.infrastructure.repositories import FileSystemRepository
 
 
 class MoveCLI:
@@ -96,18 +98,18 @@ class MoveCLI:
         click.echo("=" * 30)
         click.echo(f"✅ 成功: {result.success_count} ファイル")
         click.echo(f"❌ 失敗: {result.error_count} ファイル")
-        click.echo(f"📈 成功率: {result.success_rate*100:.1f}%")
+        click.echo(f"📈 成功率: {result.success_rate * 100:.1f}%")
 
         if result.processed_files:
-            click.echo(f"\n処理済みファイル (最初の10件):")
+            click.echo("\n処理済みファイル (最初の10件):")
             for i, file_info in enumerate(result.processed_files[:10]):
-                click.echo(f"  {i+1:2d}. {file_info.name}")
+                click.echo(f"  {i + 1:2d}. {file_info.name}")
 
             if len(result.processed_files) > 10:
                 click.echo(f"  ... 他 {len(result.processed_files) - 10} ファイル")
 
         if result.errors:
-            click.echo(f"\nエラー:")
+            click.echo("\nエラー:")
             for error in result.errors[:5]:
                 click.echo(f"  • {error}")
 

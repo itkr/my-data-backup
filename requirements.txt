@@ -1,5 +1,14 @@
-black==24.10.0
-click==8.1.7
+# My Data Backup - Production Dependencies
+# ランタイム用の依存関係のみ記載（開発用依存関係は pyproject.toml に記載）
+
+# GUI フレームワーク
 customtkinter==5.2.1
-light-progress==0.7.0.0
+
+# CLI フレームワーク
+click==8.1.7
+
+# 画像処理（将来的に使用予定）
 opencv-python==4.10.0.84
+
+# コードフォーマッター（本番環境でも使用する場合）
+black==24.10.0
