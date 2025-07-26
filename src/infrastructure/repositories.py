@@ -10,8 +10,8 @@ from typing import List, Optional
 import os
 import logging
 
-from ...core.domain.models import FileInfo, FileType, FileOperation, OperationType
-from ...core.domain.repositories import FileRepository
+from core.domain.models import FileInfo, FileType, FileOperation, OperationType
+from core.domain.repositories import FileRepository
 
 
 class FileSystemRepository(FileRepository):

@@ -12,7 +12,10 @@ REQUIREMENTS = requirements.txt
 
 help: ## ヘルプを表示
 	@echo "🐍 ローカル開発環境コマンド"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹\|🏗️\|🔍\|📦\|🚀\|✨" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹\|🏗️\|🔍\|📦\|🚀\|✨\|🧪" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "🧪 テスト・検証"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*🧪.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "🏗️ 開発環境構築・管理"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*🏗️.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -105,6 +108,27 @@ run-move-cli-v2: venv check-env ## 🚀 Move CLI (新アーキテクチャ版)
 	@echo "Move CLI (新アーキテクチャ版) を起動中..."
 	@echo "使用例: make run-move-cli-v2 IMPORT_DIR=/path/to/import EXPORT_DIR=/path/to/export"
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py cli move --import-dir $(IMPORT_DIR) --export-dir $(EXPORT_DIR) $(if $(DRY_RUN),--dry-run)
+
+# テスト実行
+.PHONY: test
+test: venv ## 🧪 全てのテストを実行
+	@echo "新アーキテクチャのテストを実行中..."
+	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_domain_models.py && $(PYTHON) test_repositories.py
+
+.PHONY: test-domain
+test-domain: venv ## 🧪 ドメインモデルのテストを実行
+	@echo "ドメインモデルのテストを実行中..."
+	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_domain_models.py
+
+.PHONY: test-repositories
+test-repositories: venv ## 🧪 リポジトリのテストを実行
+	@echo "リポジトリのテストを実行中..."
+	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_repositories.py
+
+.PHONY: test-services
+test-services: venv ## 🧪 サービス層のテストを実行
+	@echo "サービス層のテストを実行中..."
+	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_services.py
 
 # Photo Organizer CLI を実行
 .PHONY: run-photo-organizer

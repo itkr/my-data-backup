@@ -23,32 +23,48 @@
 
 ## 📦 プロジェクト構造
 
+### 🏗️ v2.0 新アーキテクチャ（推奨）
+
 ```
 my-data-backup/
 ├── Makefile              # 開発環境の自動化
 ├── README.md             # このファイル
 ├── requirements.txt      # Python 依存パッケージ
 ├── venv/                 # Python 仮想環境
-├── common/               # 共通ライブラリ（レガシー）
-│   ├── __init__.py      # 初期化ファイル
-│   └── logger.py        # 統一ログ機構
 ├── src/                  # 新アーキテクチャ（v2.0）
 │   ├── main.py          # 統一エントリーポイント
 │   ├── app/             # アプリケーション層
 │   │   ├── gui/         # GUI層
-│   │   │   ├── app.py   # 統合GUIアプリケーション
-│   │   │   ├── simple_app.py # 簡易版統合GUI
-│   │   │   ├── components/   # 再利用可能コンポーネント
-│   │   │   └── modules/      # 機能別モジュール
+│   │   │   └── simple_app.py # 統合GUIアプリケーション
 │   │   └── cli/         # CLI層
+│   │       ├── photo_organizer.py # Photo Organizer CLI (v2.0)
+│   │       └── move.py          # Move CLI (v2.0)
 │   ├── core/            # ビジネスロジック層
-│   │   ├── services/    # サービス層
 │   │   ├── domain/      # ドメイン層
-│   │   └── utils/       # ユーティリティ
-│   ├── infrastructure/  # インフラ層
-│   │   ├── repositories.py # ファイルシステム実装
-│   │   └── logging/     # ログ機能
-│   └── shared/          # 共有リソース
+│   │   │   └── models.py      # データモデル
+│   │   └── services.py         # サービス層（ビジネスロジック）
+│   └── infrastructure/  # インフラ層
+│       ├── repositories.py    # ファイルシステム実装
+│       └── logging.py         # 統一ログシステム
+├── common/               # 共通ライブラリ（レガシー）
+│   ├── __init__.py      # 初期化ファイル
+│   └── logger.py        # 統一ログ機構
+├── photo_organizer/      # Photo Organizer ツール（レガシー）
+```
+
+### 🏛️ アーキテクチャの特徴
+
+**v2.0 新アーキテクチャ**は、以下の設計原則に基づいて構築されています：
+
+- **🏗️ モジュラー・コンポーネント構造**: 責任の分離と高い再利用性
+- **🔄 サービス層パターン**: ビジネスロジックとインフラの分離
+- **🧪 テスタビリティ**: 依存性注入による高いテスト容易性
+- **🎨 統合インターフェース**: GUI/CLI の統一されたユーザー体験
+- **📊 統一ログシステム**: 全コンポーネントで共通のログ機構
+
+### 📁 レガシー構造（v1.0）
+
+```
 ├── photo_organizer/      # Photo Organizer ツール（レガシー）
 │   ├── main.py          # CLI インターフェース
 │   └── gui.py           # GUI インターフェース
@@ -75,16 +91,25 @@ make docker-run-move
 make docker-run-photo-organizer
 ```
 
-### 💻 ローカル環境での使用
+### 💻 ローカル環境での使用（v2.0推奨）
 ```bash
 # 1. 開発環境の構築
 make setup
 
-# 2. 統合GUIアプリケーション を起動（v2.0推奨）
+# 2. 統合GUIアプリケーション を起動（v2.0）
 make run-unified-gui
 
-# または、レガシー版Photo Organizer GUI
+# 3. 新アーキテクチャ版CLI（推奨）
+cd src && python main.py --help
+```
+
+### 💻 レガシー版の使用
+```bash
+# レガシー版Photo Organizer GUI
 make run-photo-organizer-gui
+
+# レガシー版Move GUI
+make run-move-gui
 ```
 
 ## 🛠️ セットアップ
@@ -133,7 +158,33 @@ make docker-run-photo-organizer-gui
 
 ## 🎮 使用方法
 
-### GUI での使用
+### 🚀 v2.0 新アーキテクチャ（推奨）
+
+#### 統合GUI
+```bash
+# 統合GUIアプリケーション（推奨）
+make run-unified-gui
+# または
+cd src && python main.py gui
+```
+
+#### 新アーキテクチャ版CLI
+```bash
+# Photo Organizer CLI (v2.0)
+cd src && python main.py cli photo --src /path/to/source --dir /path/to/output --dry-run
+
+# Move CLI (v2.0)
+cd src && python main.py cli move --import-dir /path/to/import --export-dir /path/to/export --dry-run
+
+# ヘルプ表示
+cd src && python main.py --help
+cd src && python main.py cli photo --help
+cd src && python main.py cli move --help
+```
+
+### 🏛️ レガシー版 (v1.0)
+
+#### GUI での使用
 
 #### Photo Organizer GUI
 ```bash
@@ -145,7 +196,7 @@ make run-photo-organizer-gui
 make run-move-gui
 ```
 
-### CLI での使用
+#### CLI での使用
 
 #### Photo Organizer CLI
 ```bash
@@ -178,12 +229,14 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ### 🚀 アプリケーション実行
 | コマンド | 説明 |
 |----------|------|
-| `make run-unified-gui` | 統合GUIアプリケーション を起動（v2.0推奨） |
-| `make run-unified-app` | 統合アプリケーション（フル版）を起動 |
+| `make run-unified-gui` | **統合GUIアプリケーション を起動（v2.0推奨）** |
+| `make run-unified-app` | **統合アプリケーション（フル版）を起動（v2.0）** |
+| `make run-photo-cli-v2` | **Photo Organizer CLI (v2.0) を実行** |
+| `make run-move-cli-v2` | **Move CLI (v2.0) を実行** |
 | `make run-photo-organizer-gui` | Photo Organizer GUI を起動（レガシー） |
 | `make run-move-gui` | Move GUI を起動（レガシー） |
-| `make run-photo-organizer SRC=<path> DIR=<path>` | Photo Organizer CLI を実行 |
-| `make run-move SRC=<path> DEST=<path>` | Move CLI を実行 |
+| `make run-photo-organizer SRC=<path> DIR=<path>` | Photo Organizer CLI を実行（レガシー） |
+| `make run-move SRC=<path> DEST=<path>` | Move CLI を実行（レガシー） |
 | `make dev` | 開発環境構築 + Photo Organizer GUI 起動 |
 
 ### 🐳 Docker でのアプリケーション実行
@@ -271,7 +324,20 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 
 ## 🔄 ワークフロー例
 
-### 🐳 Docker を使用したカメラからの写真整理（推奨）
+### v2.0 新アーキテクチャでの写真整理（推奨）
+```bash
+# 1. 開発環境の構築
+make setup
+
+# 2. 統合GUIで直感的に操作
+make run-unified-gui
+
+# または、CLIでバッチ処理
+cd src && python main.py cli photo --src ~/Pictures/Camera --dir ~/Pictures/Organized --dry-run
+cd src && python main.py cli move --import-dir ~/Pictures/Organized --export-dir ~/Pictures/Archive --dry-run
+```
+
+### 🐳 Docker を使用したカメラからの写真整理
 ```bash
 # 1. Dockerイメージをビルド
 make docker-build-image
@@ -299,7 +365,7 @@ python -m photo_organizer.main --src /data/source --dir /data/output --dry-run
 python -m move.main --import-dir /data/source --export-dir /data/organized --dry-run
 ```
 
-### 1. カメラからの写真整理（ローカル環境）
+### 1. カメラからの写真整理（ローカル環境・レガシー版）
 ```bash
 # 1. 開発環境の構築
 make setup
@@ -311,7 +377,7 @@ make run-photo-organizer-gui
 make run-move-gui
 ```
 
-### 2. CLI でのバッチ処理
+### 2. CLI でのバッチ処理（レガシー版）
 ```bash
 # RAW/JPG の同期処理
 make run-photo-organizer SRC=~/Pictures/Camera DIR=~/Pictures/Organized
@@ -322,9 +388,16 @@ make run-move SRC=~/Pictures/Organized DEST=~/Pictures/Archive
 
 ## 📝 ログ機能
 
+### 🔧 v2.0 統一ログシステムの特徴
+- **🏗️ アーキテクチャレベルでの統合**: サービス層、インフラ層で統一されたログ出力
+- **📊 構造化ログ**: JSON形式での詳細な処理情報記録
+- **🎯 レベル別出力**: DEBUG, INFO, WARNING, ERROR, CRITICAL
+- **⚡ リアルタイム処理**: 進捗状況のリアルタイム表示
+- **🔄 GUI/CLI統合**: 統一されたログ表示インターフェース
+
+### 🏛️ レガシー統一ログ機構の特徴
 プロジェクト全体で統一されたログ機構を提供しており、処理の詳細を記録できます：
 
-### 🔧 統一ログ機構の特徴
 - **統一されたインターフェース**: 全ツールで同じログ機能を使用
 - **柔軟な出力先**: コンソール、ファイル、または両方に出力可能
 - **豊富なログレベル**: DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -375,4 +448,6 @@ cat /path/to/logfile.log
 
 ---
 
-**🎯 Quick Start**: `make dev` で開発環境を構築し、すぐに Photo Organizer GUI を起動できます！
+**🎯 Quick Start v2.0**: `make run-unified-gui` で統合GUIアプリケーションをすぐに起動できます！
+
+**🏛️ Legacy Support**: `make dev` でレガシー版の開発環境を構築し、Photo Organizer GUI を起動できます。
