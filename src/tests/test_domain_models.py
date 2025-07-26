@@ -5,12 +5,8 @@
 import unittest
 from datetime import datetime
 from pathlib import Path
-import sys
 
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.domain.models import (
     FileInfo,
     ProcessResult,

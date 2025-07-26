@@ -7,10 +7,7 @@ from pathlib import Path
 import sys
 from typing import Optional
 
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# パッケージインストール後は動的パス追加不要
 from src.core.services import MoveService
 from src.core.domain.models import OrganizationConfig
 from src.infrastructure.repositories import FileSystemRepository

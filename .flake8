@@ -1,0 +1,10 @@
+[flake8]
+# 開発可能パッケージ化により E402 エラーは発生しないため、extend-ignore から削除
+exclude = 
+    venv/,
+    legacy/,
+    __pycache__,
+    .git,
+    # 旧版ファイル（削除予定）
+    src/app/gui/unified_app.py
+max-line-length = 88

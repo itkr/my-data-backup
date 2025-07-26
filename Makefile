@@ -42,6 +42,10 @@ help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*(📊|📋|🐚|🧹).*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[34m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "💡 詳細なDockerヘルプ: make docker-help"
+	@echo ""
+	@echo "📖 ドキュメント"
+	@echo "  開発パッケージの注意点: docs/development-package.md"
+	@echo "  アーキテクチャ情報: docs/architecture.md"
 
 # 仮想環境構築
 .PHONY: venv
@@ -60,6 +64,8 @@ install: venv ## 🏗️ 依存パッケージをインストール
 	@echo "依存パッケージをインストール中..."
 	$(PIP) install --upgrade pip
 	$(PIP) install -r $(REQUIREMENTS)
+	@echo "開発可能パッケージとしてインストール中..."
+	$(PIP) install -e .
 	@echo "依存パッケージのインストールが完了しました"
 
 # 開発用セットアップ（初回実行時）
@@ -151,6 +157,13 @@ format: venv ## 🔍 Python コードを black でフォーマット
 	$(PYTHON) -m black ./ --line-length 88
 	@echo "フォーマットが完了しました"
 
+# コード品質チェック
+.PHONY: lint
+lint: venv ## 🔍 flake8 でコード品質をチェック
+	@echo "コード品質をチェック中..."
+	$(PYTHON) -m flake8 src/ --statistics
+	@echo "コード品質チェックが完了しました"
+
 # 共通ログ機構のテスト
 .PHONY: test-logger
 test-logger: venv ## 🔍 共通ログ機構のテスト実行
@@ -163,6 +176,20 @@ test-logger: venv ## 🔍 共通ログ機構のテスト実行
 list-packages: venv ## 📦 インストール済みパッケージの一覧表示
 	@echo "インストール済みパッケージ:"
 	$(PIP) list
+
+# パッケージ状態チェック
+.PHONY: check-package
+check-package: venv ## 🔍 開発可能パッケージの状態をチェック
+	@echo "パッケージ状態をチェック中..."
+	@./scripts/check_package.sh
+
+# パッケージ再インストール
+.PHONY: reinstall
+reinstall: venv ## 🔧 開発可能パッケージを再インストール
+	@echo "パッケージを再インストール中..."
+	$(PIP) uninstall -y my-data-backup || true
+	$(PIP) install -e .
+	@echo "再インストールが完了しました"
 
 # 依存パッケージのアップデート
 .PHONY: update-packages

@@ -7,14 +7,10 @@ import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime
-import sys
 import logging
 from unittest.mock import Mock, patch
 
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.core.services.photo_organizer_service import PhotoOrganizerService
 from src.core.services.move_service import MoveService
 from src.core.domain.models import FileInfo, OrganizationConfig, FileType

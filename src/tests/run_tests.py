@@ -6,10 +6,6 @@ import unittest
 import sys
 from pathlib import Path
 
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
 
 def run_all_tests():
     """全てのテストを実行"""

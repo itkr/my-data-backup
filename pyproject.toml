@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-data-backup"
+version = "2.0.0"
+description = "RAW/JPGファイル整理ツール統合版"
+authors = [
+    {name = "itkr", email = "itkr@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "customtkinter>=5.2.0",
+    "opencv-python>=4.8.0",
+    "click>=8.0.0",
+    "Pillow>=9.0.0",
+]
+
+[project.scripts]
+my-data-backup = "src.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.setuptools.package-dir]
+"" = "."

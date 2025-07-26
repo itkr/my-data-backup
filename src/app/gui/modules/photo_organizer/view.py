@@ -6,11 +6,6 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 import threading
-import sys
-
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.core.services import PhotoOrganizerService
 from src.core.domain.models import OrganizationConfig

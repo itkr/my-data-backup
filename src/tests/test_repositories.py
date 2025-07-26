@@ -7,13 +7,9 @@ import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime
-import sys
 import logging
 
-# プロジェクトルートをPythonパスに追加
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# 開発可能パッケージとしてインストール済みのため、クリーンなインポートが可能
 from src.infrastructure.repositories import FileSystemRepository
 from src.core.domain.models import FileInfo
 
