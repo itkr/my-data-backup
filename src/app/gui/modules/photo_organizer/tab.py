@@ -167,10 +167,12 @@ class PhotoOrganizerTab(BaseTab):
 
         # 設定作成
         config = OrganizationConfig(
-            source_dir=source_path,
-            target_dir=target_path,
             dry_run=self.dry_run_var.get(),
-            skip_duplicates=self.skip_duplicates_var.get(),
+            create_date_dirs=True,
+            create_type_dirs=True,
+            handle_duplicates=not self.skip_duplicates_var.get(),
+            log_operations=True,
+            preserve_original=False,
         )
 
         # バックグラウンド実行
@@ -180,6 +182,8 @@ class PhotoOrganizerTab(BaseTab):
         def run_photo_organizer():
             try:
                 result = self.photo_service.organize_photos(
+                    source_dir=source_path,
+                    target_dir=target_path,
                     config=config,
                     progress_callback=self.update_progress_callback,
                 )
