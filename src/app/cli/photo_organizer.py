@@ -115,23 +115,24 @@ class PhotoOrganizerCLI:
     help="ドライランモード（実際の操作を行わない）",
 )
 @click.option(
-    "--copy", is_flag=True, default=False, help="ファイルをコピー（移動ではなく）"
+    "--copy",
+    is_flag=True,
+    default=False,
+    help="ファイルをコピー（移動ではなく）",
 )
-@click.option("--isolate", is_flag=True, default=False, help="孤立ファイルを分離")
 @click.option(
-    "--execute", is_flag=True, default=False, help="実際に実行（ドライランを無効化）"
+    "--isolate",
+    is_flag=True,
+    default=False,
+    help="孤立ファイルを分離",
 )
-def main(src: str, dir: str, dry_run: bool, copy: bool, isolate: bool, execute: bool):
+def main(src: str, dir: str, dry_run: bool, copy: bool, isolate: bool):
     """
     Photo Organizer CLI - RAW/JPGファイル同期整理
 
     SRC: ソースディレクトリ
     DIR: 出力ディレクトリ
     """
-
-    # --execute オプションがある場合はドライランを無効化
-    if execute:
-        dry_run = False
 
     cli = PhotoOrganizerCLI()
     cli.run(src=src, dir=dir, dry_run=dry_run, copy=copy, isolate=isolate)

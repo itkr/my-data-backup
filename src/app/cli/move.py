@@ -120,7 +120,10 @@ class MoveCLI:
     help="インポートディレクトリ",
 )
 @click.option(
-    "--export-dir", required=True, type=click.Path(), help="エクスポートディレクトリ"
+    "--export-dir",
+    required=True,
+    type=click.Path(),
+    help="エクスポートディレクトリ",
 )
 @click.option(
     "--dry-run",
@@ -128,28 +131,17 @@ class MoveCLI:
     default=True,
     help="ドライランモード（実際の操作を行わない）",
 )
-@click.option("--suffix", type=str, help="特定の拡張子のファイルのみ処理")
 @click.option(
-    "--execute", is_flag=True, default=False, help="実際に実行（ドライランを無効化）"
+    "--suffix",
+    type=str,
+    help="特定の拡張子のファイルのみ処理",
 )
-@click.option("--verbose", is_flag=True, default=False, help="詳細ログを表示")
-def main(
-    import_dir: str,
-    export_dir: str,
-    dry_run: bool,
-    suffix: Optional[str],
-    execute: bool,
-    verbose: bool,
-):
+def main(import_dir: str, export_dir: str, dry_run: bool, suffix: Optional[str]):
     """
     Move CLI - 日付ベースファイル整理
 
     ファイルを日付・拡張子ごとのディレクトリ構造に整理します
     """
-
-    # --execute オプションがある場合はドライランを無効化
-    if execute:
-        dry_run = False
 
     cli = MoveCLI()
     cli.run(
