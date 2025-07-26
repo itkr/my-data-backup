@@ -40,6 +40,33 @@ my-data-backup/
     └── gui.py           # GUI インターフェース
 ```
 
+## クイックスタート
+
+### 🐳 Docker使用（推奨）- 環境構築不要
+```bash
+# 1. リポジトリのクローン
+git clone <repository-url>
+cd my-data-backup
+
+# 2. Dockerイメージをビルド
+make docker-build-image
+
+# 3. すぐに使用開始
+# ファイル整理の例
+make docker-run-move
+# または Photo Organizer を使用
+make docker-run-photo-organizer
+```
+
+### 💻 ローカル環境での使用
+```bash
+# 1. 開発環境の構築
+make setup
+
+# 2. Photo Organizer GUI を起動
+make run-photo-organizer-gui
+```
+
 ## 🛠️ セットアップ
 
 ### 前提条件
@@ -68,13 +95,18 @@ make info
 ### 4. Docker での使用（推奨）
 ```bash
 # Dockerイメージをビルド
-docker-compose build
+make docker-build-image
 
-# CLIモードで起動
-docker-compose up -d my-data-backup-cli
+# CLIコンテナを起動
+make docker-run-cli
 
-# GUIモードで起動（macOS/Linux）
-./docker-gui.sh
+# アプリケーションを実行
+make docker-run-move
+make docker-run-photo-organizer
+
+# GUIモードで起動（macOS/Linux、X11フォワーディング必要）
+make docker-run-move-gui
+make docker-run-photo-organizer-gui
 ```
 
 詳細なDocker使用方法は [DOCKER.md](DOCKER.md) を参照してください。
@@ -135,10 +167,16 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ### 🐳 Docker でのアプリケーション実行
 | コマンド | 説明 |
 |----------|------|
+| `make docker-build-image` | Dockerイメージをビルド |
+| `make docker-run-cli` | CLIコンテナを起動 |
 | `make docker-run-photo-organizer-gui` | Photo Organizer GUI をDockerで起動 |
 | `make docker-run-move-gui` | Move GUI をDockerで起動 |
 | `make docker-run-photo-organizer` | Photo Organizer CLI をDockerで実行 |
 | `make docker-run-move` | Move CLI をDockerで実行 |
+| `make docker-shell` | Dockerコンテナのシェルにアクセス |
+| `make docker-logs` | Dockerコンテナのログを表示 |
+| `make docker-status` | Docker環境の状態確認 |
+| `make docker-clean-docker` | Dockerコンテナ・イメージをクリーンアップ |
 | `make docker-help` | Docker専用ヘルプを表示 |
 
 ### ️ 開発用コマンド
@@ -211,7 +249,35 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 
 ## 🔄 ワークフロー例
 
-### 1. カメラからの写真整理
+### 🐳 Docker を使用したカメラからの写真整理（推奨）
+```bash
+# 1. Dockerイメージをビルド
+make docker-build-image
+
+# 2. Photo Organizer GUI で RAW/JPG を同期（X11フォワーディング必要）
+make docker-run-photo-organizer-gui
+
+# 3. Move CLI で日付ごとに整理（テスト用ファイルで確認）
+make docker-run-move
+```
+
+### 🐳 Docker CLI でのバッチ処理
+```bash
+# CLIコンテナを起動
+make docker-run-cli
+
+# コンテナ内でシェルにアクセス
+make docker-shell
+
+# コンテナ内で実行
+# RAW/JPG の同期処理
+python -m photo_organizer.main --src /data/source --dir /data/output --dry-run
+
+# 日付ごとの整理
+python -m move.main --import-dir /data/source --export-dir /data/organized --dry-run
+```
+
+### 1. カメラからの写真整理（ローカル環境）
 ```bash
 # 1. 開発環境の構築
 make setup

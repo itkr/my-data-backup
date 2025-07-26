@@ -16,7 +16,7 @@ services:
     working_dir: /app
     # CLIツールとして起動
     command: ["tail", "-f", "/dev/null"]  # コンテナを起動状態に保つ
-    
+
   # GUI対応サービス（X11フォワーディング用）
   my-data-backup-gui:
     build: .

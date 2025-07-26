@@ -1,11 +1,18 @@
-# 🐳 Docker でのプロジェクト利用方法
+# 🐳 Docker 使用ガイド
 
-このプロジェクトはDockerコンテナ内で動作させることができます。ローカル環境にPythonや依存関係をインストールすることなく、すぐにツールを利用できます。
+このガイドでは、my-data-backupツールをDockerで使用する方法を詳しく説明します。Dockerを使用することで、ローカル環境にPythonや依存関係をインストールすることなく、すぐにツールを利用できます。
+
+## 🎯 Docker使用のメリット
+
+- **環境構築不要**: Python環境の構築やパッケージインストールが不要
+- **一貫性**: どの環境でも同じ動作を保証
+- **隔離性**: ホストシステムに影響を与えない
+- **簡単な削除**: 不要になったら簡単にクリーンアップ可能
 
 ## 📋 必要な環境
 
 - **Docker**: 20.10 以上
-- **Docker Compose**: 2.0 以上
+- **Docker Compose**: 2.0 以上（オプション）
 - **GUI使用時**: 
   - **macOS**: XQuartz
   - **Linux**: X11サーバー
@@ -22,11 +29,31 @@ cd my-data-backup
 ### 2. Dockerイメージのビルド
 
 ```bash
-# 自動ビルド（推奨）
+# Makefile を使用（推奨）
+make docker-build-image
+
+# または Docker Compose を使用
 docker-compose build
 
 # または手動ビルド
 docker build -t my-data-backup:latest .
+```
+
+### 3. すぐに使用開始
+
+#### Move CLI でファイル整理
+```bash
+# CLIコンテナを起動
+make docker-run-cli
+
+# ファイル整理を実行（テスト用）
+make docker-run-move
+```
+
+#### Photo Organizer でRAW/JPG同期
+```bash
+# Photo Organizer を実行
+make docker-run-photo-organizer
 ```
 
 ### 3. コンテナの起動

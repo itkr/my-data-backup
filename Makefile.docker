@@ -103,12 +103,22 @@ docker-gui: ## 🎨 GUIモードの設定と起動（X11フォワーディング
 # Photo Organizer CLIをDockerで実行
 docker-photo-organizer: ## 📸 Photo Organizer CLIをDockerで実行
 	@echo "📸 Running Photo Organizer (CLI) in Docker..."
-	docker exec -it my-data-backup-cli make run-photo-organizer
+	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
+		echo "使用方法: make docker-run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力ディレクトリ>"; \
+		echo "例: make docker-run-photo-organizer SRC=/tmp/test_source DIR=/tmp/test_output"; \
+		exit 1; \
+	fi
+	docker exec -it my-data-backup-cli bash -c "cd /app/photo_organizer && python main.py --src $(SRC) --dir $(DIR)"
 
 # Move CLIをDockerで実行
 docker-move: ## 📁 Move CLIをDockerで実行
 	@echo "📁 Running Move tool (CLI) in Docker..."
-	docker exec -it my-data-backup-cli make run-move
+	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
+		echo "使用方法: make docker-run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
+		echo "例: make docker-run-move SRC=/tmp/test_source DEST=/tmp/test_dest"; \
+		exit 1; \
+	fi
+	docker exec -it my-data-backup-cli bash -c "cd /app/move && python main.py --import-dir $(SRC) --export-dir $(DEST)"
 
 # Photo Organizer GUIをDockerで実行
 docker-photo-organizer-gui: ## 🎨 Photo Organizer GUIをDockerで実行

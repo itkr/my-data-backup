@@ -8,7 +8,8 @@ PIP = $(shell pwd)/$(VENV_DIR)/bin/pip
 REQUIREMENTS = requirements.txt
 
 # デフォルトターゲット
-.PHONY: help
+.DEFAULT_GOAL := help
+
 help: ## ヘルプを表示
 	@echo "🐍 ローカル開発環境コマンド"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹\|🏗️\|🔍\|📦\|🚀\|✨" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -98,7 +99,17 @@ run-move: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先
 		echo "例: make run-move SRC=/path/to/source DEST=/path/to/destination"; \
 		exit 1; \
 	fi
-	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DEST)"
+	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
+
+# Move CLI を実行（Docker用）
+.PHONY: run-move-docker
+run-move-docker: ## 🐳 Move CLI を実行（Docker内用）
+	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
+		echo "使用方法: make run-move-docker SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
+		echo "例: make run-move-docker SRC=/path/to/source DEST=/path/to/destination"; \
+		exit 1; \
+	fi
+	cd move && PYTHONPATH=/app python main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
 
 # コードフォーマット
 .PHONY: format
@@ -205,7 +216,7 @@ dev: setup ## 🎯 開発環境を構築してPhoto Organizer GUI を起動
 # ================================
 
 # Docker環境の管理
-.PHONY: docker-help docker-build-image docker-run-cli docker-run-gui
+.PHONY: docker-help docker-build-image docker-run-cli docker-run-gui docker-quickstart
 docker-help: ## 🐳 Dockerコマンドのヘルプを表示
 	@$(MAKE) -f Makefile.docker help
 
@@ -217,6 +228,23 @@ docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動
 
 docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動
 	@$(MAKE) -f Makefile.docker docker-gui
+
+docker-quickstart: ## 🐳 Docker環境のワンクリックセットアップ（ビルド→起動→テスト実行）
+	@echo "🚀 Docker環境のクイックスタートを開始します..."
+	@echo "📦 1. Dockerイメージをビルド中..."
+	@$(MAKE) docker-build-image
+	@echo "🐳 2. CLIコンテナを起動中..."
+	@$(MAKE) docker-run-cli
+	@echo "✅ 3. セットアップ完了！テスト実行を開始..."
+	@echo "📁 Move CLI をテスト実行中..."
+	@$(MAKE) docker-run-move
+	@echo ""
+	@echo "🎉 Docker環境のセットアップが完了しました！"
+	@echo "💡 以下のコマンドでアプリケーションを使用できます："
+	@echo "   make docker-run-move                    # ファイル整理"
+	@echo "   make docker-run-photo-organizer         # RAW/JPG同期"
+	@echo "   make docker-shell                       # コンテナのシェルにアクセス"
+	@echo "   make docker-help                        # Docker専用ヘルプ"
 
 # Dockerでアプリケーション実行
 .PHONY: docker-run-photo-organizer docker-run-move docker-run-photo-organizer-gui docker-run-move-gui
