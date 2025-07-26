@@ -7,10 +7,15 @@ from tkinter import filedialog, messagebox
 from pathlib import Path
 import threading
 from typing import Optional
+import sys
 
-from ....core.services import PhotoOrganizerService
-from ....core.domain.models import OrganizationConfig
-from ....infrastructure.repositories import FileSystemRepository
+# プロジェクトルートをPythonパスに追加
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.core.services import PhotoOrganizerService
+from src.core.domain.models import OrganizationConfig
+from src.infrastructure.repositories import FileSystemRepository
 
 
 class PhotoOrganizerTab:

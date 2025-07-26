@@ -11,10 +11,10 @@ from typing import Optional
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from ...core.services import MoveService
-from ...core.domain.models import OrganizationConfig
-from ...infrastructure.repositories import FileSystemRepository
-from ...infrastructure.logging import get_logger
+from src.core.services import MoveService
+from src.core.domain.models import OrganizationConfig
+from src.infrastructure.repositories import FileSystemRepository
+from src.infrastructure.logging import get_logger
 
 
 class MoveCLI:

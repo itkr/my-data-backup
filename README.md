@@ -52,6 +52,10 @@ my-data-backup/
 │   ├── move/            # Move ツール（レガシー）
 │   ├── make_preview/    # プレビュー機能（レガシー）
 │   └── test_common_logger.py # レガシーテストファイル
+├── samples/              # サンプルスクリプト
+│   ├── gui.sh           # 統合GUIアプリケーション起動
+│   ├── photo_organizer.sh # Photo Organizer CLI サンプル
+│   └── move.sh          # Move CLI サンプル
 ```
 
 ### 🏛️ アーキテクチャの特徴
@@ -105,7 +109,19 @@ make run-gui
 cd src && python main.py --help
 ```
 
-### 💻 レガシー版の使用
+### � サンプルスクリプト
+```bash
+# 統合GUIアプリケーション起動
+./samples/gui.sh
+
+# Photo Organizer CLI サンプル実行
+./samples/photo_organizer.sh
+
+# Move CLI サンプル実行
+./samples/move.sh
+```
+
+### �💻 レガシー版の使用
 ```bash
 # レガシー版Photo Organizer GUI
 make run-photo-organizer-gui

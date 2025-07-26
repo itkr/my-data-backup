@@ -1,11 +1,23 @@
 #!/bin/bash
+# Move サンプルスクリプト - v2.0 新アーキテクチャ版
+
 current_dir=$(cd $(dirname $0); pwd)
-cd ~/Projects/github.com/itkr/my-data-backup
+project_root="$(cd $(dirname $0)/.. && pwd)"
+
+cd "${project_root}"
 source ./venv/bin/activate
 
-# PYTHONPATHを設定してプロジェクトルートを追加
-export PYTHONPATH=$(pwd):$PYTHONPATH
+echo "🚀 Move CLI (v2.0) を実行中..."
+echo "📂 インポートディレクトリ: ${current_dir}"
+echo "📁 エクスポートディレクトリ: ${current_dir}"
+echo ""
 
-python ./move/main.py \
-    --import-dir=${current_dir} \
-    --export-dir=${current_dir}
+# v2.0 新アーキテクチャのコマンドを実行
+cd src && PYTHONPATH="${project_root}" python main.py cli move \
+    --import-dir="${current_dir}" \
+    --export-dir="${current_dir}" \
+    --dry-run
+
+echo ""
+echo "✅ 実行完了！"
+echo "💡 実際のファイル移動を行う場合は --dry-run オプションを削除してください"
