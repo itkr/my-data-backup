@@ -29,13 +29,30 @@ my-data-backup/
 ├── README.md             # このファイル
 ├── requirements.txt      # Python 依存パッケージ
 ├── venv/                 # Python 仮想環境
-├── common/               # 共通ライブラリ
+├── common/               # 共通ライブラリ（レガシー）
 │   ├── __init__.py      # 初期化ファイル
 │   └── logger.py        # 統一ログ機構
-├── photo_organizer/      # Photo Organizer ツール
+├── src/                  # 新アーキテクチャ（v2.0）
+│   ├── main.py          # 統一エントリーポイント
+│   ├── app/             # アプリケーション層
+│   │   ├── gui/         # GUI層
+│   │   │   ├── app.py   # 統合GUIアプリケーション
+│   │   │   ├── simple_app.py # 簡易版統合GUI
+│   │   │   ├── components/   # 再利用可能コンポーネント
+│   │   │   └── modules/      # 機能別モジュール
+│   │   └── cli/         # CLI層
+│   ├── core/            # ビジネスロジック層
+│   │   ├── services/    # サービス層
+│   │   ├── domain/      # ドメイン層
+│   │   └── utils/       # ユーティリティ
+│   ├── infrastructure/  # インフラ層
+│   │   ├── repositories.py # ファイルシステム実装
+│   │   └── logging/     # ログ機能
+│   └── shared/          # 共有リソース
+├── photo_organizer/      # Photo Organizer ツール（レガシー）
 │   ├── main.py          # CLI インターフェース
 │   └── gui.py           # GUI インターフェース
-└── move/                 # Move ツール
+└── move/                 # Move ツール（レガシー）
     ├── main.py          # CLI インターフェース
     └── gui.py           # GUI インターフェース
 ```
@@ -63,7 +80,10 @@ make docker-run-photo-organizer
 # 1. 開発環境の構築
 make setup
 
-# 2. Photo Organizer GUI を起動
+# 2. 統合GUIアプリケーション を起動（v2.0推奨）
+make run-unified-gui
+
+# または、レガシー版Photo Organizer GUI
 make run-photo-organizer-gui
 ```
 
@@ -158,8 +178,10 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ### 🚀 アプリケーション実行
 | コマンド | 説明 |
 |----------|------|
-| `make run-photo-organizer-gui` | Photo Organizer GUI を起動 |
-| `make run-move-gui` | Move GUI を起動 |
+| `make run-unified-gui` | 統合GUIアプリケーション を起動（v2.0推奨） |
+| `make run-unified-app` | 統合アプリケーション（フル版）を起動 |
+| `make run-photo-organizer-gui` | Photo Organizer GUI を起動（レガシー） |
+| `make run-move-gui` | Move GUI を起動（レガシー） |
 | `make run-photo-organizer SRC=<path> DIR=<path>` | Photo Organizer CLI を実行 |
 | `make run-move SRC=<path> DEST=<path>` | Move CLI を実行 |
 | `make dev` | 開発環境構築 + Photo Organizer GUI 起動 |

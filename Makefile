@@ -81,6 +81,31 @@ run-move-gui: venv check-env ## 🚀 Move GUI を実行
 	@echo "Move GUI を起動中..."
 	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
+# 統合GUI を実行
+.PHONY: run-unified-gui
+run-unified-gui: venv check-env ## 🚀 統合GUIアプリケーション を実行
+	@echo "統合GUIアプリケーション を起動中..."
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.simple_app
+
+# 統合アプリケーション（フル版）を実行
+.PHONY: run-unified-app
+run-unified-app: venv check-env ## 🚀 統合アプリケーション（フル版）を実行
+	@echo "統合アプリケーション を起動中..."
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py gui
+
+# 新アーキテクチャ版CLI実行
+.PHONY: run-photo-cli-v2
+run-photo-cli-v2: venv check-env ## 🚀 Photo Organizer CLI (新アーキテクチャ版)
+	@echo "Photo Organizer CLI (新アーキテクチャ版) を起動中..."
+	@echo "使用例: make run-photo-cli-v2 SRC=/path/to/source DIR=/path/to/output"
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py cli photo --src $(SRC) --dir $(DIR) $(if $(DRY_RUN),--dry-run)
+
+.PHONY: run-move-cli-v2
+run-move-cli-v2: venv check-env ## 🚀 Move CLI (新アーキテクチャ版)
+	@echo "Move CLI (新アーキテクチャ版) を起動中..."
+	@echo "使用例: make run-move-cli-v2 IMPORT_DIR=/path/to/import EXPORT_DIR=/path/to/export"
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py cli move --import-dir $(IMPORT_DIR) --export-dir $(EXPORT_DIR) $(if $(DRY_RUN),--dry-run)
+
 # Photo Organizer CLI を実行
 .PHONY: run-photo-organizer
 run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
