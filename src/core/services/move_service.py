@@ -52,13 +52,19 @@ class MoveService:
         files = self.file_repository.scan_directory(source_dir)
         self.logger.info(f"スキャン完了: {len(files)} ファイル")
 
-        # 2. 日付ベースでグループ化
-        date_groups = self._group_by_date(files)
+        # 2. 拡張子フィルタリング
+        filtered_files = [f for f in files if config.should_process_file(f.path)]
+        self.logger.info(
+            f"フィルタリング後: {len(filtered_files)} ファイル (拡張子: {config.file_extensions})"
+        )
+
+        # 3. 日付ベースでグループ化
+        date_groups = self._group_by_date(filtered_files)
         self.logger.info(f"日付グループ化完了: {len(date_groups)} グループ")
 
-        # 3. ファイル処理
+        # 4. ファイル処理
         result = ProcessResult()
-        total_files = len(files)
+        total_files = len(filtered_files)
         processed = 0
 
         for date_key, file_group in date_groups.items():

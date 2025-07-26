@@ -127,3 +127,36 @@ class OrganizationConfig:
     handle_duplicates: bool = True
     log_operations: bool = True
     preserve_original: bool = False
+    file_extensions: List[str] = None
+
+    def __post_init__(self):
+        """デフォルト拡張子の設定"""
+        if self.file_extensions is None:
+            # デフォルト: 一般的なメディアファイル拡張子
+            self.file_extensions = [
+                ".jpg",
+                ".jpeg",
+                ".arw",
+                ".raw",
+                ".cr2",
+                ".nef",
+                ".dng",  # 画像
+                ".mov",
+                ".mp4",
+                ".mpg",
+                ".avi",
+                ".mts",
+                ".lrf",
+                ".lrv",  # 動画
+                ".wav",
+                ".mp3",
+                ".aac",
+                ".flac",  # 音声
+            ]
+
+    def should_process_file(self, file_path: Path) -> bool:
+        """ファイルが処理対象かどうか判定"""
+        if not self.file_extensions:
+            return True  # フィルタなしの場合は全ファイル処理
+
+        return file_path.suffix.lower() in [ext.lower() for ext in self.file_extensions]

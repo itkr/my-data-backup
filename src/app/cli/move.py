@@ -4,7 +4,7 @@ Move CLI - 新アーキテクチャ版
 
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import click
 
@@ -25,7 +25,7 @@ class MoveCLI:
         import_dir: str,
         export_dir: str,
         dry_run: bool = True,
-        suffix: Optional[str] = None,
+        suffixes: Optional[List[str]] = None,
     ):
         """Move CLIメイン実行"""
 
@@ -46,6 +46,11 @@ class MoveCLI:
             move_service = MoveService(file_repository, self.logger.logger)
 
             # 設定作成
+            file_extensions = None
+            if suffixes:
+                # ドット付きの拡張子に変換
+                file_extensions = [f".{s.lstrip('.')}" for s in suffixes]
+
             config = OrganizationConfig(
                 dry_run=dry_run,
                 create_date_dirs=True,
@@ -53,6 +58,7 @@ class MoveCLI:
                 handle_duplicates=True,
                 log_operations=True,
                 preserve_original=False,
+                file_extensions=file_extensions,
             )
 
             # 実行情報表示
@@ -61,8 +67,10 @@ class MoveCLI:
             click.echo(f"インポート: {source_path}")
             click.echo(f"エクスポート: {target_path}")
             click.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-            if suffix:
-                click.echo(f"フィルタ: *.{suffix}")
+            if suffixes:
+                click.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
+            else:
+                click.echo("フィルタ: デフォルト拡張子 (jpg, arw, mov, mp4, etc.)")
             click.echo("=" * 50)
 
             if dry_run:
@@ -133,10 +141,12 @@ class MoveCLI:
 )
 @click.option(
     "--suffix",
+    "suffixes",
+    multiple=True,
     type=str,
-    help="特定の拡張子のファイルのみ処理",
+    help="処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
 )
-def main(import_dir: str, export_dir: str, dry_run: bool, suffix: Optional[str]):
+def main(import_dir: str, export_dir: str, dry_run: bool, suffixes: tuple):
     """
     Move CLI - 日付ベースファイル整理
 
@@ -145,7 +155,10 @@ def main(import_dir: str, export_dir: str, dry_run: bool, suffix: Optional[str])
 
     cli = MoveCLI()
     cli.run(
-        import_dir=import_dir, export_dir=export_dir, dry_run=dry_run, suffix=suffix
+        import_dir=import_dir,
+        export_dir=export_dir,
+        dry_run=dry_run,
+        suffixes=list(suffixes),
     )
 
 

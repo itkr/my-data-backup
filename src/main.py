@@ -54,6 +54,11 @@ def main():
         "--export-dir", required=True, help="エクスポートディレクトリ"
     )
     move_parser.add_argument("--dry-run", action="store_true", help="ドライランモード")
+    move_parser.add_argument(
+        "--suffix",
+        action="append",
+        help="処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
+    )
 
     args = parser.parse_args()
 
@@ -112,7 +117,10 @@ def launch_move_cli(args):
 
         cli = MoveCLI()
         cli.run(
-            import_dir=args.import_dir, export_dir=args.export_dir, dry_run=args.dry_run
+            import_dir=args.import_dir,
+            export_dir=args.export_dir,
+            dry_run=args.dry_run,
+            suffixes=args.suffix or [],
         )
 
     except ImportError as e:
