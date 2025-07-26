@@ -152,12 +152,39 @@ run-move: venv ## 🚀 Move CLI を実行（レガシー）（引数: SRC=ソー
 	fi
 	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
 
-# コードフォーマット
+# ========================================
+# Code Quality & Formatting Commands
+# ========================================
+
+# 統一されたコードフォーマット（推奨順序）
 .PHONY: format
-format: venv ## 🔍 Python コードを black でフォーマット
-	@echo "コードをフォーマット中..."
-	$(PYTHON) -m black ./ --line-length 88
-	@echo "フォーマットが完了しました"
+format: venv ## 🔍 統一されたコードフォーマット（autoflake→isort→black）
+	@echo "🧹 統一されたコードフォーマットを実行中..."
+	@echo "1️⃣ 未使用importを削除中 (autoflake)..."
+	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive src/
+	@echo "2️⃣ importを整理中 (isort)..."
+	$(PYTHON) -m isort src/
+	@echo "3️⃣ コード全体をフォーマット中 (black)..."
+	$(PYTHON) -m black src/
+	@echo "✅ 統一フォーマットが完了しました"
+	@echo "🔍 結果を確認中..."
+	@if $(PYTHON) -m flake8 src/ --statistics; then \
+		echo "✅ コード品質チェック: エラーなし"; \
+	else \
+		echo "⚠️ まだいくつかのエラーが残っています"; \
+	fi
+
+# エイリアス（下位互換性のため）
+.PHONY: format-unified
+format-unified: format ## 🔍 統一フォーマット（formatと同じ）
+
+# importのみ整理
+.PHONY: format-imports
+format-imports: venv ## 🔍 importのみを整理（autoflake→isort）
+	@echo "🔄 importを整理中..."
+	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive src/
+	$(PYTHON) -m isort src/
+	@echo "✅ import整理が完了しました"
 
 # コード品質チェック
 .PHONY: lint
@@ -165,18 +192,6 @@ lint: venv ## 🔍 flake8 でコード品質をチェック
 	@echo "コード品質をチェック中..."
 	$(PYTHON) -m flake8 src/ --statistics
 	@echo "コード品質チェックが完了しました"
-
-# リントエラーの自動修正
-.PHONY: fix-lint
-fix-lint: venv ## 🔍 リントエラーを自動修正
-	@echo "リントエラーを自動修正中..."
-	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --recursive src/
-	$(PYTHON) -m autopep8 --in-place --aggressive --aggressive --recursive src/
-	# $(PYTHON) -m isort src/
-	$(PYTHON) -m black src/
-	@echo "自動修正が完了しました"
-	@echo "結果を確認中..."
-	$(PYTHON) -m flake8 src/ --statistics || echo "まだいくつかのエラーが残っています"
 
 # 共通ログ機構のテスト
 .PHONY: test-logger
