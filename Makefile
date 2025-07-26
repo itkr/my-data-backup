@@ -72,35 +72,23 @@ setup: venv install ## 🏗️ 開発環境を初期セットアップ
 	@echo "  make photo-cli           # Photo Organizer CLI"
 	@echo "  make move-cli            # Move CLI"
 
-# Photo Organizer GUI を実行
+# Photo Organizer GUI を実行（レガシー）
 .PHONY: run-photo-organizer-gui
-run-photo-organizer-gui: venv check-env ## 🚀 Photo Organizer GUI を実行
+run-photo-organizer-gui: venv check-env ## 🚀 Photo Organizer GUI を実行（レガシー）
 	@echo "Photo Organizer GUI を起動中..."
-	cd photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
+	cd legacy/photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
-# Move GUI を実行
+# Move GUI を実行（レガシー）
 .PHONY: run-move-gui
-run-move-gui: venv check-env ## 🚀 Move GUI を実行
+run-move-gui: venv check-env ## 🚀 Move GUI を実行（レガシー）
 	@echo "Move GUI を起動中..."
-	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
+	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
 # 統合GUI を実行
 .PHONY: run-gui
 run-gui: venv check-env ## 🚀 統合GUIアプリケーション を実行
 	@echo "統合GUIアプリケーション を起動中..."
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app
-
-# 後方互換性のためのエイリアス
-.PHONY: run-unified-gui
-run-unified-gui: run-gui ## 🚀 統合GUIアプリケーション を実行（エイリアス）
-
-# 統合アプリケーション（フル版）を実行
-.PHONY: run-unified-app
-# 統合アプリケーションを実行
-.PHONY: run-unified-app
-run-unified-app: venv check-env ## 🚀 統合アプリケーション（推奨版）を実行
-	@echo "統合アプリケーション を起動中..."
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py gui
 
 # 新アーキテクチャ版CLI実行
 .PHONY: run-photo-cli-v2
@@ -136,25 +124,25 @@ test-services: venv ## 🧪 サービス層のテストを実行
 	@echo "サービス層のテストを実行中..."
 	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_services.py
 
-# Photo Organizer CLI を実行
+# Photo Organizer CLI を実行（レガシー）
 .PHONY: run-photo-organizer
-run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
+run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（レガシー）（引数: SRC=ソース DIR=出力先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
 		echo "使用方法: make run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力先ディレクトリ>"; \
 		echo "例: make run-photo-organizer SRC=/path/to/source DIR=/path/to/output"; \
 		exit 1; \
 	fi
-	cd photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DIR)"
+	cd legacy/photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DIR)"
 
-# Move CLI を実行
+# Move CLI を実行（レガシー）
 .PHONY: run-move
-run-move: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先）
+run-move: venv ## 🚀 Move CLI を実行（レガシー）（引数: SRC=ソース DEST=移動先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
 		echo "使用方法: make run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
 		echo "例: make run-move SRC=/path/to/source DEST=/path/to/destination"; \
 		exit 1; \
 	fi
-	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
+	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
 
 # コードフォーマット
 .PHONY: format
@@ -254,7 +242,7 @@ clean-all: clean ## ✨ 仮想環境を含む全ての一時ファイルを削�
 .PHONY: dev
 dev: setup ## 🎯 開発環境を構築してPhoto Organizer GUI を起動
 	@echo "開発環境構築後、統合版 GUI を起動します..."
-	$(MAKE) run-unified-gui
+	$(MAKE) run-gui
 
 # ================================
 # Docker コマンドエイリアス

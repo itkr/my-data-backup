@@ -46,10 +46,12 @@ my-data-backup/
 │   └── infrastructure/  # インフラ層
 │       ├── repositories.py    # ファイルシステム実装
 │       └── logging.py         # 統一ログシステム
-├── common/               # 共通ライブラリ（レガシー）
-│   ├── __init__.py      # 初期化ファイル
-│   └── logger.py        # 統一ログ機構
-├── photo_organizer/      # Photo Organizer ツール（レガシー）
+├── legacy/               # レガシー実装（v1.0）
+│   ├── common/          # 共通ライブラリ（レガシー）
+│   ├── photo_organizer/ # Photo Organizer ツール（レガシー）
+│   ├── move/            # Move ツール（レガシー）
+│   ├── make_preview/    # プレビュー機能（レガシー）
+│   └── test_common_logger.py # レガシーテストファイル
 ```
 
 ### 🏛️ アーキテクチャの特徴
@@ -184,16 +186,27 @@ cd src && python main.py cli move --help
 
 ### 🏛️ レガシー版 (v1.0)
 
+すべてのレガシー実装は `legacy/` ディレクトリに移動されました。
+
 #### GUI での使用
 
-#### Photo Organizer GUI
+#### Photo Organizer GUI（レガシー）
 ```bash
 make run-photo-organizer-gui
 ```
 
-#### Move GUI
+#### Move GUI（レガシー）
 ```bash
 make run-move-gui
+```
+
+#### CLI での使用（レガシー）
+```bash
+# Photo Organizer CLI
+make run-photo-organizer SRC=/path/to/source DIR=/path/to/output
+
+# Move CLI
+make run-move SRC=/path/to/source DEST=/path/to/destination
 ```
 
 #### CLI での使用
@@ -456,4 +469,4 @@ cat /path/to/logfile.log
 
 **🎯 Quick Start v2.0**: `make run-gui` で統合GUIアプリケーション（推奨版）をすぐに起動できます！
 
-**🏛️ Legacy Support**: `make dev` でレガシー版の開発環境を構築し、Photo Organizer GUI を起動できます。
+**🏛️ Legacy Support**: レガシー版は `legacy/` ディレクトリに移動済み。`make run-photo-organizer-gui` や `make run-move-gui` で利用可能です。
