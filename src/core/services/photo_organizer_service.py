@@ -12,8 +12,6 @@ from ..domain.models import (
     ProcessResult,
     PhotoPair,
     OrganizationConfig,
-    FileOperation,
-    OperationType,
 )
 from ..domain.repositories import FileRepository
 

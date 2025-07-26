@@ -8,7 +8,6 @@ from tkinter import filedialog, messagebox
 import sys
 import threading
 from pathlib import Path
-from typing import Optional, Callable
 
 # プロジェクトルートをPythonパスに追加
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent

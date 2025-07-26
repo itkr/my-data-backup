@@ -6,7 +6,6 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pathlib import Path
 import threading
-from typing import Optional
 import sys
 
 # プロジェクトルートをPythonパスに追加

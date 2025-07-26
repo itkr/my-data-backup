@@ -3,7 +3,6 @@
 """
 
 import json
-import os
 from dataclasses import dataclass, asdict, fields
 from pathlib import Path
 from typing import Dict, Any, Optional
