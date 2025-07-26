@@ -91,6 +91,8 @@ class UnifiedLogger:
             self.logger.error(f"❌ 失敗: {operation_name}")
 
 
-def get_logger(name: str = "my_data_backup", log_file: Optional[str] = None) -> UnifiedLogger:
+def get_logger(
+    name: str = "my_data_backup", log_file: Optional[str] = None
+) -> UnifiedLogger:
     """ロガーを取得する便利関数"""
     return UnifiedLogger(name=name, log_file=log_file)

@@ -1,8 +1,45 @@
-# Docker Compose for my-data-backup
-version: '3.8'
+# Docker Compose for my-data-backup v2.0
 
 services:
-  # CLIモード用のサービス
+  # v2.0 統合アプリケーション用サービス
+  my-data-backup-v2:
+    build: .
+    container_name: my-data-backup-v2
+    volumes:
+      # データディレクトリをマウント
+      - ./data:/data
+      # 設定やログの永続化
+      - ./logs:/app/logs
+      # 新アーキテクチャの作業ディレクトリ
+      - ./src:/app/src
+    environment:
+      - PYTHONPATH=/app
+    working_dir: /app
+    # v2.0統合CLIとして起動
+    command: ["tail", "-f", "/dev/null"]  # コンテナを起動状態に保つ
+
+  # v2.0 GUI対応サービス（X11フォワーディング用）
+  my-data-backup-gui-v2:
+    build: .
+    container_name: my-data-backup-gui-v2
+    volumes:
+      # X11ソケットをマウント（macOS/Linux）
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # データディレクトリをマウント
+      - ./data:/data
+      # 設定やログの永続化
+      - ./logs:/app/logs
+      # 新アーキテクチャの作業ディレクトリ
+      - ./src:/app/src
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PYTHONPATH=/app
+    network_mode: host
+    working_dir: /app
+    # v2.0統合GUIアプリケーションの場合は手動で起動
+    command: ["tail", "-f", "/dev/null"]
+
+  # CLIモード用のサービス（レガシー版との互換性維持）
   my-data-backup-cli:
     build: .
     container_name: my-data-backup-cli
@@ -17,7 +54,7 @@ services:
     # CLIツールとして起動
     command: ["tail", "-f", "/dev/null"]  # コンテナを起動状態に保つ
 
-  # GUI対応サービス（X11フォワーディング用）
+  # GUI対応サービス（レガシー版との互換性維持）
   my-data-backup-gui:
     build: .
     container_name: my-data-backup-gui

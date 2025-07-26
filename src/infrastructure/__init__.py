@@ -4,6 +4,4 @@
 
 from .repositories import FileSystemRepository
 
-__all__ = [
-    'FileSystemRepository'
-]
+__all__ = ["FileSystemRepository"]

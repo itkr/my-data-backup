@@ -96,8 +96,10 @@ make docker-run-photo-organizer
 # 1. 開発環境の構築
 make setup
 
-# 2. 統合GUIアプリケーション を起動（v2.0）
-make run-unified-gui
+# 2. 統合GUIアプリケーション を起動（v2.0）- 3つのバージョンから選択
+make run-config-gui      # 設定管理対応版（推奨）
+make run-enhanced-gui    # 機能強化版
+make run-unified-gui     # 基本版
 
 # 3. 新アーキテクチャ版CLI（推奨）
 cd src && python main.py --help
@@ -229,7 +231,9 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ### 🚀 アプリケーション実行
 | コマンド | 説明 |
 |----------|------|
-| `make run-unified-gui` | **統合GUIアプリケーション を起動（v2.0推奨）** |
+| `make run-config-gui` | **統合GUI（設定管理対応版）を起動（推奨）** |
+| `make run-enhanced-gui` | **統合GUI（機能強化版）を起動** |
+| `make run-unified-gui` | **統合GUI（基本版）を起動** |
 | `make run-unified-app` | **統合アプリケーション（フル版）を起動（v2.0）** |
 | `make run-photo-cli-v2` | **Photo Organizer CLI (v2.0) を実行** |
 | `make run-move-cli-v2` | **Move CLI (v2.0) を実行** |
@@ -243,7 +247,12 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 | コマンド | 説明 |
 |----------|------|
 | `make docker-build-image` | Dockerイメージをビルド |
-| `make docker-run-cli` | CLIコンテナを起動 |
+| **v2.0 新アーキテクチャ** | |
+| `make docker-run-v2` | **v2.0統合アプリケーションコンテナを起動** |
+| `make docker-run-gui-v2` | **v2.0統合GUIアプリケーションコンテナを起動** |
+| `make docker-test-v2` | **v2.0新アーキテクチャのテストを実行** |
+| **レガシー版（互換性維持）** | |
+| `make docker-run-cli` | CLIコンテナを起動（レガシー） |
 | `make docker-run-photo-organizer-gui` | Photo Organizer GUI をDockerで起動 |
 | `make docker-run-move-gui` | Move GUI をDockerで起動 |
 | `make docker-run-photo-organizer` | Photo Organizer CLI をDockerで実行 |
@@ -448,6 +457,6 @@ cat /path/to/logfile.log
 
 ---
 
-**🎯 Quick Start v2.0**: `make run-unified-gui` で統合GUIアプリケーションをすぐに起動できます！
+**🎯 Quick Start v2.0**: `make run-config-gui` で統合GUIアプリケーション（設定管理対応版・推奨）をすぐに起動できます！
 
 **🏛️ Legacy Support**: `make dev` でレガシー版の開発環境を構築し、Photo Organizer GUI を起動できます。

@@ -91,6 +91,18 @@ run-unified-gui: venv check-env ## 🚀 統合GUIアプリケーション を実
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.simple_app
 
 # 統合アプリケーション（フル版）を実行
+.PHONY: run-enhanced-gui
+run-enhanced-gui: venv check-env ## 🚀 統合アプリケーション（機能強化版）を実行
+	@echo "統合アプリケーション（機能強化版）を起動中..."
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.enhanced_app
+
+# 統合アプリケーション（設定管理対応版）を実行
+.PHONY: run-config-gui
+run-config-gui: venv check-env ## 🚀 統合アプリケーション（設定管理対応版）を実行
+	@echo "統合アプリケーション（設定管理対応版）を起動中..."
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app_with_config
+
+# 統合アプリケーション（フル版）を実行
 .PHONY: run-unified-app
 run-unified-app: venv check-env ## 🚀 統合アプリケーション（フル版）を実行
 	@echo "統合アプリケーション を起動中..."
@@ -247,8 +259,8 @@ clean-all: clean ## ✨ 仮想環境を含む全ての一時ファイルを削�
 # 開発用のクイックスタート
 .PHONY: dev
 dev: setup ## 🎯 開発環境を構築してPhoto Organizer GUI を起動
-	@echo "開発環境構築後、Photo Organizer GUI を起動します..."
-	$(MAKE) run-photo-organizer-gui
+	@echo "開発環境構築後、統合版 GUI を起動します..."
+	$(MAKE) run-unified-gui
 
 # ================================
 # Docker コマンドエイリアス
@@ -262,10 +274,25 @@ docker-help: ## 🐳 Dockerコマンドのヘルプを表示
 docker-build-image: ## 🐳 Dockerイメージをビルド
 	@$(MAKE) -f Makefile.docker docker-build
 
-docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動
+# v2.0 新アーキテクチャ用Dockerコマンド
+docker-run-v2: ## 🐳 v2.0統合アプリケーションコンテナを起動
+	@echo "🚀 v2.0統合アプリケーションコンテナを起動中..."
+	docker-compose run --rm my-data-backup-v2 /bin/bash
+
+docker-run-gui-v2: ## 🐳 v2.0統合GUIアプリケーションコンテナを起動
+	@echo "🚀 v2.0統合GUIアプリケーションコンテナを起動中..."
+	@echo "⚠️  注意: X11フォワーディングが設定されていることを確認してください"
+	docker-compose run --rm my-data-backup-gui-v2 /bin/bash
+
+docker-test-v2: ## 🐳 v2.0新アーキテクチャのテストを実行
+	@echo "🧪 v2.0新アーキテクチャのテストを実行中..."
+	docker-compose run --rm my-data-backup-v2 bash -c "cd src/tests && python test_domain_models.py"
+
+# レガシー版Dockerコマンド（互換性維持）
+docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動（レガシー）
 	@$(MAKE) -f Makefile.docker docker-run
 
-docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動
+docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動（レガシー）
 	@$(MAKE) -f Makefile.docker docker-gui
 
 docker-quickstart: ## 🐳 Docker環境のワンクリックセットアップ（ビルド→起動→テスト実行）

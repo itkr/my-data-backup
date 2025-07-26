@@ -53,9 +53,10 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import sys; import customtkinter; import cv2; print('Dependencies OK')" || exit 1
 
-# デフォルトコマンド（CLIモード）
-CMD ["python", "-c", "print('🐳 Docker Container Ready!\\n\\n📋 Available commands:\\n  make run-photo-organizer   # Photo Organizer CLI\\n  make run-move              # Move CLI\\n  make run-photo-organizer-gui # Photo Organizer GUI (requires X11)\\n  make run-move-gui          # Move GUI (requires X11)\\n\\n📁 Mount your data to /data volume')"]
+# デフォルトコマンド（v2.0新アーキテクチャ対応）
+CMD ["python", "-c", "print('🐳 Docker Container Ready! (v2.0)\\n\\n📋 v2.0 統合アプリケーション:\\n  cd src && python main.py --help        # 統合CLI ヘルプ\\n  cd src && python main.py gui            # 統合GUI (requires X11)\\n  cd src && python main.py cli photo --help # Photo Organizer CLI\\n  cd src && python main.py cli move --help  # Move CLI\\n\\n🏛️ レガシー版コマンド:\\n  make run-photo-organizer   # Photo Organizer CLI\\n  make run-move              # Move CLI\\n  make run-photo-organizer-gui # Photo Organizer GUI (requires X11)\\n  make run-move-gui          # Move GUI (requires X11)\\n\\n📁 Mount your data to /data volume')"]
 
 # メタデータ
-LABEL version="1.0"
+LABEL version="2.0"
+LABEL architecture="modular-component"
 LABEL org.opencontainers.image.source="https://github.com/itkr/my-data-backup"
