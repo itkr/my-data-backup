@@ -78,10 +78,10 @@ def main():
 def launch_gui(theme="auto"):
     """統一GUIアプリケーションを起動"""
     try:
-        from app.gui.simple_app import SimpleUnifiedApp
+        from app.gui.app import UnifiedDataBackupApp
 
         print("🚀 統一GUIアプリケーションを起動中...")
-        app = SimpleUnifiedApp()
+        app = UnifiedDataBackupApp()
         app.run()
 
     except ImportError as e:

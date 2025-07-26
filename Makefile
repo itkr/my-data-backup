@@ -85,26 +85,20 @@ run-move-gui: venv check-env ## 🚀 Move GUI を実行
 	cd move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
 # 統合GUI を実行
-.PHONY: run-unified-gui
-run-unified-gui: venv check-env ## 🚀 統合GUIアプリケーション を実行
+.PHONY: run-gui
+run-gui: venv check-env ## 🚀 統合GUIアプリケーション を実行
 	@echo "統合GUIアプリケーション を起動中..."
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.simple_app
+	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app
 
-# 統合アプリケーション（フル版）を実行
-.PHONY: run-enhanced-gui
-run-enhanced-gui: venv check-env ## 🚀 統合アプリケーション（機能強化版）を実行
-	@echo "統合アプリケーション（機能強化版）を起動中..."
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.enhanced_app
-
-# 統合アプリケーション（設定管理対応版）を実行
-.PHONY: run-config-gui
-run-config-gui: venv check-env ## 🚀 統合アプリケーション（設定管理対応版）を実行
-	@echo "統合アプリケーション（設定管理対応版）を起動中..."
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app_with_config
+# 後方互換性のためのエイリアス
+.PHONY: run-unified-gui
+run-unified-gui: run-gui ## 🚀 統合GUIアプリケーション を実行（エイリアス）
 
 # 統合アプリケーション（フル版）を実行
 .PHONY: run-unified-app
-run-unified-app: venv check-env ## 🚀 統合アプリケーション（フル版）を実行
+# 統合アプリケーションを実行
+.PHONY: run-unified-app
+run-unified-app: venv check-env ## 🚀 統合アプリケーション（推奨版）を実行
 	@echo "統合アプリケーション を起動中..."
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py gui
 
@@ -166,7 +160,7 @@ run-move: venv ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=移動先
 .PHONY: format
 format: venv ## 🔍 Python コードを black でフォーマット
 	@echo "コードをフォーマット中..."
-	$(PYTHON) -m black photo_organizer/ move/ common/ --line-length 88
+	$(PYTHON) -m black ./ --line-length 88
 	@echo "フォーマットが完了しました"
 
 # 共通ログ機構のテスト

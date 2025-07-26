@@ -35,7 +35,7 @@ my-data-backup/
 │   ├── main.py          # 統一エントリーポイント
 │   ├── app/             # アプリケーション層
 │   │   ├── gui/         # GUI層
-│   │   │   └── simple_app.py # 統合GUIアプリケーション
+│   │   │   └── app.py   # 統合GUIアプリケーション（メイン）
 │   │   └── cli/         # CLI層
 │   │       ├── photo_organizer.py # Photo Organizer CLI (v2.0)
 │   │       └── move.py          # Move CLI (v2.0)
@@ -96,10 +96,8 @@ make docker-run-photo-organizer
 # 1. 開発環境の構築
 make setup
 
-# 2. 統合GUIアプリケーション を起動（v2.0）- 3つのバージョンから選択
-make run-config-gui      # 設定管理対応版（推奨）
-make run-enhanced-gui    # 機能強化版
-make run-unified-gui     # 基本版
+# 2. 統合GUIアプリケーション を起動（v2.0）
+make run-gui
 
 # 3. 新アーキテクチャ版CLI（推奨）
 cd src && python main.py --help
@@ -165,7 +163,7 @@ make docker-run-photo-organizer-gui
 #### 統合GUI
 ```bash
 # 統合GUIアプリケーション（推奨）
-make run-unified-gui
+make run-gui
 # または
 cd src && python main.py gui
 ```
@@ -231,9 +229,8 @@ make run-move SRC=~/Downloads DEST=~/Documents/Organized
 ### 🚀 アプリケーション実行
 | コマンド | 説明 |
 |----------|------|
-| `make run-config-gui` | **統合GUI（設定管理対応版）を起動（推奨）** |
-| `make run-enhanced-gui` | **統合GUI（機能強化版）を起動** |
-| `make run-unified-gui` | **統合GUI（基本版）を起動** |
+| `make run-gui` | **統合GUIアプリケーション を起動（v2.0推奨）** |
+| `make run-unified-gui` | **統合GUIアプリケーション を起動（エイリアス）** |
 | `make run-unified-app` | **統合アプリケーション（フル版）を起動（v2.0）** |
 | `make run-photo-cli-v2` | **Photo Organizer CLI (v2.0) を実行** |
 | `make run-move-cli-v2` | **Move CLI (v2.0) を実行** |
@@ -339,7 +336,7 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 make setup
 
 # 2. 統合GUIで直感的に操作
-make run-unified-gui
+make run-gui
 
 # または、CLIでバッチ処理
 cd src && python main.py cli photo --src ~/Pictures/Camera --dir ~/Pictures/Organized --dry-run
@@ -457,6 +454,6 @@ cat /path/to/logfile.log
 
 ---
 
-**🎯 Quick Start v2.0**: `make run-config-gui` で統合GUIアプリケーション（設定管理対応版・推奨）をすぐに起動できます！
+**🎯 Quick Start v2.0**: `make run-gui` で統合GUIアプリケーション（推奨版）をすぐに起動できます！
 
 **🏛️ Legacy Support**: `make dev` でレガシー版の開発環境を構築し、Photo Organizer GUI を起動できます。
