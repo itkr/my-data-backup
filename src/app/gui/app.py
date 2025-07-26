@@ -2,7 +2,6 @@
 統合GUIアプリケーション
 """
 
-import threading
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox
@@ -10,7 +9,6 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
 from src.core.config import ConfigManager
-from src.core.domain.models import OrganizationConfig
 from src.core.services.move_service import MoveService
 from src.core.services.photo_organizer_service import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
@@ -258,7 +256,6 @@ class UnifiedDataBackupApp:
     def load_saved_settings(self):
         """保存された設定を読み込み"""
         # モジュール化後は各タブが独自に設定を管理
-        pass
 
     def select_directory(self, entry_widget, config_key: str):
         """ディレクトリ選択ダイアログ"""
