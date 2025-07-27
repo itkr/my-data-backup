@@ -12,7 +12,7 @@ REQUIREMENTS = requirements.txt
 
 help: ## ヘルプを表示
 	@echo "🐍 ローカル開発環境コマンド"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹\|🏗️\|🔍\|📦\|🚀\|✨\|🧪" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -v "🐳\|📸\|📁\|🎨\|📊\|📋\|🐚\|🧹\|🏗️\|🔍\|📦\|🚀\|✨\|🧪\|🏚️" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "🧪 テスト・検証"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*🧪.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -40,6 +40,9 @@ help: ## ヘルプを表示
 	@echo ""
 	@echo "🔧 Docker 管理・監視"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*(📊|📋|🐚|🧹).*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[34m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "🏚️ レガシーコマンド（互換性維持）"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*🏚️.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[35m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "💡 詳細なDockerヘルプ: make docker-help"
 	@echo ""
@@ -82,13 +85,13 @@ setup: venv install ## 🏗️ 開発環境を初期セットアップ
 
 # Photo Organizer GUI を実行（レガシー）
 .PHONY: run-photo-organizer-gui
-run-photo-organizer-gui: venv check-env ## 🚀 Photo Organizer GUI を実行（レガシー）
+run-photo-organizer-gui: venv check-env ## 🏚️ 【レガシー】Photo Organizer GUI を実行
 	@echo "Photo Organizer GUI を起動中..."
 	cd legacy/photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
 # Move GUI を実行（レガシー）
 .PHONY: run-move-gui
-run-move-gui: venv check-env ## 🚀 Move GUI を実行（レガシー）
+run-move-gui: venv check-env ## 🏚️ 【レガシー】Move GUI を実行
 	@echo "Move GUI を起動中..."
 	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
 
@@ -134,7 +137,7 @@ test-services: venv ## 🧪 サービス層のテストを実行
 
 # Photo Organizer CLI を実行（レガシー）
 .PHONY: run-photo-organizer
-run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（レガシー）（引数: SRC=ソース DIR=出力先）
+run-photo-organizer: venv ## 🏚️ 【レガシー】Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
 		echo "使用方法: make run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力先ディレクトリ>"; \
 		echo "例: make run-photo-organizer SRC=/path/to/source DIR=/path/to/output"; \
@@ -144,7 +147,7 @@ run-photo-organizer: venv ## 🚀 Photo Organizer CLI を実行（レガシー�
 
 # Move CLI を実行（レガシー）
 .PHONY: run-move
-run-move: venv ## 🚀 Move CLI を実行（レガシー）（引数: SRC=ソース DEST=移動先）
+run-move: venv ## 🏚️ 【レガシー】Move CLI を実行（引数: SRC=ソース DEST=移動先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
 		echo "使用方法: make run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
 		echo "例: make run-move SRC=/path/to/source DEST=/path/to/destination"; \
@@ -174,18 +177,6 @@ format: venv ## 🔍 統一されたコードフォーマット（autoflake→is
 		echo "⚠️ まだいくつかのエラーが残っています"; \
 	fi
 
-# エイリアス（下位互換性のため）
-.PHONY: format-unified
-format-unified: format ## 🔍 統一フォーマット（formatと同じ）
-
-# importのみ整理
-.PHONY: format-imports
-format-imports: venv ## 🔍 importのみを整理（autoflake→isort）
-	@echo "🔄 importを整理中..."
-	$(PYTHON) -m autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive src/
-	$(PYTHON) -m isort src/
-	@echo "✅ import整理が完了しました"
-
 # コード品質チェック
 .PHONY: lint
 lint: venv ## 🔍 flake8 でコード品質をチェック
@@ -195,9 +186,9 @@ lint: venv ## 🔍 flake8 でコード品質をチェック
 
 # 共通ログ機構のテスト
 .PHONY: test-logger
-test-logger: venv ## 🔍 共通ログ機構のテスト実行
+test-logger: venv ## 🏚️ 【レガシー】共通ログ機構のテスト実行
 	@echo "共通ログ機構をテスト中..."
-	$(PYTHON) test_common_logger.py
+	$(PYTHON) legacy/test_common_logger.py
 	@echo "ログ機構のテストが完了しました"
 
 # 依存パッケージのバージョン確認
@@ -327,10 +318,10 @@ docker-test-v2: ## 🐳 v2.0新アーキテクチャのテストを実行
 	docker-compose run --rm my-data-backup-v2 bash -c "cd src/tests && python test_domain_models.py"
 
 # レガシー版Dockerコマンド（互換性維持）
-docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動（レガシー）
+docker-run-cli: ## 🏚️ 【レガシー】CLIモードでDockerコンテナを起動
 	@$(MAKE) -f Makefile.docker docker-run
 
-docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動（レガシー）
+docker-run-gui: ## 🏚️ 【レガシー】GUIモードでDockerコンテナを起動
 	@$(MAKE) -f Makefile.docker docker-gui
 
 docker-quickstart: ## 🐳 Docker環境のワンクリックセットアップ（ビルド→起動→テスト実行）
