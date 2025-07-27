@@ -133,27 +133,10 @@ class OrganizationConfig:
     def __post_init__(self):
         """デフォルト拡張子の設定"""
         if self.file_extensions is None:
-            # デフォルト: 一般的なメディアファイル拡張子
-            self.file_extensions = [
-                ".jpg",
-                ".jpeg",
-                ".arw",
-                ".raw",
-                ".cr2",
-                ".nef",
-                ".dng",  # 画像
-                ".mov",
-                ".mp4",
-                ".mpg",
-                ".avi",
-                ".mts",
-                ".lrf",
-                ".lrv",  # 動画
-                ".wav",
-                ".mp3",
-                ".aac",
-                ".flac",  # 音声
-            ]
+            # 共通の拡張子定義から取得
+            from src.core.config.file_extensions import FileExtensions
+
+            self.file_extensions = FileExtensions.get_media_extensions()
 
     def should_process_file(self, file_path: Path) -> bool:
         """ファイルが処理対象かどうか判定"""

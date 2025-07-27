@@ -10,6 +10,7 @@ from tkinter import filedialog
 import customtkinter
 
 from src.app.gui.base.base_tab import BaseTab
+from src.core.config.file_extensions import FileExtensions
 from src.core.services.move_service import MoveService
 
 
@@ -24,11 +25,7 @@ class MoveTab(BaseTab):
 
         # Extension checkboxes
         self.extension_vars = {}
-        self.default_extensions = {
-            "画像": [".jpg", ".jpeg", ".arw", ".raw", ".cr2", ".nef", ".dng"],
-            "動画": [".mov", ".mp4", ".mpg", ".avi", ".mts", ".lrf", ".lrv"],
-            "音声": [".wav", ".mp3", ".aac", ".flac"],
-        }
+        self.default_extensions = FileExtensions.get_gui_categories()
 
         # Initialize extension variables
         for category, extensions in self.default_extensions.items():

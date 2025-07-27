@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+from src.core.config.file_extensions import FileExtensions
 from src.core.domain.models import FileInfo, FileType
 from src.core.domain.repositories import FileRepository
 
@@ -191,24 +192,18 @@ class FileSystemRepository(FileRepository):
         ファイルタイプを判定
         """
         extension = file_path.suffix.lower()
+        extension_type = FileExtensions.get_extension_type(extension)
 
-        # 画像ファイル
-        if extension in [".arw", ".raw", ".cr2", ".nef", ".dng"]:
+        # FileExtensionsの結果をFileTypeに変換
+        if extension_type == "RAW":
             return FileType.RAW
-        elif extension in [".jpg", ".jpeg"]:
+        elif extension_type == "JPG":
             return FileType.JPG
-
-        # 動画ファイル
-        elif extension in [".mov", ".mp4", ".mpg", ".avi", ".mts", ".lrf", ".lrv"]:
+        elif extension_type == "VIDEO":
             return FileType.VIDEO
-
-        # 音声ファイル
-        elif extension in [".wav", ".mp3", ".aac", ".flac"]:
+        elif extension_type == "AUDIO":
             return FileType.AUDIO
-
-        # ドキュメント
-        elif extension in [".xml", ".txt", ".pdf", ".doc", ".docx"]:
+        elif extension_type == "DOCUMENT":
             return FileType.DOCUMENT
-
         else:
             return FileType.OTHER
