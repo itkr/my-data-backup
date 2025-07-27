@@ -57,7 +57,7 @@ class MoveTab(BaseTab):
 
         self.label_source = customtkinter.CTkLabel(
             self.frame_source,
-            text="Source Directory:",
+            text="📂 ソースディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_source.pack(pady=(10, 5), anchor="w")
@@ -66,13 +66,14 @@ class MoveTab(BaseTab):
         self.frame_source_input.pack(pady=(0, 10), padx=10, fill="x")
 
         self.entry_source = customtkinter.CTkEntry(
-            self.frame_source_input, placeholder_text="Select source directory"
+            self.frame_source_input,
+            placeholder_text="整理するファイルがあるディレクトリを選択",
         )
         self.entry_source.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
         self.button_browse_source = customtkinter.CTkButton(
             self.frame_source_input,
-            text="Browse",
+            text="参照",
             command=self.browse_source,
             width=100,
         )
@@ -85,7 +86,7 @@ class MoveTab(BaseTab):
 
         self.label_dest = customtkinter.CTkLabel(
             self.frame_dest,
-            text="Destination Directory:",
+            text="📁 出力先ディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_dest.pack(pady=(10, 5), anchor="w")
@@ -94,12 +95,12 @@ class MoveTab(BaseTab):
         self.frame_dest_input.pack(pady=(0, 10), padx=10, fill="x")
 
         self.entry_dest = customtkinter.CTkEntry(
-            self.frame_dest_input, placeholder_text="Select destination directory"
+            self.frame_dest_input, placeholder_text="整理されたファイルの保存先を選択"
         )
         self.entry_dest.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
         self.button_browse_dest = customtkinter.CTkButton(
-            self.frame_dest_input, text="Browse", command=self.browse_dest, width=100
+            self.frame_dest_input, text="参照", command=self.browse_dest, width=100
         )
         self.button_browse_dest.pack(side="right")
 
@@ -110,7 +111,7 @@ class MoveTab(BaseTab):
 
         self.label_filter = customtkinter.CTkLabel(
             self.frame_filter,
-            text="File Extensions:",
+            text="📋 ファイル拡張子:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_filter.pack(pady=(10, 5), anchor="w")
@@ -176,7 +177,7 @@ class MoveTab(BaseTab):
 
         self.label_options = customtkinter.CTkLabel(
             self.frame_options,
-            text="Options:",
+            text="⚙️ オプション:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_options.pack(pady=(10, 5), anchor="w")
@@ -187,7 +188,7 @@ class MoveTab(BaseTab):
         # Copy mode checkbox
         self.checkbox_copy = customtkinter.CTkCheckBox(
             self.frame_options_content,
-            text="Copy files (instead of move)",
+            text="ファイルをコピーする（移動ではなく）",
             variable=self.var_copy_mode,
         )
         self.checkbox_copy.pack(pady=5, anchor="w")
@@ -195,7 +196,7 @@ class MoveTab(BaseTab):
         # Dry run checkbox
         self.checkbox_dry_run = customtkinter.CTkCheckBox(
             self.frame_options_content,
-            text="Dry run (preview only)",
+            text="ドライラン（プレビューのみ、実際のファイル操作なし）",
             variable=self.var_dry_run,
         )
         self.checkbox_dry_run.pack(pady=5, anchor="w")
@@ -203,7 +204,7 @@ class MoveTab(BaseTab):
         # Recursive search checkbox
         self.checkbox_recursive = customtkinter.CTkCheckBox(
             self.frame_options_content,
-            text="Recursive search (include subdirectories)",
+            text="再帰検索（サブディレクトリも含める）",
             variable=self.var_recursive,
         )
         self.checkbox_recursive.pack(pady=5, anchor="w")
@@ -215,7 +216,7 @@ class MoveTab(BaseTab):
 
         self.button_start = customtkinter.CTkButton(
             self.frame_buttons,
-            text="Start Move",
+            text="🚀 ファイル整理開始",
             command=self.start_move,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
@@ -224,7 +225,7 @@ class MoveTab(BaseTab):
 
         self.button_stop = customtkinter.CTkButton(
             self.frame_buttons,
-            text="Stop",
+            text="⏹️ 停止",
             command=self.stop_move,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
@@ -239,7 +240,7 @@ class MoveTab(BaseTab):
 
         self.label_progress = customtkinter.CTkLabel(
             self.frame_progress,
-            text="Progress:",
+            text="📊 進捗状況:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_progress.pack(pady=(10, 5), anchor="w")
@@ -261,14 +262,14 @@ class MoveTab(BaseTab):
 
     def browse_source(self):
         """Source directory を選択"""
-        directory = filedialog.askdirectory(title="Select Source Directory")
+        directory = filedialog.askdirectory(title="ソースディレクトリを選択")
         if directory:
             self.entry_source.delete(0, "end")
             self.entry_source.insert(0, directory)
 
     def browse_dest(self):
         """Destination directory を選択"""
-        directory = filedialog.askdirectory(title="Select Destination Directory")
+        directory = filedialog.askdirectory(title="出力先ディレクトリを選択")
         if directory:
             self.entry_dest.delete(0, "end")
             self.entry_dest.insert(0, directory)
@@ -279,16 +280,16 @@ class MoveTab(BaseTab):
         dest_path = self.entry_dest.get().strip()
 
         if not source_path:
-            self.show_error("入力エラー", "Source directory is required")
+            self.show_error("入力エラー", "ソースディレクトリを選択してください")
             return False
 
         if not dest_path:
-            self.show_error("入力エラー", "Destination directory is required")
+            self.show_error("入力エラー", "出力先ディレクトリを選択してください")
             return False
 
         if not Path(source_path).exists():
             self.show_error(
-                "パスエラー", f"Source directory does not exist: {source_path}"
+                "パスエラー", f"ソースディレクトリが存在しません: {source_path}"
             )
             return False
 
@@ -330,19 +331,19 @@ class MoveTab(BaseTab):
             def progress_callback(current, total):
                 if total > 0:
                     progress = current / total
-                    message = f"Processing {current}/{total} files..."
+                    message = f"処理中 {current}/{total} ファイル..."
                     self.progress_var.set(message)
                     if self.progress_bar:
                         self.progress_bar.set(progress)
 
-            self.progress_var.set("🚀 Starting move operation...")
-            self.logger.info(f"📁 Source: {source_path}")
-            self.logger.info(f"📁 Destination: {dest_path}")
-            self.logger.info(f"🔧 Mode: {'Copy' if copy_mode else 'Move'}")
-            self.logger.info(f"🧪 Dry run: {dry_run}")
-            self.logger.info(f"🔍 Recursive: {recursive}")
+            self.progress_var.set("🚀 ファイル整理を開始しています...")
+            self.logger.info(f"📁 ソース: {source_path}")
+            self.logger.info(f"📁 出力先: {dest_path}")
+            self.logger.info(f"🔧 モード: {'コピー' if copy_mode else '移動'}")
+            self.logger.info(f"🧪 ドライラン: {dry_run}")
+            self.logger.info(f"🔍 再帰検索: {recursive}")
             if selected_extensions:
-                self.logger.info(f"📋 Extensions: {', '.join(selected_extensions)}")
+                self.logger.info(f"📋 拡張子: {', '.join(selected_extensions)}")
 
             # Start move operation
             result = self.move_service.organize_by_date(
@@ -353,14 +354,14 @@ class MoveTab(BaseTab):
             )
 
             # Display results
-            self.progress_var.set("📊 Operation completed!")
-            self.logger.info("📊 Operation completed!")
-            self.logger.info(f"✅ Success: {result.success_count} files")
-            self.logger.info(f"❌ Failed: {result.error_count} files")
-            self.logger.info(f"📈 Success rate: {result.success_rate * 100:.1f}%")
+            self.progress_var.set("📊 処理が完了しました！")
+            self.logger.info("📊 処理が完了しました！")
+            self.logger.info(f"✅ 成功: {result.success_count} ファイル")
+            self.logger.info(f"❌ 失敗: {result.error_count} ファイル")
+            self.logger.info(f"📈 成功率: {result.success_rate * 100:.1f}%")
 
             if result.errors:
-                self.logger.error("❌ Errors:")
+                self.logger.error("❌ エラー:")
                 for error in result.errors[:5]:
                     self.logger.error(f"  • {error}")
 
@@ -368,7 +369,7 @@ class MoveTab(BaseTab):
             self.show_result(result)
 
         except Exception as e:
-            self.show_error("実行エラー", f"Move operation failed: {str(e)}")
+            self.show_error("実行エラー", f"ファイル整理処理に失敗しました: {str(e)}")
             self.logger.error(f"Move operation error: {e}")
 
     def start_move(self):
@@ -395,7 +396,7 @@ class MoveTab(BaseTab):
         """Move処理を停止"""
         if self.move_service:
             self.move_service.stop()
-        self.progress_var.set("🛑 Stop requested...")
+        self.progress_var.set("🛑 停止が要求されました...")
         self.button_stop.configure(state="disabled")
 
     def select_all_extensions(self):
