@@ -13,7 +13,6 @@ from unittest.mock import Mock, patch
 from src.core.domain.models import FileInfo, FileType, OrganizationConfig
 from src.core.services.move_service import MoveService
 from src.core.services.photo_organizer_service import PhotoOrganizerService
-from src.infrastructure.repositories import FileSystemRepository
 
 
 class TestPhotoOrganizerService(unittest.TestCase):
@@ -211,7 +210,9 @@ class TestMoveService(unittest.TestCase):
     def test_organize_by_date_dry_run(self):
         """ドライランモードでの日付別整理テスト"""
         # モックの設定
-        self.service.file_repository.scan_directory = Mock(return_value=[self.test_file])
+        self.service.file_repository.scan_directory = Mock(
+            return_value=[self.test_file]
+        )
 
         config = OrganizationConfig(dry_run=True)
 
