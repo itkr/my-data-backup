@@ -172,7 +172,7 @@ class UnifiedDataBackupApp:
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
-        self.log_level_var = ctk.StringVar(value=self.config.log_level)
+        self.log_level_var = ctk.StringVar(value=self.config.ui.log_level)
         log_level_frame = ctk.CTkFrame(log_settings_frame)
         log_level_frame.pack(fill="x", padx=10, pady=(0, 10))
 
