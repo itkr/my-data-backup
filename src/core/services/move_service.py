@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from ..domain.models import FileInfo, FileType, OrganizationConfig, ProcessResult
+from ..domain.models import FileInfo, OrganizationConfig, ProcessResult
 from ..domain.repositories import FileRepository
 
 
@@ -111,67 +111,6 @@ class MoveService:
         )
         return result
 
-    def organize_by_type(
-        self,
-        source_dir: Path,
-        target_dir: Path,
-        config: OrganizationConfig,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
-    ) -> ProcessResult:
-        """
-        ファイルタイプベース整理
-
-        Args:
-            source_dir: ソースディレクトリ
-            target_dir: ターゲットディレクトリ
-            config: 整理設定
-            progress_callback: プログレス更新用コールバック
-
-        Returns:
-            ProcessResult: 処理結果
-        """
-        self.logger.info(f"タイプベース整理を開始: {source_dir} -> {target_dir}")
-
-        files = self.file_repository.scan_directory(
-            source_dir, recursive=config.recursive
-        )
-        type_groups = self._group_by_type(files)
-
-        result = ProcessResult()
-        total_files = len(files)
-        processed = 0
-
-        for file_type, file_group in type_groups.items():
-            for file_info in file_group:
-                try:
-                    # タイプ別ディレクトリに配置
-                    type_dir = target_dir / file_type.value.upper()
-                    target_path = type_dir / file_info.name
-
-                    if not config.dry_run:
-                        self.file_repository.create_directory(type_dir)
-
-                    success = self._execute_file_operation(
-                        file_info.path, target_path, config
-                    )
-
-                    if success:
-                        result.success_count += 1
-                        result.processed_files.append(file_info)
-                    else:
-                        result.error_count += 1
-                        result.errors.append(f"移動失敗: {file_info.name}")
-
-                except Exception as e:
-                    result.error_count += 1
-                    result.errors.append(f"処理エラー {file_info.name}: {str(e)}")
-
-                processed += 1
-                if progress_callback:
-                    progress_callback(processed, total_files)
-
-        return result
-
     def _group_by_date(self, files: List[FileInfo]) -> Dict[str, List[FileInfo]]:
         """ファイルを日付でグループ化"""
         groups = {}
@@ -180,15 +119,6 @@ class MoveService:
             if date_key not in groups:
                 groups[date_key] = []
             groups[date_key].append(file_info)
-        return groups
-
-    def _group_by_type(self, files: List[FileInfo]) -> Dict[FileType, List[FileInfo]]:
-        """ファイルをタイプでグループ化"""
-        groups = {}
-        for file_info in files:
-            if file_info.file_type not in groups:
-                groups[file_info.file_type] = []
-            groups[file_info.file_type].append(file_info)
         return groups
 
     def _generate_target_path(
