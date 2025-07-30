@@ -3,21 +3,21 @@ CLI基底クラス - オプション定義の統一管理
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
 
 
 class BaseCLI(ABC):
     """CLI共通基底クラス"""
 
-    @classmethod
-    @abstractmethod
-    def get_argument_spec(cls) -> Dict[str, Any]:
-        """
-        argparse用の引数仕様を返す
+    # バックアップでしか使っていないのでコメントアウト
+    # @classmethod
+    # @abstractmethod
+    # def get_argument_spec(cls) -> Dict[str, Any]:
+    #     """
+    #     argparse用の引数仕様を返す
 
-        Returns:
-            Dict: argparse.add_argument()に渡すパラメータ
-        """
+    #     Returns:
+    #         Dict: argparse.add_argument()に渡すパラメータ
+    #     """
 
     @classmethod
     @abstractmethod

@@ -1,12 +1,12 @@
 """
-Photo Organizer CLI - 新アーキテクチャ版
+Photo Organizer CLI - Typer統合版
 """
 
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Annotated
 
-import click
+import typer
 
 from src.app.cli.base import BaseCLI
 from src.core.domain.models import OrganizationConfig
@@ -31,14 +31,15 @@ class PhotoOrganizerCLI(BaseCLI):
         """コマンドの説明を返す"""
         return "Photo Organizer CLI - RAW/JPGファイル同期整理"
 
-    @classmethod
-    def get_argument_spec(cls) -> Dict[str, Any]:
-        """argparse用の引数仕様を返す"""
-        return {
-            "src": {"required": True, "help": "ソースディレクトリ"},
-            "dir": {"required": True, "help": "出力ディレクトリ"},
-            "dry_run": {"action": "store_true", "help": "ドライランモード"},
-        }
+    # バックアップでしか使っていないのでコメントアウト
+    # @classmethod
+    # def get_argument_spec(cls) -> Dict[str, Any]:
+    #     """argparse用の引数仕様を返す"""
+    #     return {
+    #         "src": {"required": True, "help": "ソースディレクトリ"},
+    #         "dir": {"required": True, "help": "出力ディレクトリ"},
+    #         "dry_run": {"action": "store_true", "help": "ドライランモード"},
+    #     }
 
     def run_from_args(self, args) -> None:
         """argparseで解析された引数から実行"""
@@ -60,7 +61,7 @@ class PhotoOrganizerCLI(BaseCLI):
             target_path = Path(dir)
 
             if not source_path.exists():
-                click.echo(
+                typer.echo(
                     f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True
                 )
                 sys.exit(1)
@@ -75,16 +76,16 @@ class PhotoOrganizerCLI(BaseCLI):
             )
 
             # 実行情報表示
-            click.echo("📸 Photo Organizer CLI")
-            click.echo("=" * 50)
-            click.echo(f"ソース: {source_path}")
-            click.echo(f"出力先: {target_path}")
-            click.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-            click.echo(f"操作: {'コピー' if copy else '移動'}")
-            click.echo("=" * 50)
+            typer.echo("📸 Photo Organizer CLI")
+            typer.echo("=" * 50)
+            typer.echo(f"ソース: {source_path}")
+            typer.echo(f"出力先: {target_path}")
+            typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
+            typer.echo(f"操作: {'コピー' if copy else '移動'}")
+            typer.echo("=" * 50)
 
             if dry_run:
-                click.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
+                typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
 
             # 実行
             result = photo_service.organize_photos(
@@ -99,69 +100,83 @@ class PhotoOrganizerCLI(BaseCLI):
 
         except Exception as e:
             self.logger.error(f"Photo Organizer CLI実行エラー: {e}")
-            click.echo(f"❌ エラー: {str(e)}", err=True)
+            typer.echo(f"❌ エラー: {str(e)}", err=True)
             sys.exit(1)
 
     def _progress_callback(self, current: int, total: int):
         """進捗表示コールバック"""
         if total > 0:
             progress = current / total * 100
-            click.echo(f"進捗: {current}/{total} ({progress:.1f}%)")
+            typer.echo(f"進捗: {current}/{total} ({progress:.1f}%)")
 
     def _display_result(self, result):
         """結果表示"""
-        click.echo("\n📊 実行結果")
-        click.echo("=" * 30)
-        click.echo(f"✅ 成功: {result.success_count} ファイル")
-        click.echo(f"❌ 失敗: {result.error_count} ファイル")
-        click.echo(f"📈 成功率: {result.success_rate * 100:.1f}%")
+        typer.echo("\n📊 実行結果")
+        typer.echo("=" * 30)
+        typer.echo(f"✅ 成功: {result.success_count} ファイル")
+        typer.echo(f"❌ 失敗: {result.error_count} ファイル")
+        typer.echo(f"📈 成功率: {result.success_rate * 100:.1f}%")
 
         if result.processed_files:
-            click.echo("\n処理済みファイル (最初の10件):")
+            typer.echo("\n処理済みファイル (最初の10件):")
             for i, file_info in enumerate(result.processed_files[:10]):
-                click.echo(f"  {i + 1:2d}. {file_info.name}")
+                typer.echo(f"  {i + 1:2d}. {file_info.name}")
 
             if len(result.processed_files) > 10:
-                click.echo(f"  ... 他 {len(result.processed_files) - 10} ファイル")
+                typer.echo(f"  ... 他 {len(result.processed_files) - 10} ファイル")
 
         if result.errors:
-            click.echo("\nエラー:")
+            typer.echo("\nエラー:")
             for error in result.errors[:5]:
-                click.echo(f"  • {error}")
+                typer.echo(f"  • {error}")
 
 
-@click.command()
-@click.argument("src", type=click.Path(exists=True))
-@click.argument("dir", type=click.Path())
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    default=True,
-    help="ドライランモード（実際の操作を行わない）",
+# サブアプリケーション
+app = typer.Typer(
+    name="photo",
+    help="Photo Organizer CLI - RAW/JPGファイル同期整理",
+    rich_markup_mode="markdown",
 )
-@click.option(
-    "--copy",
-    is_flag=True,
-    default=False,
-    help="ファイルをコピー（移動ではなく）",
-)
-@click.option(
-    "--isolate",
-    is_flag=True,
-    default=False,
-    help="孤立ファイルを分離",
-)
-def main(src: str, dir: str, dry_run: bool, copy: bool, isolate: bool):
+
+logger = get_logger("PhotoOrganizerTyperCLI")
+
+
+@app.command("organize")
+def organize(
+    src: Annotated[Path, typer.Argument(help="ソースディレクトリ")],
+    dir: Annotated[Path, typer.Argument(help="出力ディレクトリ")],
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="ドライランモード")] = True,
+    copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
+    isolate: Annotated[bool, typer.Option("--isolate", help="分離モード")] = False,
+):
+    """Photo Organizer - RAW/JPGファイル同期整理
+
+    RAWとJPGファイルの同期処理を行います。
+
+    Examples:
+        # ドライランで確認
+        python -m src.app.cli.photo_organizer_typer organize /source /dest --dry-run
+
+        # 実際に実行
+        python -m src.app.cli.photo_organizer_typer organize /source /dest --no-dry-run
     """
-    Photo Organizer CLI - RAW/JPGファイル同期整理
 
-    SRC: ソースディレクトリ
-    DIR: 出力ディレクトリ
-    """
+    # パス検証
+    if not src.exists():
+        typer.echo(f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True)
+        raise typer.Exit(1)
 
+    # CLI実行
     cli = PhotoOrganizerCLI()
-    cli.run(src=src, dir=dir, dry_run=dry_run, copy=copy, isolate=isolate)
+    try:
+        logger.info(f"Photo Organizer開始: {src} -> {dir}")
+        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
+        logger.info("Photo Organizer完了")
+    except Exception as e:
+        logger.error(f"Photo Organizer CLIの実行に失敗: {e}")
+        typer.echo(f"❌ Photo Organizer CLIの実行に失敗しました: {e}", err=True)
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    app()
