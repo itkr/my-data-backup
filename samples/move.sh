@@ -13,8 +13,12 @@ if ! python -c "import src.core.services" 2>/dev/null; then
     exit 1
 fi
 
-# クリーンな実行（パス操作なし）
-python src/main.py cli move \
-    --import-dir="${current_dir}" \
-    --export-dir="${current_dir}" \
-    --no-recursive
+# python src/main.py cli move \
+#     --import-dir="${current_dir}" \
+#     --export-dir="${current_dir}" \
+#     --no-recursive
+
+python src/main.py move organize \
+    "${current_dir}" \
+    "${current_dir}" \
+    --dry-run

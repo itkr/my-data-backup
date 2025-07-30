@@ -6,6 +6,7 @@ customtkinter==5.2.1
 
 # CLI フレームワーク
 click==8.1.7
+typer==0.9.0  # Modern CLI framework with rich features
 
 # 画像処理（将来的に使用予定）
 opencv-python==4.10.0.84

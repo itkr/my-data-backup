@@ -32,7 +32,7 @@ my-data-backup/
 ├── requirements.txt      # Python 依存パッケージ
 ├── venv/                 # Python 仮想環境
 ├── src/                  # 新アーキテクチャ（v2.0）
-│   ├── main.py          # 統一エントリーポイント
+│   ├── main.py          # 統一エントリーポイント（Typer版）
 │   ├── app/             # アプリケーション層
 │   │   ├── gui/         # GUI層
 │   │   │   └── app.py   # 統合GUIアプリケーション（メイン）
@@ -191,18 +191,21 @@ make run-gui
 cd src && python main.py gui
 ```
 
-#### 新アーキテクチャ版CLI
+#### 新アーキテクチャ版CLI（Typer版）
 ```bash
 # Photo Organizer CLI (v2.0)
-cd src && python main.py cli photo --src /path/to/source --dir /path/to/output --dry-run
+cd src && python main.py photo organize /path/to/source /path/to/output --dry-run
 
-# Move CLI (v2.0)
-cd src && python main.py cli move --import-dir /path/to/import --export-dir /path/to/export --dry-run
+# Move CLI (v2.0) 
+cd src && python main.py move organize /path/to/source /path/to/dest --dry-run
 
 # ヘルプ表示
 cd src && python main.py --help
-cd src && python main.py cli photo --help
-cd src && python main.py cli move --help
+cd src && python main.py photo organize --help
+cd src && python main.py move organize --help
+
+# Shell補完設定
+cd src && python main.py --install-completion zsh
 ```
 
 ### 🏛️ レガシー版 (v1.0)
@@ -372,9 +375,9 @@ make setup
 # 2. 統合GUIで直感的に操作
 make run-gui
 
-# または、CLIでバッチ処理
-cd src && python main.py cli photo --src ~/Pictures/Camera --dir ~/Pictures/Organized --dry-run
-cd src && python main.py cli move --import-dir ~/Pictures/Organized --export-dir ~/Pictures/Archive --dry-run
+# または、CLIでバッチ処理（Typer版）
+cd src && python main.py photo organize ~/Pictures/Camera ~/Pictures/Organized --dry-run
+cd src && python main.py move organize ~/Pictures/Organized ~/Pictures/Archive --dry-run
 ```
 
 ### 🐳 Docker を使用したカメラからの写真整理
