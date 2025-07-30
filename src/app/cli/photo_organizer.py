@@ -49,7 +49,7 @@ class PhotoOrganizerCLI(BaseCLI):
         self,
         src: str,
         dir: str,
-        dry_run: bool = True,
+        dry_run: bool = False,
         copy: bool = False,
         isolate: bool = False,
     ):
@@ -145,7 +145,9 @@ logger = get_logger("PhotoOrganizerTyperCLI")
 def organize(
     src: Annotated[Path, typer.Argument(help="ソースディレクトリ")],
     dir: Annotated[Path, typer.Argument(help="出力ディレクトリ")],
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="ドライランモード")] = True,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="ドライランモード")
+    ] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
     isolate: Annotated[bool, typer.Option("--isolate", help="分離モード")] = False,
 ):

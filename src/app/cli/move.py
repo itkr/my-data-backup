@@ -176,7 +176,9 @@ logger = get_logger("MoveTyperCLI")
 def organize(
     import_dir: Annotated[Path, typer.Argument(help="インポートディレクトリ")],
     export_dir: Annotated[Path, typer.Argument(help="エクスポートディレクトリ")],
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="ドライランモード")] = True,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="ドライランモード")
+    ] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
     recursive: Annotated[bool, typer.Option("--recursive", help="再帰検索")] = True,
     suffix: Annotated[
