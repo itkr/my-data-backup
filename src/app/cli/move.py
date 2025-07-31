@@ -14,22 +14,11 @@ from src.core.services import MoveService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
 
+logger = get_logger("MoveCLI")
+
 
 class MoveCLI(BaseCLI):
     """Move CLI実装"""
-
-    def __init__(self):
-        self.logger = get_logger("MoveCLI")
-
-    def run_from_args(self, args) -> None:
-        """argparseで解析された引数から実行"""
-        self.run(
-            import_dir=args.import_dir,
-            export_dir=args.export_dir,
-            dry_run=args.dry_run,
-            suffixes=args.suffix or [],
-            no_recursive=getattr(args, "no_recursive", False),
-        )
 
     def run(
         self,
@@ -37,7 +26,7 @@ class MoveCLI(BaseCLI):
         export_dir: str,
         dry_run: bool = True,
         suffixes: Optional[List[str]] = None,
-        no_recursive: bool = False,
+        recursive: bool = True,
     ):
         """Move CLIメイン実行"""
 
@@ -54,8 +43,8 @@ class MoveCLI(BaseCLI):
                 sys.exit(1)
 
             # サービス初期化
-            file_repository = FileSystemRepository(self.logger.logger)
-            move_service = MoveService(file_repository, self.logger.logger)
+            file_repository = FileSystemRepository(logger.logger)
+            move_service = MoveService(file_repository, logger.logger)
 
             # 設定作成
             file_extensions = None
@@ -71,7 +60,7 @@ class MoveCLI(BaseCLI):
                 log_operations=True,
                 preserve_original=False,
                 file_extensions=file_extensions,
-                recursive=not no_recursive,
+                recursive=recursive,
             )
 
             # 実行情報表示
@@ -80,9 +69,7 @@ class MoveCLI(BaseCLI):
             typer.echo(f"インポート: {source_path}")
             typer.echo(f"エクスポート: {target_path}")
             typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-            typer.echo(
-                f"検索: {'再帰的' if not no_recursive else 'カレントディレクトリのみ'}"
-            )
+            typer.echo(f"検索: {'再帰的' if recursive else 'カレントディレクトリのみ'}")
             if suffixes:
                 typer.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
             else:
@@ -104,7 +91,7 @@ class MoveCLI(BaseCLI):
             self._display_result(result)
 
         except Exception as e:
-            self.logger.error(f"Move CLI実行エラー: {e}")
+            logger.error(f"Move CLI実行エラー: {e}")
             typer.echo(f"❌ エラー: {str(e)}", err=True)
             sys.exit(1)
 
@@ -141,8 +128,6 @@ app = typer.Typer(
     name="move", help="Move CLI - ファイル移動・整理", rich_markup_mode="markdown"
 )
 
-logger = get_logger("MoveTyperCLI")
-
 
 @app.command("organize")
 def organize(
@@ -173,28 +158,17 @@ def organize(
             --suffix jpg --suffix arw
     """
 
-    # パス検証
-    if not import_dir.exists():
-        typer.echo(
-            f"❌ エラー: インポートディレクトリが存在しません: {import_dir}", err=True
-        )
-        raise typer.Exit(1)
-
     # CLI実行
     cli = MoveCLI()
     try:
-        # argsオブジェクトを作成
-        class Args:
-            def __init__(self):
-                self.import_dir = str(import_dir)
-                self.export_dir = str(export_dir)
-                self.dry_run = dry_run
-                self.copy = copy
-                self.recursive = recursive
-                self.suffix = suffix or []
-
         logger.info(f"Move開始: {import_dir} -> {export_dir}")
-        cli.run_from_args(Args())
+        cli.run(
+            import_dir=str(import_dir),
+            export_dir=str(export_dir),
+            dry_run=dry_run,
+            suffixes=suffix,
+            recursive=recursive,
+        )
         logger.info("Move完了")
     except Exception as e:
         logger.error(f"Move CLIの実行に失敗: {e}")

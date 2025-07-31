@@ -14,16 +14,11 @@ from src.core.services import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
 
+logger = get_logger("PhotoOrganizerCLI")
+
 
 class PhotoOrganizerCLI(BaseCLI):
     """Photo Organizer CLI実装"""
-
-    def __init__(self):
-        self.logger = get_logger("PhotoOrganizerCLI")
-
-    def run_from_args(self, args) -> None:
-        """argparseで解析された引数から実行"""
-        self.run(src=args.src, dir=args.dir, dry_run=args.dry_run)
 
     def run(
         self,
@@ -47,8 +42,8 @@ class PhotoOrganizerCLI(BaseCLI):
                 sys.exit(1)
 
             # サービス初期化
-            file_repository = FileSystemRepository(self.logger.logger)
-            photo_service = PhotoOrganizerService(file_repository, self.logger.logger)
+            file_repository = FileSystemRepository(logger.logger)
+            photo_service = PhotoOrganizerService(file_repository, logger.logger)
 
             # 設定作成
             config = OrganizationConfig(
@@ -79,7 +74,7 @@ class PhotoOrganizerCLI(BaseCLI):
             self._display_result(result)
 
         except Exception as e:
-            self.logger.error(f"Photo Organizer CLI実行エラー: {e}")
+            logger.error(f"Photo Organizer CLI実行エラー: {e}")
             typer.echo(f"❌ エラー: {str(e)}", err=True)
             sys.exit(1)
 
@@ -118,8 +113,6 @@ app = typer.Typer(
     rich_markup_mode="markdown",
 )
 
-logger = get_logger("PhotoOrganizerTyperCLI")
-
 
 @app.command("organize")
 def organize(
@@ -142,11 +135,6 @@ def organize(
         # 実際に実行
         python -m src.app.cli.photo_organizer_typer organize /source /dest --no-dry-run
     """
-
-    # パス検証
-    if not src.exists():
-        typer.echo(f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True)
-        raise typer.Exit(1)
 
     # CLI実行
     cli = PhotoOrganizerCLI()
