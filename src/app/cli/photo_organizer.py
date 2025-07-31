@@ -2,7 +2,6 @@
 Photo Organizer CLI - Typer統合版
 """
 
-import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -30,6 +29,7 @@ class PhotoOrganizerCLI:
         """Photo Organizer CLIメイン実行"""
 
         try:
+            logger.info(f"Photo Organizer開始: {src} -> {dir}")
             # パス検証
             source_path = Path(src)
             target_path = Path(dir)
@@ -38,7 +38,7 @@ class PhotoOrganizerCLI:
                 typer.echo(
                     f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True
                 )
-                sys.exit(1)
+                typer.Exit(code=1)
 
             # サービス初期化
             file_repository = FileSystemRepository(logger.logger)
@@ -71,11 +71,12 @@ class PhotoOrganizerCLI:
 
             # 結果表示
             self._display_result(result)
+            logger.info("Photo Organizer完了")
 
         except Exception as e:
             logger.error(f"Photo Organizer CLI実行エラー: {e}")
             typer.echo(f"❌ エラー: {str(e)}", err=True)
-            sys.exit(1)
+            typer.Exit(code=1)
 
     def _progress_callback(self, current: int, total: int):
         """進捗表示コールバック"""
@@ -137,14 +138,7 @@ def organize(
 
     # CLI実行
     cli = PhotoOrganizerCLI()
-    try:
-        logger.info(f"Photo Organizer開始: {src} -> {dir}")
-        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
-        logger.info("Photo Organizer完了")
-    except Exception as e:
-        logger.error(f"Photo Organizer CLIの実行に失敗: {e}")
-        typer.echo(f"❌ Photo Organizer CLIの実行に失敗しました: {e}", err=True)
-        raise typer.Exit(1)
+    cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
 
 
 if __name__ == "__main__":

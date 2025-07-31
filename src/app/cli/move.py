@@ -2,7 +2,6 @@
 Move CLI - Typer統合版
 """
 
-import sys
 from pathlib import Path
 from typing import Annotated, List, Optional
 
@@ -30,6 +29,7 @@ class MoveCLI:
         """Move CLIメイン実行"""
 
         try:
+            logger.info(f"Move開始: {import_dir} -> {export_dir}")
             # パス検証
             source_path = Path(import_dir)
             target_path = Path(export_dir)
@@ -39,7 +39,7 @@ class MoveCLI:
                     f"❌ エラー: インポートディレクトリが存在しません: {import_dir}",
                     err=True,
                 )
-                sys.exit(1)
+                typer.Exit(code=1)
 
             # サービス初期化
             file_repository = FileSystemRepository(logger.logger)
@@ -88,11 +88,12 @@ class MoveCLI:
 
             # 結果表示
             self._display_result(result)
+            logger.info("Move完了")
 
         except Exception as e:
             logger.error(f"Move CLI実行エラー: {e}")
             typer.echo(f"❌ エラー: {str(e)}", err=True)
-            sys.exit(1)
+            typer.Exit(code=1)
 
     def _progress_callback(self, current: int, total: int):
         """進捗表示コールバック"""
@@ -159,20 +160,13 @@ def organize(
 
     # CLI実行
     cli = MoveCLI()
-    try:
-        logger.info(f"Move開始: {import_dir} -> {export_dir}")
-        cli.run(
-            import_dir=str(import_dir),
-            export_dir=str(export_dir),
-            dry_run=dry_run,
-            suffixes=suffix,
-            recursive=recursive,
-        )
-        logger.info("Move完了")
-    except Exception as e:
-        logger.error(f"Move CLIの実行に失敗: {e}")
-        typer.echo(f"❌ Move CLIの実行に失敗しました: {e}", err=True)
-        raise typer.Exit(1)
+    cli.run(
+        import_dir=str(import_dir),
+        export_dir=str(export_dir),
+        dry_run=dry_run,
+        suffixes=suffix,
+        recursive=recursive,
+    )
 
 
 if __name__ == "__main__":
