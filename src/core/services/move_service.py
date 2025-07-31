@@ -6,8 +6,8 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from ..domain.models import FileInfo, OrganizationConfig, ProcessResult
-from ..domain.repositories import FileRepository
+from src.core.domain.models import FileInfo, OrganizationConfig, ProcessResult
+from src.core.domain.repositories import FileRepository
 
 
 class MoveService:
