@@ -169,5 +169,24 @@ def organize(
     )
 
 
+# 対象の拡張子を取得するサブコマンド
+@app.command("get-suffixes")
+def get_suffixes(
+    suffix: Annotated[
+        Optional[list[str]],
+        typer.Option(
+            "--suffix", help="対象拡張子 (複数指定可能: --suffix jpg --suffix arw)"
+        ),
+    ] = None,
+):
+    """Move - 対象拡張子を取得
+
+    対象の拡張子を表示します。
+    """
+    config: OrganizationConfig = OrganizationConfig(file_extensions=suffix or None)
+    typer.echo("対象の拡張子:")
+    typer.echo(", ".join(config.file_extensions))
+
+
 if __name__ == "__main__":
     app()

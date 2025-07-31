@@ -59,7 +59,8 @@ class MoveService:
         # 2. 拡張子フィルタリング
         filtered_files = [f for f in files if config.should_process_file(f.path)]
         self.logger.info(
-            f"フィルタリング後: {len(filtered_files)} ファイル (拡張子: {config.file_extensions})"
+            f"フィルタリング後: {len(filtered_files)} ファイル (拡張子: {
+                config.file_extensions})"
         )
 
         # 3. 日付ベースでグループ化
@@ -110,6 +111,10 @@ class MoveService:
             f"日付ベース整理完了: 成功={result.success_count}, 失敗={result.error_count}"
         )
         return result
+
+    # def _get_file_extensions(self, config: OrganizationConfig) -> List[str]:
+    #     """設定からファイル拡張子のリストを取得"""
+    #     return [ext.lower() for ext in config.file_extensions]
 
     def _group_by_date(self, files: List[FileInfo]) -> Dict[str, List[FileInfo]]:
         """ファイルを日付でグループ化"""

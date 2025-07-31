@@ -178,100 +178,100 @@ class AppConfig:
         return updated
 
     # プロパティアクセス（後方互換性のため）
-    @property
-    def auto_save_config(self) -> bool:
-        return self.general.auto_save_config
+    # @property
+    # def auto_save_config(self) -> bool:
+    #     return self.general.auto_save_config
 
-    @auto_save_config.setter
-    def auto_save_config(self, value: bool):
-        self.general.auto_save_config = value
+    # @auto_save_config.setter
+    # def auto_save_config(self, value: bool):
+    #     self.general.auto_save_config = value
 
-    @property
-    def theme(self) -> str:
-        return self.ui.theme
+    # @property
+    # def theme(self) -> str:
+    #     return self.ui.theme
 
-    @theme.setter
-    def theme(self, value: str):
-        self.ui.theme = value
+    # @theme.setter
+    # def theme(self, value: str):
+    #     self.ui.theme = value
 
-    @property
-    def window_width(self) -> int:
-        return self.ui.window_width
+    # @property
+    # def window_width(self) -> int:
+    #     return self.ui.window_width
 
-    @window_width.setter
-    def window_width(self, value: int):
-        self.ui.window_width = value
+    # @window_width.setter
+    # def window_width(self, value: int):
+    #     self.ui.window_width = value
 
-    @property
-    def window_height(self) -> int:
-        return self.ui.window_height
+    # @property
+    # def window_height(self) -> int:
+    #     return self.ui.window_height
 
-    @window_height.setter
-    def window_height(self, value: int):
-        self.ui.window_height = value
+    # @window_height.setter
+    # def window_height(self, value: int):
+    #     self.ui.window_height = value
 
-    # Photo関連プロパティ
-    @property
-    def photo_default_dry_run(self) -> bool:
-        return self.photo.default_dry_run
+    # # Photo関連プロパティ
+    # @property
+    # def photo_default_dry_run(self) -> bool:
+    #     return self.photo.default_dry_run
 
-    @photo_default_dry_run.setter
-    def photo_default_dry_run(self, value: bool):
-        self.photo.default_dry_run = value
+    # @photo_default_dry_run.setter
+    # def photo_default_dry_run(self, value: bool):
+    #     self.photo.default_dry_run = value
 
-    @property
-    def photo_last_source_dir(self) -> str:
-        return self.photo.last_source_dir
+    # @property
+    # def photo_last_source_dir(self) -> str:
+    #     return self.photo.last_source_dir
 
-    @photo_last_source_dir.setter
-    def photo_last_source_dir(self, value: str):
-        self.photo.last_source_dir = value
+    # @photo_last_source_dir.setter
+    # def photo_last_source_dir(self, value: str):
+    #     self.photo.last_source_dir = value
 
-    @property
-    def photo_last_output_dir(self) -> str:
-        return self.photo.last_output_dir
+    # @property
+    # def photo_last_output_dir(self) -> str:
+    #     return self.photo.last_output_dir
 
-    @photo_last_output_dir.setter
-    def photo_last_output_dir(self, value: str):
-        self.photo.last_output_dir = value
+    # @photo_last_output_dir.setter
+    # def photo_last_output_dir(self, value: str):
+    #     self.photo.last_output_dir = value
 
-    # Move関連プロパティ
-    @property
-    def move_default_dry_run(self) -> bool:
-        return self.move.default_dry_run
+    # # Move関連プロパティ
+    # @property
+    # def move_default_dry_run(self) -> bool:
+    #     return self.move.default_dry_run
 
-    @move_default_dry_run.setter
-    def move_default_dry_run(self, value: bool):
-        self.move.default_dry_run = value
+    # @move_default_dry_run.setter
+    # def move_default_dry_run(self, value: bool):
+    #     self.move.default_dry_run = value
 
-    @property
-    def move_last_import_dir(self) -> str:
-        return self.move.last_import_dir
+    # @property
+    # def move_last_import_dir(self) -> str:
+    #     return self.move.last_import_dir
 
-    @move_last_import_dir.setter
-    def move_last_import_dir(self, value: str):
-        self.move.last_import_dir = value
+    # @move_last_import_dir.setter
+    # def move_last_import_dir(self, value: str):
+    #     self.move.last_import_dir = value
 
-    @property
-    def move_last_export_dir(self) -> str:
-        return self.move.last_export_dir
+    # @property
+    # def move_last_export_dir(self) -> str:
+    #     return self.move.last_export_dir
 
-    @move_last_export_dir.setter
-    def move_last_export_dir(self, value: str):
-        self.move.last_export_dir = value
+    # @move_last_export_dir.setter
+    # def move_last_export_dir(self, value: str):
+    #     self.move.last_export_dir = value
 
-    @property
-    def recent_directories(self) -> List[str]:
-        return self.general.recent_directories
+    # @property
+    # def recent_directories(self) -> List[str]:
+    #     return self.general.recent_directories
 
-    @recent_directories.setter
-    def recent_directories(self, value: List[str]):
-        self.general.recent_directories = value
+    # @recent_directories.setter
+    # def recent_directories(self, value: List[str]):
+    #     self.general.recent_directories = value
 
-    @property
-    def max_recent_directories(self) -> int:
-        return self.general.max_recent_directories
+    # @property
+    # def max_recent_directories(self) -> int:
+    #     return self.general.max_recent_directories
 
-    @max_recent_directories.setter
-    def max_recent_directories(self, value: int):
-        self.general.max_recent_directories = value
+    # @max_recent_directories.setter
+    # def max_recent_directories(self, value: int):
+    #     self.general.max_recent_directories = value

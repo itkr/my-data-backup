@@ -110,6 +110,3 @@ class ConfigManager(
             print("\n✅ 設定に問題はありません")
 
         print("=" * 50)
-
-
-# クラス名をConfigManagerに変更したため、エイリアスは不要
