@@ -8,7 +8,6 @@ from typing import Annotated
 
 import typer
 
-from src.app.cli.base import BaseCLI
 from src.core.domain.models import OrganizationConfig
 from src.core.services import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
@@ -17,7 +16,7 @@ from src.infrastructure.repositories import FileSystemRepository
 logger = get_logger("PhotoOrganizerCLI")
 
 
-class PhotoOrganizerCLI(BaseCLI):
+class PhotoOrganizerCLI:
     """Photo Organizer CLI実装"""
 
     def run(

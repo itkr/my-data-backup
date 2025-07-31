@@ -8,7 +8,6 @@ from typing import Annotated, List, Optional
 
 import typer
 
-from src.app.cli.base import BaseCLI
 from src.core.domain.models import OrganizationConfig
 from src.core.services import MoveService
 from src.infrastructure.logging import get_logger
@@ -17,7 +16,7 @@ from src.infrastructure.repositories import FileSystemRepository
 logger = get_logger("MoveCLI")
 
 
-class MoveCLI(BaseCLI):
+class MoveCLI:
     """Move CLI実装"""
 
     def run(
