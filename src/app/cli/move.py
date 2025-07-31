@@ -21,34 +21,6 @@ class MoveCLI(BaseCLI):
     def __init__(self):
         self.logger = get_logger("MoveCLI")
 
-    @classmethod
-    def get_command_name(cls) -> str:
-        """コマンド名を返す"""
-        return "move"
-
-    @classmethod
-    def get_description(cls) -> str:
-        """コマンドの説明を返す"""
-        return "Move CLI - 日付ベースファイル整理"
-
-    # バックアップでしか使っていないのでコメントアウト
-    # @classmethod
-    # def get_argument_spec(cls) -> Dict[str, Any]:
-    #     """argparse用の引数仕様を返す"""
-    #     return {
-    #         "import_dir": {"required": True, "help": "インポートディレクトリ"},
-    #         "export_dir": {"required": True, "help": "エクスポートディレクトリ"},
-    #         "dry_run": {"action": "store_true", "help": "ドライランモード"},
-    #         "suffix": {
-    #             "action": "append",
-    #             "help": "処理対象の拡張子 (複数指定可能: --suffix jpg --suffix arw)",
-    #         },
-    #         "no_recursive": {
-    #             "action": "store_true",
-    #             "help": "再帰検索を無効化（現在のディレクトリのみ検索）",
-    #         },
-    #     }
-
     def run_from_args(self, args) -> None:
         """argparseで解析された引数から実行"""
         self.run(

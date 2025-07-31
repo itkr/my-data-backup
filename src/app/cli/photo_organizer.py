@@ -21,26 +21,6 @@ class PhotoOrganizerCLI(BaseCLI):
     def __init__(self):
         self.logger = get_logger("PhotoOrganizerCLI")
 
-    @classmethod
-    def get_command_name(cls) -> str:
-        """コマンド名を返す"""
-        return "photo"
-
-    @classmethod
-    def get_description(cls) -> str:
-        """コマンドの説明を返す"""
-        return "Photo Organizer CLI - RAW/JPGファイル同期整理"
-
-    # バックアップでしか使っていないのでコメントアウト
-    # @classmethod
-    # def get_argument_spec(cls) -> Dict[str, Any]:
-    #     """argparse用の引数仕様を返す"""
-    #     return {
-    #         "src": {"required": True, "help": "ソースディレクトリ"},
-    #         "dir": {"required": True, "help": "出力ディレクトリ"},
-    #         "dry_run": {"action": "store_true", "help": "ドライランモード"},
-    #     }
-
     def run_from_args(self, args) -> None:
         """argparseで解析された引数から実行"""
         self.run(src=args.src, dir=args.dir, dry_run=args.dry_run)
