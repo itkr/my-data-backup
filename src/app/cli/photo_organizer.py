@@ -28,55 +28,47 @@ class PhotoOrganizerCLI:
     ):
         """Photo Organizer CLIメイン実行"""
 
-        try:
-            logger.info(f"Photo Organizer開始: {src} -> {dir}")
-            # パス検証
-            source_path = Path(src)
-            target_path = Path(dir)
+        logger.info(f"Photo Organizer開始: {src} -> {dir}")
+        # パス検証
+        source_path = Path(src)
+        target_path = Path(dir)
 
-            if not source_path.exists():
-                typer.echo(
-                    f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True
-                )
-                typer.Exit(code=1)
-
-            # サービス初期化
-            file_repository = FileSystemRepository(logger.logger)
-            photo_service = PhotoOrganizerService(file_repository, logger.logger)
-
-            # 設定作成
-            config = OrganizationConfig(
-                dry_run=dry_run, preserve_original=copy, log_operations=True
-            )
-
-            # 実行情報表示
-            typer.echo("📸 Photo Organizer CLI")
-            typer.echo("=" * 50)
-            typer.echo(f"ソース: {source_path}")
-            typer.echo(f"出力先: {target_path}")
-            typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-            typer.echo(f"操作: {'コピー' if copy else '移動'}")
-            typer.echo("=" * 50)
-
-            if dry_run:
-                typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
-
-            # 実行
-            result = photo_service.organize_photos(
-                source_dir=source_path,
-                target_dir=target_path,
-                config=config,
-                progress_callback=self._progress_callback,
-            )
-
-            # 結果表示
-            self._display_result(result)
-            logger.info("Photo Organizer完了")
-
-        except Exception as e:
-            logger.error(f"Photo Organizer CLI実行エラー: {e}")
-            typer.echo(f"❌ エラー: {str(e)}", err=True)
+        if not source_path.exists():
+            typer.echo(f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True)
             typer.Exit(code=1)
+
+        # サービス初期化
+        file_repository = FileSystemRepository(logger.logger)
+        photo_service = PhotoOrganizerService(file_repository, logger.logger)
+
+        # 設定作成
+        config = OrganizationConfig(
+            dry_run=dry_run, preserve_original=copy, log_operations=True
+        )
+
+        # 実行情報表示
+        typer.echo("📸 Photo Organizer CLI")
+        typer.echo("=" * 50)
+        typer.echo(f"ソース: {source_path}")
+        typer.echo(f"出力先: {target_path}")
+        typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
+        typer.echo(f"操作: {'コピー' if copy else '移動'}")
+        typer.echo("=" * 50)
+
+        if dry_run:
+            typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
+
+        # 実行
+        result = photo_service.organize_photos(
+            source_dir=source_path,
+            target_dir=target_path,
+            config=config,
+            progress_callback=self._progress_callback,
+        )
+
+        # 結果表示
+        self._display_result(result)
+        logger.info("Photo Organizer完了")
 
     def _progress_callback(self, current: int, total: int):
         """進捗表示コールバック"""
@@ -137,8 +129,13 @@ def organize(
     """
 
     # CLI実行
-    cli = PhotoOrganizerCLI()
-    cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
+    try:
+        cli = PhotoOrganizerCLI()
+        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
+    except Exception as e:
+        logger.error(f"Photo Organizer CLI実行エラー: {e}")
+        typer.echo(f"❌ エラー: {str(e)}", err=True)
+        typer.Exit(code=1)
 
 
 if __name__ == "__main__":

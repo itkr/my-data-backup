@@ -28,72 +28,67 @@ class MoveCLI:
     ):
         """Move CLIメイン実行"""
 
-        try:
-            logger.info(f"Move開始: {import_dir} -> {export_dir}")
-            # パス検証
-            source_path = Path(import_dir)
-            target_path = Path(export_dir)
+        logger.info(f"Move開始: {import_dir} -> {export_dir}")
 
-            if not source_path.exists():
-                typer.echo(
-                    f"❌ エラー: インポートディレクトリが存在しません: {import_dir}",
-                    err=True,
-                )
-                typer.Exit(code=1)
+        # パス検証
+        source_path = Path(import_dir)
+        target_path = Path(export_dir)
 
-            # サービス初期化
-            file_repository = FileSystemRepository(logger.logger)
-            move_service = MoveService(file_repository, logger.logger)
-
-            # 設定作成
-            file_extensions = None
-            if suffixes:
-                # ドット付きの拡張子に変換
-                file_extensions = [f".{s.lstrip('.')}" for s in suffixes]
-
-            config = OrganizationConfig(
-                dry_run=dry_run,
-                create_date_dirs=True,
-                create_type_dirs=True,
-                handle_duplicates=True,
-                log_operations=True,
-                preserve_original=False,
-                file_extensions=file_extensions,
-                recursive=recursive,
+        if not source_path.exists():
+            typer.echo(
+                f"❌ エラー: インポートディレクトリが存在しません: {import_dir}",
+                err=True,
             )
-
-            # 実行情報表示
-            typer.echo("📁 Move CLI - 日付ベースファイル整理")
-            typer.echo("=" * 50)
-            typer.echo(f"インポート: {source_path}")
-            typer.echo(f"エクスポート: {target_path}")
-            typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-            typer.echo(f"検索: {'再帰的' if recursive else 'カレントディレクトリのみ'}")
-            if suffixes:
-                typer.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
-            else:
-                typer.echo("フィルタ: デフォルト拡張子 (jpg, arw, mov, mp4, etc.)")
-            typer.echo("=" * 50)
-
-            if dry_run:
-                typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
-
-            # 実行
-            result = move_service.organize_by_date(
-                source_dir=source_path,
-                target_dir=target_path,
-                config=config,
-                progress_callback=self._progress_callback,
-            )
-
-            # 結果表示
-            self._display_result(result)
-            logger.info("Move完了")
-
-        except Exception as e:
-            logger.error(f"Move CLI実行エラー: {e}")
-            typer.echo(f"❌ エラー: {str(e)}", err=True)
             typer.Exit(code=1)
+
+        # サービス初期化
+        file_repository = FileSystemRepository(logger.logger)
+        move_service = MoveService(file_repository, logger.logger)
+
+        # 設定作成
+        file_extensions = None
+        if suffixes:
+            # ドット付きの拡張子に変換
+            file_extensions = [f".{s.lstrip('.')}" for s in suffixes]
+
+        config = OrganizationConfig(
+            dry_run=dry_run,
+            create_date_dirs=True,
+            create_type_dirs=True,
+            handle_duplicates=True,
+            log_operations=True,
+            preserve_original=False,
+            file_extensions=file_extensions,
+            recursive=recursive,
+        )
+
+        # 実行情報表示
+        typer.echo("📁 Move CLI - 日付ベースファイル整理")
+        typer.echo("=" * 50)
+        typer.echo(f"インポート: {source_path}")
+        typer.echo(f"エクスポート: {target_path}")
+        typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
+        typer.echo(f"検索: {'再帰的' if recursive else 'カレントディレクトリのみ'}")
+        if suffixes:
+            typer.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
+        else:
+            typer.echo("フィルタ: デフォルト拡張子 (jpg, arw, mov, mp4, etc.)")
+        typer.echo("=" * 50)
+
+        if dry_run:
+            typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
+
+        # 実行
+        result = move_service.organize_by_date(
+            source_dir=source_path,
+            target_dir=target_path,
+            config=config,
+            progress_callback=self._progress_callback,
+        )
+
+        # 結果表示
+        self._display_result(result)
+        logger.info("Move完了")
 
     def _progress_callback(self, current: int, total: int):
         """進捗表示コールバック"""
@@ -158,15 +153,19 @@ def organize(
             --suffix jpg --suffix arw
     """
 
-    # CLI実行
-    cli = MoveCLI()
-    cli.run(
-        import_dir=str(import_dir),
-        export_dir=str(export_dir),
-        dry_run=dry_run,
-        suffixes=suffix,
-        recursive=recursive,
-    )
+    try:
+        cli = MoveCLI()
+        cli.run(
+            import_dir=str(import_dir),
+            export_dir=str(export_dir),
+            dry_run=dry_run,
+            suffixes=suffix,
+            recursive=recursive,
+        )
+    except Exception as e:
+        logger.error(f"Move CLI実行エラー: {e}")
+        typer.echo(f"❌ エラー: {str(e)}", err=True)
+        typer.Exit(code=1)
 
 
 # 対象の拡張子を取得するサブコマンド
