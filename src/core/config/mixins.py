@@ -168,7 +168,7 @@ class SettingsUpdateMixin:
         """UI設定を更新"""
         updated = self.config.update_ui_settings(**kwargs)
 
-        if updated and self.config.auto_save_config:
+        if updated and self.config.general.auto_save_config:
             self.save_config()
 
 
@@ -213,30 +213,33 @@ class ValidatorMixin:
 
         # UI設定の検証
         if (
-            not isinstance(self.config.window_width, int)
-            or self.config.window_width < 800
+            not isinstance(self.config.ui.window_width, int)
+            or self.config.ui.window_width < 800
         ):
             errors.append("ウィンドウ幅は800以上の整数である必要があります")
 
         if (
-            not isinstance(self.config.window_height, int)
-            or self.config.window_height < 600
+            not isinstance(self.config.ui.window_height, int)
+            or self.config.ui.window_height < 600
         ):
             errors.append("ウィンドウ高さは600以上の整数である必要があります")
 
-        if self.config.theme not in ["light", "dark", "auto"]:
+        if self.config.ui.theme not in ["light", "dark", "auto"]:
             errors.append(
                 "テーマは 'light', 'dark', 'auto' のいずれかである必要があります"
             )
 
         # ディレクトリパスの検証
-        for attr_name in [
-            "photo_last_source_dir",
-            "photo_last_output_dir",
-            "move_last_import_dir",
-            "move_last_export_dir",
-        ]:
-            path_value = getattr(self.config, attr_name, "")
+        photo_paths = [
+            ("photo_last_source_dir", self.config.photo.last_source_dir),
+            ("photo_last_output_dir", self.config.photo.last_output_dir),
+        ]
+        move_paths = [
+            ("move_last_import_dir", self.config.move.last_import_dir),
+            ("move_last_export_dir", self.config.move.last_export_dir),
+        ]
+
+        for attr_name, path_value in photo_paths + move_paths:
             if path_value and not Path(path_value).exists():
                 errors.append(f"{attr_name} のパスが存在しません: {path_value}")
 
@@ -247,32 +250,36 @@ class ValidatorMixin:
         fixed = False
 
         # ウィンドウサイズの修正
-        if self.config.window_width < 800:
-            self.config.window_width = 1200
+        if self.config.ui.window_width < 800:
+            self.config.ui.window_width = 1200
             fixed = True
 
-        if self.config.window_height < 600:
-            self.config.window_height = 900
+        if self.config.ui.window_height < 600:
+            self.config.ui.window_height = 900
             fixed = True
 
         # 無効なテーマの修正
-        if self.config.theme not in ["light", "dark", "auto"]:
-            self.config.theme = "auto"
+        if self.config.ui.theme not in ["light", "dark", "auto"]:
+            self.config.ui.theme = "auto"
             fixed = True
 
         # 存在しないディレクトリパスをクリア
-        for attr_name in [
-            "photo_last_source_dir",
-            "photo_last_output_dir",
-            "move_last_import_dir",
-            "move_last_export_dir",
-        ]:
-            path_value = getattr(self.config, attr_name, "")
+        photo_paths = [
+            ("last_source_dir", self.config.photo),
+            ("last_output_dir", self.config.photo),
+        ]
+        move_paths = [
+            ("last_import_dir", self.config.move),
+            ("last_export_dir", self.config.move),
+        ]
+
+        for attr_name, config_section in photo_paths + move_paths:
+            path_value = getattr(config_section, attr_name, "")
             if path_value and not Path(path_value).exists():
-                setattr(self.config, attr_name, "")
+                setattr(config_section, attr_name, "")
                 fixed = True
 
-        if fixed and self.config.auto_save_config:
+        if fixed and self.config.general.auto_save_config:
             self.save_config()
 
         return fixed

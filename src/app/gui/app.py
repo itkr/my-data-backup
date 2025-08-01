@@ -56,11 +56,13 @@ class UnifiedDataBackupApp:
     def setup_window(self):
         """ウィンドウの基本設定"""
         self.root.title("📁 My Data Backup v2.0 - 統合ファイル整理ツール")
-        self.root.geometry(f"{self.config.window_width}x{self.config.window_height}")
+        self.root.geometry(
+            f"{self.config.ui.window_width}x{self.config.ui.window_height}"
+        )
         self.root.resizable(True, True)
 
         # テーマ設定
-        ctk.set_appearance_mode(self.config.theme)
+        ctk.set_appearance_mode(self.config.ui.theme)
 
     def setup_widgets(self):
         """ウィジェットの配置"""
@@ -153,7 +155,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(theme_frame, text="テーマ:").pack(side="left", padx=10)
 
-        self.theme_var = ctk.StringVar(value=self.config.theme)
+        self.theme_var = ctk.StringVar(value=self.config.ui.theme)
         theme_menu = ctk.CTkOptionMenu(
             theme_frame,
             values=["auto", "light", "dark"],
