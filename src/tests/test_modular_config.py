@@ -181,18 +181,6 @@ def main():
         demonstrate_structured_access()
         print()
 
-        # 機能一覧の表示
-        with tempfile.TemporaryDirectory() as temp_dir:
-            manager = ConfigManager(Path(temp_dir) / "demo")
-            print("📋 利用可能な機能:")
-            for feature in manager.get_features():
-                print(f"  {feature}")
-
-            print(f"\n📌 バージョン: {manager.get_version()}")
-
-            # ステータス表示
-            manager.print_status()
-
         print("\n🎉 全テスト・デモ完了!")
 
     except Exception as e:
