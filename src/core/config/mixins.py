@@ -147,31 +147,6 @@ class DirectoryHistoryMixin:
         return valid_directories[:limit] if limit else valid_directories
 
 
-class SettingsUpdateMixin:
-    """設定更新機能のMixin"""
-
-    def update_photo_settings(self, **kwargs):
-        """Photo Organizer設定を更新"""
-        updated = self.config.update_photo_settings(**kwargs)
-
-        if updated and self.config.auto_save_config:
-            self.save_config()
-
-    def update_move_settings(self, **kwargs):
-        """Move設定を更新"""
-        updated = self.config.update_move_settings(**kwargs)
-
-        if updated and self.config.auto_save_config:
-            self.save_config()
-
-    def update_ui_settings(self, **kwargs):
-        """UI設定を更新"""
-        updated = self.config.update_ui_settings(**kwargs)
-
-        if updated and self.config.general.auto_save_config:
-            self.save_config()
-
-
 class ConfigInfoMixin:
     """設定情報取得のMixin"""
 
@@ -194,10 +169,10 @@ class ConfigInfoMixin:
         }
 
     def reset_to_defaults(self) -> bool:
-        """設定をデフォルトにリセット"""
+        """設定をデフォルトにリセット（バックアップ付きファイル操作）"""
         try:
             self._create_backup()
-            self.config.reset_to_defaults()
+            self.config.reset_to_defaults()  # AppConfigの純粋なリセットメソッドを使用
             return self.save_config(backup=False)
         except Exception as e:
             print(f"❌ 設定リセットエラー: {e}")

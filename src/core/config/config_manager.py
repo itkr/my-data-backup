@@ -3,6 +3,7 @@
 Mixinパターンを使用してモジュール化
 """
 
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
@@ -12,18 +13,36 @@ from .mixins import (
     DirectoryHistoryMixin,
     FileOperationsMixin,
     ImportExportMixin,
-    SettingsUpdateMixin,
     ValidatorMixin,
 )
 
 
+class ConfigManagerInterface(ABC):
+    """
+    設定管理のインターフェース
+    設定の読み込み、保存、更新、検証を定義
+    """
+
+    @abstractmethod
+    def load_config(self):
+        """設定を読み込む"""
+        raise NotImplementedError("load_config() must be implemented")
+
+    @abstractmethod
+    def save_config(self):
+        """設定を保存する"""
+        raise NotImplementedError("save_config() must be implemented")
+
+
 class ConfigManager(
+    # mixins
     FileOperationsMixin,
     ImportExportMixin,
     DirectoryHistoryMixin,
-    SettingsUpdateMixin,
     ConfigInfoMixin,
     ValidatorMixin,
+    # interface
+    ConfigManagerInterface,
 ):
     """
     モジュール化されたConfigManager
@@ -58,3 +77,31 @@ class ConfigManager(
             print(f"⚠️ 設定に問題があります: {len(errors)} 件")
             if self.auto_fix_config():
                 print("🔧 自動修正を実行しました")
+
+    def update_photo_settings(self, **kwargs):
+        """Photo Organizer設定を更新（自動保存付き）"""
+        updated = self.config.update_photo_settings(**kwargs)
+
+        if updated and self.config.general.auto_save_config:
+            self.save_config()
+
+    def update_move_settings(self, **kwargs):
+        """Move設定を更新（自動保存付き）"""
+        updated = self.config.update_move_settings(**kwargs)
+
+        if updated and self.config.general.auto_save_config:
+            self.save_config()
+
+    def update_ui_settings(self, **kwargs):
+        """UI設定を更新（自動保存付き）"""
+        updated = self.config.update_ui_settings(**kwargs)
+
+        if updated and self.config.general.auto_save_config:
+            self.save_config()
+
+    def update_general_settings(self, **kwargs):
+        """一般設定を更新（自動保存付き）"""
+        updated = self.config.update_general_settings(**kwargs)
+
+        if updated and self.config.general.auto_save_config:
+            self.save_config()
