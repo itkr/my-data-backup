@@ -45,12 +45,10 @@ class MoveCLI:
         file_repository = FileSystemRepository(logger.logger)
         move_service = MoveService(file_repository, logger.logger)
 
-        # 設定作成
-        file_extensions = None
-        if suffixes:
-            # ドット付きの拡張子に変換
-            file_extensions = [f".{s.lstrip('.')}" for s in suffixes]
+        # ドット付きの拡張子に変換
+        file_extensions = [f".{s.lstrip('.')}" for s in suffixes] if suffixes else None
 
+        # 設定作成
         config = OrganizationConfig(
             dry_run=dry_run,
             create_date_dirs=True,
@@ -62,18 +60,11 @@ class MoveCLI:
             recursive=recursive,
         )
 
-        # 実行情報表示
-        typer.echo("📁 Move CLI - 日付ベースファイル整理")
-        typer.echo("=" * 50)
-        typer.echo(f"インポート: {source_path}")
-        typer.echo(f"エクスポート: {target_path}")
-        typer.echo(f"モード: {'ドライラン' if dry_run else '実行'}")
-        typer.echo(f"検索: {'再帰的' if recursive else 'カレントディレクトリのみ'}")
-        if suffixes:
-            typer.echo(f"フィルタ: {', '.join(f'*.{s}' for s in suffixes)}")
-        else:
-            typer.echo("フィルタ: デフォルト拡張子 (jpg, arw, mov, mp4, etc.)")
-        typer.echo("=" * 50)
+        self._display_start_info(
+            source_path=source_path,
+            target_path=target_path,
+            config=config,
+        )
 
         if dry_run:
             typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
@@ -96,13 +87,26 @@ class MoveCLI:
             progress = current / total * 100
             typer.echo(f"進捗: {current}/{total} ({progress:.1f}%)")
 
+    def _display_start_info(
+        self, source_path: Path, target_path: Path, config: OrganizationConfig
+    ):
+        """実行情報表示"""
+        typer.echo("📁 Move CLI - 日付ベースファイル整理")
+        typer.echo(f"  Import:\t{source_path}")
+        typer.echo(f"  Export:\t{target_path}")
+        typer.echo(f"  Filter:\t{', '.join(config.file_extensions)}")
+        typer.echo(
+            f"  Search:\t{'Recursive' if config.recursive else 'Current directory'}"
+        )
+        typer.echo(f"    Mode:\t{'DRY RUN' if config.dry_run else 'EXECUTE'}")
+        typer.echo("")
+
     def _display_result(self, result):
         """結果表示"""
         typer.echo("\n📊 実行結果")
-        typer.echo("=" * 30)
-        typer.echo(f"✅ 成功: {result.success_count} ファイル")
-        typer.echo(f"❌ 失敗: {result.error_count} ファイル")
-        typer.echo(f"📈 成功率: {result.success_rate * 100:.1f}%")
+        typer.echo(f"✅   成功:\t{result.success_count} ファイル")
+        typer.echo(f"❌   失敗:\t{result.error_count} ファイル")
+        typer.echo(f"📈 成功率:\t{result.success_rate * 100:.1f}%")
 
         if result.processed_files:
             typer.echo("\n処理済みファイル (最初の10件):")
@@ -120,7 +124,9 @@ class MoveCLI:
 
 # サブアプリケーション
 app = typer.Typer(
-    name="move", help="Move CLI - ファイル移動・整理", rich_markup_mode="markdown"
+    name="move",
+    help="Move CLI - ファイル移動・整理",
+    rich_markup_mode="markdown",
 )
 
 
@@ -128,9 +134,7 @@ app = typer.Typer(
 def organize(
     import_dir: Annotated[Path, typer.Argument(help="インポートディレクトリ")],
     export_dir: Annotated[Path, typer.Argument(help="エクスポートディレクトリ")],
-    dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="ドライランモード")
-    ] = False,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="ドライラン")] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
     recursive: Annotated[bool, typer.Option("--recursive", help="再帰検索")] = True,
     suffix: Annotated[
