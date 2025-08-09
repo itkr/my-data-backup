@@ -22,9 +22,9 @@ class MoveCLI:
         self,
         import_dir: str,
         export_dir: str,
-        dry_run: bool = True,
+        dry_run: bool = False,
         suffixes: Optional[List[str]] = None,
-        recursive: bool = True,
+        recursive: bool = False,
     ):
         """Move CLIメイン実行"""
 
@@ -92,13 +92,13 @@ class MoveCLI:
     ):
         """実行情報表示"""
         typer.echo("📁 Move CLI - 日付ベースファイル整理")
-        typer.echo(f"  Import:\t{source_path}")
-        typer.echo(f"  Export:\t{target_path}")
-        typer.echo(f"  Filter:\t{', '.join(config.file_extensions)}")
+        typer.echo(f"- Import:\t{source_path}")
+        typer.echo(f"- Export:\t{target_path}")
+        typer.echo(f"- Filter:\t{', '.join(config.file_extensions)}")
         typer.echo(
-            f"  Search:\t{'Recursive' if config.recursive else 'Current directory'}"
+            f"- Search:\t{'Recursive' if config.recursive else 'Current directory'}"
         )
-        typer.echo(f"    Mode:\t{'DRY RUN' if config.dry_run else 'EXECUTE'}")
+        typer.echo(f"-   Mode:\t{'DRY RUN' if config.dry_run else 'EXECUTE'}")
         typer.echo("")
 
     def _display_result(self, result):
@@ -136,7 +136,7 @@ def organize(
     export_dir: Annotated[Path, typer.Argument(help="エクスポートディレクトリ")],
     dry_run: Annotated[bool, typer.Option("--dry-run", help="ドライラン")] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
-    recursive: Annotated[bool, typer.Option("--recursive", help="再帰検索")] = True,
+    recursive: Annotated[bool, typer.Option("--recursive", help="再帰検索")] = False,
     suffix: Annotated[
         Optional[list[str]],
         typer.Option(
