@@ -140,7 +140,7 @@ class MoveService:
             path_parts.extend([year, month, day])
 
         if config.create_type_dirs:
-            extension = file_info.extension.lstrip(".").lower()
+            extension = file_info.raw_extension.lstrip(".")
             path_parts.append(extension)
 
         path_parts.append(file_info.name)

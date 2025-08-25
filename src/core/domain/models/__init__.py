@@ -40,8 +40,13 @@ class FileInfo:
 
     @property
     def extension(self) -> str:
-        """ファイル拡張子を取得"""
+        """ファイル拡張子を取得（小文字に正規化）"""
         return self.path.suffix.lower()
+
+    @property
+    def raw_extension(self) -> str:
+        """ファイル拡張子を取得（大文字小文字を保持）"""
+        return self.path.suffix
 
     @property
     def stem(self) -> str:
@@ -136,7 +141,7 @@ class OrganizationConfig:
             # 共通の拡張子定義から取得
             from src.core.config.file_extensions import FileExtensions
 
-            self.file_extensions = FileExtensions.get_media_extensions()
+            self.file_extensions = FileExtensions.get_all_supported_extensions()
 
     def should_process_file(self, file_path: Path) -> bool:
         """ファイルが処理対象かどうか判定"""

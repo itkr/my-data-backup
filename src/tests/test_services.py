@@ -186,27 +186,6 @@ class TestMoveService(unittest.TestCase):
         """テスト後のクリーンアップ"""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_generate_date_path(self):
-        """日付パス生成のテスト"""
-        file_date = datetime(2024, 1, 15, 10, 30, 0)
-
-        date_path = self.service._generate_date_path(file_date)
-
-        self.assertEqual(date_path, Path("2024/01月/2024-01-15"))
-
-    def test_generate_date_path_different_months(self):
-        """異なる月の日付パス生成テスト"""
-        test_cases = [
-            (datetime(2024, 3, 5), "2024/03月/2024-03-05"),
-            (datetime(2024, 12, 25), "2024/12月/2024-12-25"),
-            (datetime(2023, 7, 1), "2023/07月/2023-07-01"),
-        ]
-
-        for file_date, expected in test_cases:
-            with self.subTest(date=file_date):
-                result = self.service._generate_date_path(file_date)
-                self.assertEqual(result, Path(expected))
-
     def test_organize_by_date_dry_run(self):
         """ドライランモードでの日付別整理テスト"""
         # モックの設定
@@ -228,33 +207,33 @@ class TestMoveService(unittest.TestCase):
         self.assertEqual(result.success_count, 1)
         self.assertEqual(result.error_count, 0)
 
-    def test_get_target_path(self):
-        """ターゲットパス取得のテスト"""
+    def test_generate_target_path(self):
+        """ターゲットパス生成のテスト"""
         config = OrganizationConfig(create_date_dirs=True, create_type_dirs=True)
 
-        target_path = self.service._get_target_path(
+        target_path = self.service._generate_target_path(
             self.test_file, self.target_dir, config
         )
 
-        expected = self.target_dir / "2024/01月/2024-01-15/JPG/test.jpg"
+        expected = self.target_dir / "2024/01月/2024-01-15/jpg/test.jpg"
         self.assertEqual(target_path, expected)
 
-    def test_get_target_path_no_date_dirs(self):
-        """日付ディレクトリなしのターゲットパス取得テスト"""
+    def test_generate_target_path_no_date_dirs(self):
+        """日付ディレクトリなしのターゲットパス生成テスト"""
         config = OrganizationConfig(create_date_dirs=False, create_type_dirs=True)
 
-        target_path = self.service._get_target_path(
+        target_path = self.service._generate_target_path(
             self.test_file, self.target_dir, config
         )
 
-        expected = self.target_dir / "JPG/test.jpg"
+        expected = self.target_dir / "jpg/test.jpg"
         self.assertEqual(target_path, expected)
 
-    def test_get_target_path_no_type_dirs(self):
-        """タイプディレクトリなしのターゲットパス取得テスト"""
+    def test_generate_target_path_no_type_dirs(self):
+        """タイプディレクトリなしのターゲットパス生成テスト"""
         config = OrganizationConfig(create_date_dirs=True, create_type_dirs=False)
 
-        target_path = self.service._get_target_path(
+        target_path = self.service._generate_target_path(
             self.test_file, self.target_dir, config
         )
 

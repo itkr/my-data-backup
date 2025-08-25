@@ -20,5 +20,4 @@ fi
 
 python src/main.py move organize \
     "${current_dir}" \
-    "${current_dir}" \
-    --dry-run
+    "${current_dir}"

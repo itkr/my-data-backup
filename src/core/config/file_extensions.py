@@ -44,16 +44,6 @@ class FileExtensions:
         )
 
     @classmethod
-    def get_media_extensions(cls) -> List[str]:
-        """メディアファイル（画像・動画・音声）の拡張子を取得"""
-        return (
-            cls.RAW_EXTENSIONS
-            + cls.JPG_EXTENSIONS
-            + cls.VIDEO_EXTENSIONS
-            + cls.AUDIO_EXTENSIONS
-        )
-
-    @classmethod
     def get_gui_categories(cls) -> Dict[str, List[str]]:
         """GUI用のカテゴリ別拡張子を取得"""
         return cls.GUI_CATEGORIES.copy()
@@ -80,8 +70,3 @@ class FileExtensions:
     def is_supported(cls, extension: str) -> bool:
         """指定された拡張子がサポートされているかチェック"""
         return extension.lower() in cls.get_all_supported_extensions()
-
-    @classmethod
-    def is_media_file(cls, extension: str) -> bool:
-        """指定された拡張子がメディアファイルかチェック"""
-        return extension.lower() in cls.get_media_extensions()
