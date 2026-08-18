@@ -24,9 +24,9 @@ fi
 mkdir -p "${current_dir}/organized"
 
 # クリーンな実行（パス操作なし）
-python src/main.py cli photo \
-    --src="${current_dir}" \
-    --dir="${current_dir}/organized" \
+python src/main.py photo organize \
+    "${current_dir}" \
+    "${current_dir}/organized" \
     --dry-run
 
 echo ""

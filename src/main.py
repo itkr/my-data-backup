@@ -52,5 +52,10 @@ def gui(theme: str = "auto"):
         raise typer.Exit(1)
 
 
-if __name__ == "__main__":
+def main():
+    """コンソールスクリプト（my-data-backup）のエントリーポイント"""
     app()
+
+
+if __name__ == "__main__":
+    main()

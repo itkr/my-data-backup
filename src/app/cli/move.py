@@ -39,7 +39,7 @@ class MoveCLI:
                 f"❌ エラー: インポートディレクトリが存在しません: {import_dir}",
                 err=True,
             )
-            typer.Exit(code=1)
+            raise typer.Exit(code=1)
 
         # サービス初期化
         file_repository = FileSystemRepository(logger.logger)
@@ -166,10 +166,13 @@ def organize(
             suffixes=suffix,
             recursive=recursive,
         )
+    except typer.Exit:
+        # 意図した終了は握りつぶさずそのまま伝播させる
+        raise
     except Exception as e:
         logger.error(f"Move CLI実行エラー: {e}")
         typer.echo(f"❌ エラー: {str(e)}", err=True)
-        typer.Exit(code=1)
+        raise typer.Exit(code=1)
 
 
 # 対象の拡張子を取得するサブコマンド

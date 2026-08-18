@@ -128,7 +128,9 @@ class PhotoOrganizerService:
     ) -> List[PhotoPair]:
         """RAW/JPGファイルの対応関係を分析"""
         pairs = []
-        matched_jpgs = set()
+        # FileInfo は dataclass のため hashable ではない。
+        # ファイルを一意に識別できる path で対応済みかどうかを管理する。
+        matched_jpg_paths = set()
 
         # RAWファイルベースでペアを探す
         for raw in raw_files:
@@ -136,20 +138,20 @@ class PhotoOrganizerService:
             matching_jpg = None
 
             for jpg in jpg_files:
-                if jpg in matched_jpgs:
+                if jpg.path in matched_jpg_paths:
                     continue
 
                 jpg_base = jpg.stem
                 if self._is_matching_pair(raw_base, jpg_base):
                     matching_jpg = jpg
-                    matched_jpgs.add(jpg)
+                    matched_jpg_paths.add(jpg.path)
                     break
 
             pairs.append(PhotoPair(raw_file=raw, jpg_file=matching_jpg))
 
         # 残りの孤立JPGファイルを追加
         for jpg in jpg_files:
-            if jpg not in matched_jpgs:
+            if jpg.path not in matched_jpg_paths:
                 pairs.append(PhotoPair(raw_file=None, jpg_file=jpg))
 
         return pairs

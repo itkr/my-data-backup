@@ -330,7 +330,7 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 - **ドライランモードでの事前確認**
 
 #### 対応ファイル形式
-- **RAW**: ARW (Sony)
+- **RAW**: ARW, RAW, CR2, NEF, DNG
 - **JPG**: JPG, JPEG
 
 #### 出力構造
@@ -346,13 +346,28 @@ RAW と JPG ファイルの対応関係を管理し、以下の処理を行い�
 ファイルを日付・拡張子ごとに整理します：
 
 #### 対応ファイル形式
-- **画像**: JPEG, JPG, PNG, GIF, BMP, HIF, ARW
-- **動画**: MOV, MP4, MPG, MTS, LRF, LRV
-- **音声**: WAV, MP3
-- **ドキュメント**: XML
-- **デザイン**: PSD
+
+対応する拡張子は [`src/core/config/file_extensions.py`](src/core/config/file_extensions.py) で一元管理されています。
+
+| 分類 | 拡張子 |
+|------|--------|
+| RAW | ARW, RAW, CR2, NEF, DNG |
+| JPG | JPG, JPEG |
+| 動画 | MOV, MP4, MPG, AVI, MTS, LRF, LRV |
+| 音声 | WAV, MP3, AAC, FLAC |
+| ドキュメント | XML, TXT, PDF, DOC, DOCX |
+
+> **未対応**: PNG, GIF, BMP, HIF, PSD は現在対象外です。これらのファイルは移動されず、その場に残ります。
+>
+> 対象拡張子は実行時に確認できます:
+> ```bash
+> python src/main.py move get-suffixes
+> ```
 
 #### 出力構造
+
+拡張子ディレクトリは常に大文字になります（`.arw` も `.ARW` も `ARW/` にまとまります）。
+
 ```
 出力先/
 ├── 2024/

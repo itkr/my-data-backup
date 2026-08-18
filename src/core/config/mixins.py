@@ -128,7 +128,7 @@ class DirectoryHistoryMixin:
 
         self.config.update_recent_directory(directory)
 
-        if self.config.auto_save_config:
+        if self.config.general.auto_save_config:
             self.save_config()
 
     def get_recent_directories(self, limit: Optional[int] = None) -> List[str]:
@@ -141,7 +141,7 @@ class DirectoryHistoryMixin:
         # 変更があった場合は更新
         if len(valid_directories) != len(directories):
             self.config.set_recent_directories(valid_directories)
-            if self.config.auto_save_config:
+            if self.config.general.auto_save_config:
                 self.save_config()
 
         return valid_directories[:limit] if limit else valid_directories

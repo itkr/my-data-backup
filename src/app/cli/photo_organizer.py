@@ -35,7 +35,7 @@ class PhotoOrganizerCLI:
 
         if not source_path.exists():
             typer.echo(f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True)
-            typer.Exit(code=1)
+            raise typer.Exit(code=1)
 
         # サービス初期化
         file_repository = FileSystemRepository(logger.logger)
@@ -132,10 +132,13 @@ def organize(
     try:
         cli = PhotoOrganizerCLI()
         cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
+    except typer.Exit:
+        # 意図した終了は握りつぶさずそのまま伝播させる
+        raise
     except Exception as e:
         logger.error(f"Photo Organizer CLI実行エラー: {e}")
         typer.echo(f"❌ エラー: {str(e)}", err=True)
-        typer.Exit(code=1)
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

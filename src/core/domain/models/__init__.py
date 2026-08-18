@@ -44,11 +44,6 @@ class FileInfo:
         return self.path.suffix.lower()
 
     @property
-    def raw_extension(self) -> str:
-        """ファイル拡張子を取得（大文字小文字を保持）"""
-        return self.path.suffix
-
-    @property
     def stem(self) -> str:
         """ファイル名（拡張子なし）を取得"""
         return self.path.stem
