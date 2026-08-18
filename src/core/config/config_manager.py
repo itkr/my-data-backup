@@ -1,107 +1,211 @@
 """
-リファクタリングされた設定管理システム
-Mixinパターンを使用してモジュール化
+設定の永続化
 """
 
-from abc import ABC, abstractmethod
+import json
+import shutil
+from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
-from .config import AppConfig
-from .mixins import (
-    ConfigInfoMixin,
-    DirectoryHistoryMixin,
-    FileOperationsMixin,
-    ImportExportMixin,
-    ValidatorMixin,
+from .config import (
+    MIN_WINDOW_HEIGHT,
+    MIN_WINDOW_WIDTH,
+    THEMES,
+    AppConfig,
+    UIConfig,
 )
 
-
-class ConfigManagerInterface(ABC):
-    """
-    設定管理のインターフェース
-    設定の読み込み、保存、更新、検証を定義
-    """
-
-    @abstractmethod
-    def load_config(self):
-        """設定を読み込む"""
-        raise NotImplementedError("load_config() must be implemented")
-
-    @abstractmethod
-    def save_config(self):
-        """設定を保存する"""
-        raise NotImplementedError("save_config() must be implemented")
+MAX_BACKUPS = 10
 
 
-class ConfigManager(
-    # mixins
-    FileOperationsMixin,
-    ImportExportMixin,
-    DirectoryHistoryMixin,
-    ConfigInfoMixin,
-    ValidatorMixin,
-    # interface
-    ConfigManagerInterface,
-):
-    """
-    モジュール化されたConfigManager
-
-    Mixinパターンを使用して機能を分割し、
-    メンテナンス性と拡張性を向上させたConfigManager
-    """
+class ConfigManager:
+    """設定ファイルの読み書きを行う"""
 
     def __init__(self, config_dir: Optional[Path] = None):
         """
-        設定管理を初期化
-
         Args:
-            config_dir: 設定ファイル保存ディレクトリ（Noneの場合はホームディレクトリ/.my-data-backup）
+            config_dir: 設定ファイル保存ディレクトリ
+                （Noneの場合はホームディレクトリ/.my-data-backup）
         """
-        # ディレクトリ初期化
         self.config_dir = config_dir or (Path.home() / ".my-data-backup")
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.config_file = self.config_dir / "config.json"
         self.backup_dir = self.config_dir / "backups"
         self.backup_dir.mkdir(exist_ok=True)
 
-        # 構造化された設定オブジェクト
         self.config = AppConfig()
-
-        # 設定を読み込み
         self.load_config()
 
-        # 設定の自動検証・修正
-        errors = self.validate_config()
-        if errors:
-            print(f"⚠️ 設定に問題があります: {len(errors)} 件")
-            if self.auto_fix_config():
-                print("🔧 自動修正を実行しました")
+        if self.validate_config() and self.auto_fix_config():
+            print("🔧 設定の問題を自動修正しました")
 
-    def update_photo_settings(self, **kwargs):
-        """Photo Organizer設定を更新（自動保存付き）"""
-        updated = self.config.update_photo_settings(**kwargs)
+    # 読み書き
 
-        if updated and self.config.general.auto_save_config:
+    def load_config(self):
+        """設定を読み込み（ファイルが無ければデフォルトを保存）"""
+        if not self.config_file.exists():
             self.save_config()
+            return
 
-    def update_move_settings(self, **kwargs):
-        """Move設定を更新（自動保存付き）"""
-        updated = self.config.update_move_settings(**kwargs)
+        try:
+            with open(self.config_file, "r", encoding="utf-8") as f:
+                self.config.update_from_dict(json.load(f))
+        except Exception as e:
+            print(f"⚠️ 設定読み込みエラー: {e}")
+            print("📝 デフォルト設定を使用します")
 
-        if updated and self.config.general.auto_save_config:
-            self.save_config()
+    def save_config(self, backup: bool = True) -> bool:
+        """設定を保存"""
+        try:
+            if backup and self.config_file.exists():
+                self._create_backup()
+
+            with open(self.config_file, "w", encoding="utf-8") as f:
+                json.dump(self.config.to_dict(), f, indent=2, ensure_ascii=False)
+
+            return True
+
+        except Exception as e:
+            print(f"❌ 設定保存エラー: {e}")
+            return False
 
     def update_ui_settings(self, **kwargs):
         """UI設定を更新（自動保存付き）"""
-        updated = self.config.update_ui_settings(**kwargs)
+        known_keys = {"theme", "window_width", "window_height", "log_level"}
 
-        if updated and self.config.general.auto_save_config:
+        updated = False
+        for key, value in kwargs.items():
+            if key in known_keys:
+                setattr(self.config.ui, key, value)
+                updated = True
+
+        if updated:
             self.save_config()
 
-    def update_general_settings(self, **kwargs):
-        """一般設定を更新（自動保存付き）"""
-        updated = self.config.update_general_settings(**kwargs)
+    # バックアップ
 
-        if updated and self.config.general.auto_save_config:
+    def _create_backup(self):
+        """設定ファイルのバックアップを作成"""
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            shutil.copy2(self.config_file, self.backup_dir / f"config_{timestamp}.json")
+            self._cleanup_old_backups()
+        except Exception as e:
+            print(f"⚠️ バックアップ作成エラー: {e}")
+
+    def _cleanup_old_backups(self):
+        """MAX_BACKUPS を超えた古いバックアップを削除"""
+        backups = sorted(
+            self.backup_dir.glob("config_*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for backup in backups[MAX_BACKUPS:]:
+            backup.unlink()
+
+    # インポート・エクスポート
+
+    def export_config(self, export_path: Path) -> bool:
+        """設定をエクスポート"""
+        try:
+            with open(export_path, "w", encoding="utf-8") as f:
+                json.dump(self.config.to_dict(), f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"❌ 設定エクスポートエラー: {e}")
+            return False
+
+    def import_config(self, import_path: Path) -> bool:
+        """設定をインポート"""
+        try:
+            with open(import_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            self._create_backup()
+            self.config.update_from_dict(data)
+            return self.save_config(backup=False)
+
+        except Exception as e:
+            print(f"❌ 設定インポートエラー: {e}")
+            return False
+
+    def reset_to_defaults(self) -> bool:
+        """設定をデフォルトにリセット（バックアップ付き）"""
+        try:
+            self._create_backup()
+            self.config.reset_to_defaults()
+            return self.save_config(backup=False)
+        except Exception as e:
+            print(f"❌ 設定リセットエラー: {e}")
+            return False
+
+    # 情報・検証
+
+    def get_config_info(self) -> Dict[str, Any]:
+        """設定ファイルの情報を取得"""
+        exists = self.config_file.exists()
+        return {
+            "config_file": str(self.config_file),
+            "config_dir": str(self.config_dir),
+            "backup_dir": str(self.backup_dir),
+            "config_exists": exists,
+            "config_size": self.config_file.stat().st_size if exists else 0,
+            "last_modified": (
+                datetime.fromtimestamp(self.config_file.stat().st_mtime).isoformat()
+                if exists
+                else None
+            ),
+            "backup_count": len(list(self.backup_dir.glob("config_*.json"))),
+        }
+
+    def validate_config(self) -> List[str]:
+        """設定値を検証し、問題があればエラーメッセージを返す"""
+        ui = self.config.ui
+        errors = []
+
+        if not isinstance(ui.window_width, int) or ui.window_width < MIN_WINDOW_WIDTH:
+            errors.append(
+                f"ウィンドウ幅は{MIN_WINDOW_WIDTH}以上の整数である必要があります"
+            )
+
+        if (
+            not isinstance(ui.window_height, int)
+            or ui.window_height < MIN_WINDOW_HEIGHT
+        ):
+            errors.append(
+                f"ウィンドウ高さは{MIN_WINDOW_HEIGHT}以上の整数である必要があります"
+            )
+
+        if ui.theme not in THEMES:
+            errors.append(
+                f"テーマは {', '.join(THEMES)} のいずれかである必要があります"
+            )
+
+        return errors
+
+    def auto_fix_config(self) -> bool:
+        """不正な設定値をデフォルトに戻す"""
+        ui = self.config.ui
+        defaults = UIConfig()
+        fixed = False
+
+        if not isinstance(ui.window_width, int) or ui.window_width < MIN_WINDOW_WIDTH:
+            ui.window_width = defaults.window_width
+            fixed = True
+
+        if (
+            not isinstance(ui.window_height, int)
+            or ui.window_height < MIN_WINDOW_HEIGHT
+        ):
+            ui.window_height = defaults.window_height
+            fixed = True
+
+        if ui.theme not in THEMES:
+            ui.theme = defaults.theme
+            fixed = True
+
+        if fixed:
             self.save_config()
+
+        return fixed

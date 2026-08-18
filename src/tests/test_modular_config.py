@@ -2,191 +2,135 @@
 ConfigManagerのテスト
 """
 
+import json
 import tempfile
+import unittest
 from pathlib import Path
 
-from src.core.config.config_manager import ConfigManager
+from src.core.config import ConfigManager
 
 
-def test_basic_functionality():
-    """基本機能のテスト"""
-    print("🧪 基本機能テスト開始")
+class TestConfigManager(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp_path = Path(self._tmp.name)
+        self.config_dir = self.tmp_path / "config"
 
-    # 一時ディレクトリでテスト
-    with tempfile.TemporaryDirectory() as temp_dir:
-        config_dir = Path(temp_dir) / "test_config"
-        manager = ConfigManager(config_dir)
+    def tearDown(self):
+        self._tmp.cleanup()
 
-        # 設定変更のテスト
-        print("⚙️ 設定変更テスト...")
+    def test_settings_survive_reload(self):
+        """保存した設定が新しいインスタンスで読み込める"""
+        manager = ConfigManager(self.config_dir)
         manager.update_ui_settings(theme="dark", window_width=1400)
-        manager.update_move_settings(default_dry_run=False)
-        manager.update_photo_settings(default_preserve=True)
 
-        # ディレクトリ履歴のテスト
-        print("📂 ディレクトリ履歴テスト...")
-        test_dir = Path(temp_dir) / "test_directory"
-        test_dir.mkdir()
+        reloaded = ConfigManager(self.config_dir)
 
-        manager.update_recent_directory(str(test_dir))
-        recent = manager.get_recent_directories()
+        self.assertEqual(reloaded.config.ui.theme, "dark")
+        self.assertEqual(reloaded.config.ui.window_width, 1400)
 
-        assert str(test_dir) in recent, "ディレクトリ履歴の追加に失敗"
+    def test_unknown_ui_keys_are_ignored(self):
+        """未知のキーを渡しても無視される"""
+        manager = ConfigManager(self.config_dir)
+        manager.update_ui_settings(theme="dark", nonexistent_key="x")
 
-        # 設定保存・読み込みのテスト
-        print("💾 保存・読み込みテスト...")
-        assert manager.save_config(), "設定保存に失敗"
+        self.assertEqual(manager.config.ui.theme, "dark")
+        self.assertFalse(hasattr(manager.config.ui, "nonexistent_key"))
 
-        # 新しいマネージャーで読み込み
-        manager2 = ConfigManager(config_dir)
-        assert manager2.config.ui.theme == "dark", "設定読み込みに失敗"
-        assert manager2.config.ui.window_width == 1400, "UI設定読み込みに失敗"
-        assert not manager2.config.move.default_dry_run, "Move設定読み込みに失敗"
-        assert manager2.config.photo.default_preserve, "Photo設定読み込みに失敗"
+    def test_old_config_file_with_removed_sections_still_loads(self):
+        """削除済みセクションを含む古い設定ファイルでも読み込める"""
+        self.config_dir.mkdir(parents=True)
+        (self.config_dir / "config.json").write_text(
+            json.dumps(
+                {
+                    "ui": {"theme": "light", "window_width": 1600},
+                    "photo": {"default_dry_run": True},
+                    "move": {"last_import_dir": "/tmp"},
+                    "general": {"auto_save_config": True},
+                }
+            ),
+            encoding="utf-8",
+        )
 
-        print("✅ 基本機能テスト完了")
+        manager = ConfigManager(self.config_dir)
 
+        self.assertEqual(manager.config.ui.theme, "light")
+        self.assertEqual(manager.config.ui.window_width, 1600)
 
-def test_validation_functionality():
-    """検証機能のテスト"""
-    print("🧪 検証機能テスト開始")
+    def test_broken_config_file_falls_back_to_defaults(self):
+        """壊れた設定ファイルでも例外にせずデフォルトで起動する"""
+        self.config_dir.mkdir(parents=True)
+        (self.config_dir / "config.json").write_text("{ not json", encoding="utf-8")
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        config_dir = Path(temp_dir) / "test_validation"
-        manager = ConfigManager(config_dir)
+        manager = ConfigManager(self.config_dir)
 
-        # 無効な設定を追加
-        manager.config.ui.window_width = 500  # 最小値以下
-        manager.config.ui.theme = "invalid_theme"  # 無効なテーマ
-        manager.config.photo.last_source_dir = "/nonexistent/path"  # 存在しないパス
+        self.assertEqual(manager.config.ui.theme, "auto")
 
-        # 検証実行
+    def test_validate_detects_invalid_values(self):
+        """不正な設定値を検出する"""
+        manager = ConfigManager(self.config_dir)
+        manager.config.ui.window_width = 500
+        manager.config.ui.theme = "invalid_theme"
+
         errors = manager.validate_config()
-        print(f"⚠️ 検出されたエラー: {len(errors)} 件")
 
-        assert len(errors) > 0, "検証でエラーが検出されませんでした"
+        self.assertEqual(len(errors), 2)
 
-        # 自動修正実行
-        fixed = manager.auto_fix_config()
-        assert fixed, "自動修正が実行されませんでした"
+    def test_auto_fix_restores_defaults(self):
+        """不正な設定値をデフォルトに戻す"""
+        manager = ConfigManager(self.config_dir)
+        manager.config.ui.window_width = 500
+        manager.config.ui.theme = "invalid_theme"
 
-        # 修正後の検証
-        errors_after = manager.validate_config()
-        print(f"🔧 修正後のエラー: {len(errors_after)} 件")
+        self.assertTrue(manager.auto_fix_config())
+        self.assertEqual(manager.config.ui.window_width, 1200)
+        self.assertEqual(manager.config.ui.theme, "auto")
+        self.assertEqual(manager.validate_config(), [])
 
-        assert manager.config.ui.window_width >= 800, "ウィンドウ幅の修正に失敗"
-        assert manager.config.ui.theme == "auto", "テーマの修正に失敗"
-        assert manager.config.photo.last_source_dir == "", "パスの修正に失敗"
+    def test_invalid_values_are_fixed_on_startup(self):
+        """起動時に不正な設定が自動修正される"""
+        self.config_dir.mkdir(parents=True)
+        (self.config_dir / "config.json").write_text(
+            json.dumps({"ui": {"theme": "invalid", "window_width": 100}}),
+            encoding="utf-8",
+        )
 
-        print("✅ 検証機能テスト完了")
+        manager = ConfigManager(self.config_dir)
 
+        self.assertEqual(manager.config.ui.theme, "auto")
+        self.assertEqual(manager.config.ui.window_width, 1200)
 
-def test_import_export():
-    """インポート・エクスポート機能のテスト"""
-    print("🧪 インポート・エクスポート機能テスト開始")
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        config_dir = Path(temp_dir) / "test_import_export"
-        manager = ConfigManager(config_dir)
-
-        # 設定を変更
+    def test_export_and_import_roundtrip(self):
+        """エクスポートした設定をインポートで復元できる"""
+        manager = ConfigManager(self.config_dir)
         manager.update_ui_settings(theme="light", window_width=1600)
-        manager.update_move_settings(default_date_dirs=False)
 
-        # エクスポート
-        export_path = Path(temp_dir) / "exported_config.json"
-        assert manager.export_config(export_path), "エクスポートに失敗"
-        assert export_path.exists(), "エクスポートファイルが作成されませんでした"
+        export_path = self.tmp_path / "exported.json"
+        self.assertTrue(manager.export_config(export_path))
 
-        # 設定をリセット
-        manager.config.reset_to_defaults()
-        assert manager.config.ui.theme == "auto", "リセットに失敗"
+        manager.reset_to_defaults()
+        self.assertEqual(manager.config.ui.theme, "auto")
 
-        # インポート
-        assert manager.import_config(export_path), "インポートに失敗"
-        assert (
-            manager.config.ui.theme == "light"
-        ), "インポート後の設定が正しくありません"
-        assert (
-            manager.config.ui.window_width == 1600
-        ), "インポート後のUI設定が正しくありません"
-        assert (
-            not manager.config.move.default_date_dirs
-        ), "インポート後のMove設定が正しくありません"
+        self.assertTrue(manager.import_config(export_path))
+        self.assertEqual(manager.config.ui.theme, "light")
+        self.assertEqual(manager.config.ui.window_width, 1600)
 
-        print("✅ インポート・エクスポート機能テスト完了")
+    def test_import_missing_file_returns_false(self):
+        """存在しないファイルのインポートは False を返す"""
+        manager = ConfigManager(self.config_dir)
 
+        self.assertFalse(manager.import_config(self.tmp_path / "missing.json"))
 
-def demonstrate_structured_access():
-    """構造化されたアクセス方法のデモ"""
-    print("📋 構造化アクセス デモ")
+    def test_config_info_reports_file_state(self):
+        """設定ファイルの情報を取得できる"""
+        manager = ConfigManager(self.config_dir)
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        config_dir = Path(temp_dir) / "demo_structured"
-        manager = ConfigManager(config_dir)
+        info = manager.get_config_info()
 
-        # 構造化されたアクセス
-        print("\n🏗️ 構造化された設定アクセス:")
-        print(f"UI設定 - テーマ: {manager.config.ui.theme}")
-        ui_size = (
-            f"{manager.config.ui.window_width}x" f"{manager.config.ui.window_height}"
-        )
-        print(f"UI設定 - ウィンドウサイズ: {ui_size}")
-        print(f"Photo設定 - ドライラン: {manager.config.photo.default_dry_run}")
-        print(
-            f"Move設定 - 日付ディレクトリ作成: {manager.config.move.default_date_dirs}"
-        )
-        print(f"一般設定 - 自動保存: {manager.config.general.auto_save_config}")
-
-        # 後方互換性のあるアクセス
-        print("\n🔄 後方互換性のあるアクセス:")
-        print(f"テーマ (プロパティ): {manager.config.theme}")
-        print(f"ウィンドウ幅 (プロパティ): {manager.config.window_width}")
-        print(f"Photo ドライラン (プロパティ): {manager.config.photo_default_dry_run}")
-
-        # 一括更新
-        print("\n⚙️ 一括設定更新:")
-        manager.update_ui_settings(theme="dark", window_width=1920, window_height=1080)
-
-        manager.update_photo_settings(default_dry_run=False, default_preserve=True)
-
-        print("更新後の設定:")
-        ui_info = (
-            f"{manager.config.ui.theme}, "
-            f"{manager.config.ui.window_width}x{manager.config.ui.window_height}"
-        )
-        print(f"  UI: {ui_info}")
-        photo_info = (
-            f"dry_run={manager.config.photo.default_dry_run}, "
-            f"preserve={manager.config.photo.default_preserve}"
-        )
-        print(f"  Photo: {photo_info}")
-
-
-def main():
-    """メイン実行関数"""
-    print("🚀 新しい設定管理システム テスト・デモ開始")
-    print("=" * 60)
-
-    try:
-        test_basic_functionality()
-        print()
-
-        test_validation_functionality()
-        print()
-
-        test_import_export()
-        print()
-
-        demonstrate_structured_access()
-        print()
-
-        print("\n🎉 全テスト・デモ完了!")
-
-    except Exception as e:
-        print(f"❌ エラーが発生しました: {e}")
-        raise
+        self.assertTrue(info["config_exists"])
+        self.assertEqual(info["config_file"], str(manager.config_file))
+        self.assertGreater(info["config_size"], 0)
 
 
 if __name__ == "__main__":
-    main()
+    unittest.main()

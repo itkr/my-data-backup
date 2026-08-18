@@ -2,7 +2,6 @@
 統合GUIアプリケーション
 """
 
-import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox
 
@@ -45,7 +44,6 @@ class UnifiedDataBackupApp:
         self.root = ctk.CTk()
         self.setup_window()
         self.setup_widgets()
-        self.load_saved_settings()
 
         # 処理状態管理
         self.processing = False
@@ -255,73 +253,6 @@ class UnifiedDataBackupApp:
         )
         self.status_label.pack(side="left", padx=10, pady=5)
 
-    def load_saved_settings(self):
-        """保存された設定を読み込み"""
-        # モジュール化後は各タブが独自に設定を管理
-
-    def select_directory(self, entry_widget, config_key: str):
-        """ディレクトリ選択ダイアログ"""
-        directory = filedialog.askdirectory()
-        if directory:
-            entry_widget.delete(0, tk.END)
-            entry_widget.insert(0, directory)
-
-            # 設定を更新
-            if config_key.startswith("photo_"):
-                self.config_manager.update_photo_settings(
-                    **{config_key.replace("photo_", ""): directory}
-                )
-            elif config_key.startswith("move_"):
-                self.config_manager.update_move_settings(
-                    **{config_key.replace("move_", ""): directory}
-                )
-
-            # 最近使用したディレクトリに追加
-            self.config_manager.update_recent_directory(directory)
-
-    def show_recent_directories(self, entry_widget):
-        """最近使用したディレクトリを表示"""
-        recent_dirs = self.config_manager.get_recent_directories(limit=10)
-        if not recent_dirs:
-            messagebox.showinfo("情報", "最近使用したディレクトリはありません")
-            return
-
-        # 選択ダイアログ作成
-        dialog = ctk.CTkToplevel(self.root)
-        dialog.title("📋 最近使用したディレクトリ")
-        dialog.geometry("600x400")
-        dialog.transient(self.root)
-
-        # リストボックス
-        listbox_frame = ctk.CTkFrame(dialog)
-        listbox_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Tkinterのリストボックスを使用（CustomTkinterにはListboxがない）
-        listbox = tk.Listbox(listbox_frame)
-        listbox.pack(fill="both", expand=True, padx=10, pady=10)
-
-        for directory in recent_dirs:
-            listbox.insert(tk.END, directory)
-
-        # ボタンフレーム
-        button_frame = ctk.CTkFrame(dialog)
-        button_frame.pack(fill="x", padx=20, pady=(0, 20))
-
-        def select_directory():
-            selection = listbox.curselection()
-            if selection:
-                selected_dir = recent_dirs[selection[0]]
-                entry_widget.delete(0, tk.END)
-                entry_widget.insert(0, selected_dir)
-                dialog.destroy()
-
-        ctk.CTkButton(button_frame, text="選択", command=select_directory).pack(
-            side="right", padx=5
-        )
-        ctk.CTkButton(button_frame, text="キャンセル", command=dialog.destroy).pack(
-            side="right", padx=5
-        )
-
     def toggle_theme(self):
         """テーマを切り替え"""
         current = ctk.get_appearance_mode()
@@ -402,15 +333,6 @@ class UnifiedDataBackupApp:
 
         self.config_info_text.delete("1.0", "end")
         self.config_info_text.insert("1.0", info_text)
-
-    def show_error(self, operation: str, error: str):
-        """エラー表示"""
-        messagebox.showerror(f"{operation}エラー", f"エラーが発生しました:\n{error}")
-        self.log_message(f"❌ {operation}エラー: {error}")
-
-    def update_status(self, message: str):
-        """ステータス更新"""
-        self.status_label.configure(text=message)
 
     def log_message(self, message: str):
         """ログにメッセージを追加"""
