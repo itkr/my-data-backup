@@ -57,7 +57,7 @@ make list-packages
 ### 1. 新しい開発セッション開始時
 ```bash
 # 仮想環境をアクティベート
-make venv-activate
+source venv/bin/activate
 
 # パッケージ状態を確認
 make check-package
@@ -66,7 +66,7 @@ make check-package
 ### 2. コード変更後
 ```bash
 # CLIツールのテスト
-make test-cli
+make test
 
 # GUIアプリケーションのテスト
 make run-gui
@@ -78,7 +78,7 @@ make run-gui
 make reinstall
 
 # すべてのテストを実行
-make test-all
+make test
 ```
 
 ## パッケージ状態の監視
@@ -102,13 +102,13 @@ make list-packages
 
 ### 緊急時の復旧手順
 1. `make clean` - 一時ファイルをクリーンアップ
-2. `make venv-clean` - 仮想環境を再作成
+2. `make clean-venv` - 仮想環境を再作成
 3. `make install` - パッケージを再インストール
 4. `make check-package` - 状態を確認
 
 ### ログの確認
 - エラーが発生した場合は詳細なログを確認
-- `make run-gui`や`make test-cli`の出力をチェック
+- `make run-gui`や`make test`の出力をチェック
 
 ## ベストプラクティス
 
@@ -125,6 +125,6 @@ make list-packages
 | `make check-package` | パッケージ状態のチェック |
 | `make reinstall` | パッケージの再インストール |
 | `make list-packages` | インストール済みパッケージの確認 |
-| `make venv-clean` | 仮想環境のリセット |
+| `make clean-venv` | 仮想環境のリセット |
 
 この開発可能パッケージ方式により、`PROJECT_ROOT`のような動的パス設定が不要になり、より標準的で保守しやすいPythonプロジェクト構造を実現できます。

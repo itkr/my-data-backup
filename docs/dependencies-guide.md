@@ -8,10 +8,7 @@
 ```toml
 dependencies = [
     "customtkinter>=5.2.0",  # GUI機能に必須
-    "typer>=0.9.0",          # CLI機能に必須
-    "click>=8.0.0",          # typer の依存
-    "opencv-python>=4.8.0",  # 画像処理に必須
-    "Pillow>=9.0.0",         # 画像処理に必須
+    "typer>=0.12",           # CLI機能に必須
 ]
 ```
 
@@ -23,7 +20,6 @@ dependencies = [
 ```
 customtkinter==5.2.1  # 開発で確認済みの安定版
 click==8.1.7          # 同上
-opencv-python==4.10.0.84  # 同上
 ```
 
 ### pyproject.toml optional-dependencies（開発用）

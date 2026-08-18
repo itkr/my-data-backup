@@ -5,103 +5,103 @@
 .DEFAULT_GOAL := help
 
 # Docker コマンドのヘルプ表示
-help: ## 📋 Docker用コマンドのヘルプを表示
-	@echo "🐳 Docker コマンド一覧"
+help: ## [docker] Docker用コマンドのヘルプを表示
+	@echo "Docker コマンド一覧"
 	@echo "========================"
 	@echo ""
-	@echo "🚀 基本操作:"
-	@echo "  make -f Makefile.docker docker-build              🐳 Dockerイメージをビルド"
-	@echo "  make -f Makefile.docker docker-run                🚀 CLIモードでコンテナを起動"
-	@echo "  make -f Makefile.docker docker-gui                🎨 GUIモードの設定と起動"
-	@echo "  make -f Makefile.docker docker-shell              🐚 コンテナシェルにアクセス"
+	@echo "基本操作:"
+	@echo "  make -f Makefile.docker docker-build           Dockerイメージをビルド"
+	@echo "  make -f Makefile.docker docker-run             CLIモードでコンテナを起動"
+	@echo "  make -f Makefile.docker docker-gui             GUIモードの設定と起動"
+	@echo "  make -f Makefile.docker docker-shell           コンテナシェルにアクセス"
 	@echo ""
-	@echo "📱 アプリケーション実行:"
-	@echo "  make -f Makefile.docker docker-photo-organizer    📸 Photo Organizer CLI"
-	@echo "  make -f Makefile.docker docker-move               📁 Move CLI"
-	@echo "  make -f Makefile.docker docker-app-gui            🎨 統合GUI"
+	@echo "アプリケーション実行:"
+	@echo "  make -f Makefile.docker docker-photo-organizer Photo Organizer CLI"
+	@echo "  make -f Makefile.docker docker-move            Move CLI"
+	@echo "  make -f Makefile.docker docker-app-gui         統合GUI"
 	@echo ""
-	@echo "🔧 管理・監視:"
-	@echo "  make -f Makefile.docker docker-status             📊 Docker環境の状態確認"
-	@echo "  make -f Makefile.docker docker-logs               📋 コンテナログを表示"
-	@echo "  make -f Makefile.docker docker-clean              🧹 コンテナを停止・削除"
-	@echo "  make -f Makefile.docker docker-clean-all          🗑️  イメージも含めて完全削除"
+	@echo "管理・監視:"
+	@echo "  make -f Makefile.docker docker-status          Docker環境の状態確認"
+	@echo "  make -f Makefile.docker docker-logs            コンテナログを表示"
+	@echo "  make -f Makefile.docker docker-clean           コンテナを停止・削除"
+	@echo "  make -f Makefile.docker docker-clean-all       イメージも含めて完全削除"
 	@echo ""
-	@echo "💡 クイックスタート例:"
-	@echo "  # 1. イメージをビルド"
-	@echo "  make -f Makefile.docker docker-build"
+	@echo "クイックスタート例:"
+	@echo "# 1. イメージをビルド"
+	@echo "make -f Makefile.docker docker-build"
 	@echo ""
-	@echo "  # 2a. CLI使用の場合"
-	@echo "  make -f Makefile.docker docker-run"
-	@echo "  make -f Makefile.docker docker-photo-organizer"
+	@echo "# 2a. CLI使用の場合"
+	@echo "make -f Makefile.docker docker-run"
+	@echo "make -f Makefile.docker docker-photo-organizer"
 	@echo ""
-	@echo "  # 2b. GUI使用の場合（macOS/Linux）"
-	@echo "  make -f Makefile.docker docker-gui"
+	@echo "# 2b. GUI使用の場合（macOS/Linux）"
+	@echo "make -f Makefile.docker docker-gui"
 	@echo ""
-	@echo "📖 詳細: DOCKER.md を参照"
+	@echo "詳細: DOCKER.md を参照"
 	@echo ""
 
 # 詳細なヘルプとトラブルシューティング
-help-detailed: ## 📖 詳細なヘルプとトラブルシューティング情報
-	@echo "🐳 Docker 詳細ヘルプ & トラブルシューティング"
+help-detailed: ## [docker] 詳細なヘルプとトラブルシューティング情報
+	@echo "Docker 詳細ヘルプ & トラブルシューティング"
 	@echo "=============================================="
 	@echo ""
-	@echo "🔧 事前準備:"
-	@echo "  1. Docker & Docker Compose のインストール確認"
-	@echo "     docker --version && docker-compose --version"
+	@echo "事前準備:"
+	@echo "1. Docker & Docker Compose のインストール確認"
+	@echo "docker --version && docker-compose --version"
 	@echo ""
-	@echo "  2. GUI使用時の準備"
-	@echo "     macOS: brew install --cask xquartz"
-	@echo "     Linux: sudo apt-get install x11-apps"
+	@echo "2. GUI使用時の準備"
+	@echo "macOS: brew install --cask xquartz"
+	@echo "Linux: sudo apt-get install x11-apps"
 	@echo ""
-	@echo "📁 データ配置:"
-	@echo "  ./data/           ← 処理対象ファイルを配置"
-	@echo "  ./logs/           ← ログファイルが保存される"
-	@echo "  ./export/         ← 処理結果が出力される"
+	@echo "データ配置:"
+	@echo "./data/           ← 処理対象ファイルを配置"
+	@echo "./logs/           ← ログファイルが保存される"
+	@echo "./export/         ← 処理結果が出力される"
 	@echo ""
-	@echo "🚨 よくある問題と解決法:"
-	@echo "  ❌ GUI が表示されない"
-	@echo "     → XQuartz/X11の設定確認: xhost +localhost"
-	@echo "     → DISPLAY環境変数確認: echo \$$DISPLAY"
+	@echo "よくある問題と解決法:"
+	@echo "GUI が表示されない"
+	@echo "→ XQuartz/X11の設定確認: xhost +localhost"
+	@echo "→ DISPLAY環境変数確認: echo \$$DISPLAY"
 	@echo ""
-	@echo "  ❌ Permission denied"
-	@echo "     → データディレクトリの権限確認: chmod -R 755 data/"
+	@echo "Permission denied"
+	@echo "→ データディレクトリの権限確認: chmod -R 755 data/"
 	@echo ""
-	@echo "  ❌ Container won't start"
-	@echo "     → ログ確認: docker-compose logs"
-	@echo "     → イメージ再ビルド: docker-compose build --no-cache"
+	@echo "Container won't start"
+	@echo "→ ログ確認: docker-compose logs"
+	@echo "→ イメージ再ビルド: docker-compose build --no-cache"
 	@echo ""
-	@echo "🔄 完全リセット手順:"
-	@echo "  1. make -f Makefile.docker docker-clean-all"
-	@echo "  2. docker system prune -a"
-	@echo "  3. make -f Makefile.docker docker-build"
+	@echo "完全リセット手順:"
+	@echo "1. make -f Makefile.docker docker-clean-all"
+	@echo "2. docker system prune -a"
+	@echo "3. make -f Makefile.docker docker-build"
 	@echo ""
-	@echo "📚 参考資料:"
-	@echo "  - 詳細ドキュメント: DOCKER.md"
-	@echo "  - プロジェクト情報: README.md"
-	@echo "  - トラブル報告: https://github.com/itkr/my-data-backup/issues"
+	@echo "参考資料:"
+	@echo "- 詳細ドキュメント: DOCKER.md"
+	@echo "- プロジェクト情報: README.md"
+	@echo "- トラブル報告: https://github.com/itkr/my-data-backup/issues"
 	@echo ""
 
 .PHONY: help help-detailed docker-build docker-run docker-gui docker-clean docker-logs docker-photo-organizer docker-move docker-app-gui docker-shell docker-clean-all docker-status
 
 # Dockerイメージをビルド
-docker-build: ## 🐳 Dockerイメージをビルド
-	@echo "🐳 Building Docker image..."
+docker-build: ## [docker] Dockerイメージをビルド
+	@echo "Building Docker image..."
 	docker build -t my-data-backup:latest .
 
 # CLIモードでDockerコンテナを起動
-docker-run: ## 🚀 CLIモードでDockerコンテナを起動
-	@echo "🚀 Starting Docker container (CLI mode)..."
+docker-run: ## [docker] CLIモードでDockerコンテナを起動
+	@echo "Starting Docker container (CLI mode)..."
 	docker-compose up -d my-data-backup-cli
-	@echo "✅ Container started. Use 'docker exec -it my-data-backup-cli bash' to access."
+	@echo "Container started. Use 'docker exec -it my-data-backup-cli bash' to access."
 
 # GUI対応でDockerコンテナを起動
-docker-gui: ## 🎨 GUIモードの設定と起動（X11フォワーディング）
-	@echo "🎨 Setting up GUI environment..."
+docker-gui: ## [docker] GUIモードの設定と起動（X11フォワーディング）
+	@echo "Setting up GUI environment..."
 	./scripts/docker-gui.sh
 
 # Photo Organizer CLIをDockerで実行
-docker-photo-organizer: ## 📸 Photo Organizer CLIをDockerで実行
-	@echo "📸 Running Photo Organizer (CLI) in Docker..."
+docker-photo-organizer: ## [docker] Photo Organizer CLIをDockerで実行
+	@echo "Running Photo Organizer (CLI) in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
 		echo "使用方法: make docker-run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力ディレクトリ>"; \
 		echo "例: make docker-run-photo-organizer SRC=/data/source DIR=/data/output"; \
@@ -110,8 +110,8 @@ docker-photo-organizer: ## 📸 Photo Organizer CLIをDockerで実行
 	docker exec -it my-data-backup-cli python src/main.py photo organize "$(SRC)" "$(DIR)"
 
 # Move CLIをDockerで実行
-docker-move: ## 📁 Move CLIをDockerで実行
-	@echo "📁 Running Move tool (CLI) in Docker..."
+docker-move: ## [docker] Move CLIをDockerで実行
+	@echo "Running Move tool (CLI) in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
 		echo "使用方法: make docker-run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
 		echo "例: make docker-run-move SRC=/data/source DEST=/data/organized"; \
@@ -120,41 +120,41 @@ docker-move: ## 📁 Move CLIをDockerで実行
 	docker exec -it my-data-backup-cli python src/main.py move organize "$(SRC)" "$(DEST)"
 
 # 統合GUIをDockerで実行
-docker-app-gui: ## 🎨 統合GUIアプリケーションをDockerで実行
-	@echo "🎨 Running unified GUI in Docker..."
+docker-app-gui: ## [docker] 統合GUIアプリケーションをDockerで実行
+	@echo "Running unified GUI in Docker..."
 	docker exec -it my-data-backup-gui python src/main.py gui
 
 # Dockerコンテナに入る
-docker-shell: ## 🐚 Dockerコンテナのシェルにアクセス
-	@echo "🐚 Accessing Docker container shell..."
+docker-shell: ## [docker] Dockerコンテナのシェルにアクセス
+	@echo "Accessing Docker container shell..."
 	docker exec -it my-data-backup-cli bash
 
 # Dockerコンテナのログを表示
-docker-logs: ## 📋 Dockerコンテナのログを表示
-	@echo "📋 Showing Docker container logs..."
+docker-logs: ## [docker] Dockerコンテナのログを表示
+	@echo "Showing Docker container logs..."
 	docker-compose logs -f
 
 # Dockerコンテナを停止・削除
-docker-clean: ## 🧹 Dockerコンテナを停止・削除
-	@echo "🧹 Cleaning up Docker containers..."
+docker-clean: ## [docker] Dockerコンテナを停止・削除
+	@echo "Cleaning up Docker containers..."
 	docker-compose down
 	docker system prune -f
 
 # Dockerイメージも含めて完全クリーンアップ
-docker-clean-all: docker-clean ## 🗑️ イメージも含めて完全クリーンアップ
-	@echo "🗑️ Removing Docker images..."
+docker-clean-all: docker-clean ## [docker] イメージも含めて完全クリーンアップ
+	@echo "Removing Docker images..."
 	docker rmi my-data-backup:latest || true
 	docker image prune -f
 
 # Docker環境の状態確認
-docker-status: ## 📊 Docker環境の状態確認
-	@echo "📊 Docker Environment Status"
+docker-status: ## [docker] Docker環境の状態確認
+	@echo "Docker Environment Status"
 	@echo "============================"
-	@echo "🐳 Docker Version:"
-	@docker --version || echo "❌ Docker not installed"
+	@echo "Docker Version:"
+	@docker --version || echo "Docker not installed"
 	@echo ""
-	@echo "📦 Containers:"
-	@docker ps -a --filter "name=my-data-backup" || echo "❌ No containers found"
+	@echo "Containers:"
+	@docker ps -a --filter "name=my-data-backup" || echo "No containers found"
 	@echo ""
-	@echo "🏗️ Images:"
-	@docker images | grep my-data-backup || echo "❌ No images found"
+	@echo "Images:"
+	@docker images | grep my-data-backup || echo "No images found"

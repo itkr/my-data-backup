@@ -8,16 +8,16 @@
 
 | ツール | 役割 | 実行順序 |
 |--------|------|----------|
-| **autoflake** | 未使用import削除・変数整理 | 1️⃣ |
-| **isort** | import並び替え・グループ化 | 2️⃣ |
-| **black** | コード全体のフォーマット | 3️⃣ |
-| **flake8** | 品質チェック・検証 | 4️⃣ |
+| **autoflake** | 未使用import削除・変数整理 | 1 |
+| **isort** | import並び替え・グループ化 | 2 |
+| **black** | コード全体のフォーマット | 3 |
+| **flake8** | 品質チェック・検証 | 4 |
 
 ## 推奨コマンド
 
 ### 統一フォーマット（推奨）
 ```bash
-make format-unified
+make format
 ```
 
 このコマンドは以下を順番に実行します：
@@ -29,7 +29,7 @@ make format-unified
 ### 個別実行
 ```bash
 # importのみ整理
-make format-imports
+make format
 
 # blackのみ実行
 make format
@@ -75,7 +75,7 @@ exclude = venv/, __pycache__
 
 **解決策**: 
 1. pyproject.tomlの統一設定を使用
-2. `make format-unified`で正しい順序で実行
+2. `make format`で正しい順序で実行
 
 ### 問題：blackとisortの競合
 
@@ -95,7 +95,7 @@ exclude = venv/, __pycache__
 
 ## ベストプラクティス
 
-1. **コミット前**: 必ず`make format-unified`を実行
+1. **コミット前**: 必ず`make format`を実行
 2. **CI/CD**: 自動チェックに`make lint`を組み込み
 3. **エディタ設定**: IDE/エディタでblack/isortを自動実行
 4. **チーム開発**: 全員が同じpyproject.toml設定を使用

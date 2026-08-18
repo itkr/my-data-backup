@@ -9,20 +9,12 @@ LABEL description="Photo Organizer and File Move Tools with GUI"
 WORKDIR /app
 
 # システムパッケージの更新とGUI関連ライブラリのインストール
-# tkinter、customtkinter、opencv用の依存関係を含む
+# tkinter / customtkinter の動作に必要なものだけを入れる
 RUN apt-get update && apt-get install -y \
     # GUI関連
     python3-tk \
     x11-apps \
     xvfb \
-    # OpenCV用の依存関係
-    # libgl1 は Debian 12 で廃止された libgl1-mesa-glx の後継
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1 \
-    libgtk-3-0 \
     # その他の必要なパッケージ
     curl \
     make \
@@ -51,7 +43,7 @@ USER appuser
 
 # ヘルスチェック
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys; import customtkinter; import cv2; print('Dependencies OK')" || exit 1
+    CMD python -c "import customtkinter, typer; print('Dependencies OK')" || exit 1
 
 # デフォルトコマンド（v2.0新アーキテクチャ対応）
 CMD ["python", "-c", "print('Docker Container Ready\\n\\nコマンド:\\n  python src/main.py --help                 # ヘルプ\\n  python src/main.py gui                    # 統合GUI (requires X11)\\n  python src/main.py photo organize --help  # Photo Organizer CLI\\n  python src/main.py move organize --help   # Move CLI\\n\\nデータは /data ボリュームにマウントしてください')"]

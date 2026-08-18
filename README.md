@@ -118,7 +118,7 @@ my-data-backup/
 
 ### 前提条件
 
-- Python 3.8 以上
+- Python 3.9 以上
 - macOS / Linux
 - Git
 
