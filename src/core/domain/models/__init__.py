@@ -60,6 +60,7 @@ class ProcessResult:
 
     success_count: int = 0
     error_count: int = 0
+    skipped_count: int = 0
     processed_files: List[FileInfo] = None
     errors: List[str] = None
 
@@ -72,7 +73,7 @@ class ProcessResult:
     @property
     def total_count(self) -> int:
         """総処理ファイル数"""
-        return self.success_count + self.error_count
+        return self.success_count + self.error_count + self.skipped_count
 
     @property
     def success_rate(self) -> float:

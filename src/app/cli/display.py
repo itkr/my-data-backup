@@ -20,6 +20,8 @@ def display_result(result: ProcessResult):
     """処理結果を表示"""
     typer.echo("\n📊 実行結果")
     typer.echo(f"✅   成功:\t{result.success_count} ファイル")
+    if result.skipped_count:
+        typer.echo(f"⏭️ スキップ:\t{result.skipped_count} ファイル（出力先に同名あり）")
     typer.echo(f"❌   失敗:\t{result.error_count} ファイル")
     typer.echo(f"📈 成功率:\t{result.success_rate * 100:.1f}%")
 

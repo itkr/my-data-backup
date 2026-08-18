@@ -67,46 +67,74 @@ class PhotoOrganizerService(FileOrganizerService):
         )
 
         # 4. ファイル処理
+        operations = self._plan_operations(
+            complete_pairs, orphan_raws + orphan_jpgs, target_dir
+        )
+
         result = ProcessResult()
+        for processed, (file_info, destination) in enumerate(operations, 1):
+            self._process_file(file_info, destination, config, result)
 
-        total_items = len(complete_pairs) + len(orphan_raws) + len(orphan_jpgs)
-        processed = 0
-
-        # 完全ペアの処理
-        for pair in complete_pairs:
-            success = self._process_photo_pair(pair, target_dir, config)
-            if success:
-                result.success_count += 2
-                result.processed_files.extend([pair.raw_file, pair.jpg_file])
-            else:
-                result.error_count += 2
-                result.errors.append(
-                    f"ペア処理失敗: {pair.raw_file.name} + {pair.jpg_file.name}"
-                )
-
-            processed += 1
             if progress_callback:
-                progress_callback(processed, total_items)
-
-        # 孤立ファイルの処理
-        for pair in orphan_raws + orphan_jpgs:
-            orphan_file = pair.raw_file or pair.jpg_file
-            success = self._process_orphan_file(orphan_file, target_dir, config)
-            if success:
-                result.success_count += 1
-                result.processed_files.append(orphan_file)
-            else:
-                result.error_count += 1
-                result.errors.append(f"孤立ファイル処理失敗: {orphan_file.name}")
-
-            processed += 1
-            if progress_callback:
-                progress_callback(processed, total_items)
+                progress_callback(processed, len(operations))
 
         self.logger.info(
-            f"写真整理完了: 成功={result.success_count}, 失敗={result.error_count}"
+            f"写真整理完了: 成功={result.success_count}, "
+            f"スキップ={result.skipped_count}, 失敗={result.error_count}"
         )
         return result
+
+    def _plan_operations(
+        self,
+        complete_pairs: List[PhotoPair],
+        orphan_pairs: List[PhotoPair],
+        target_dir: Path,
+    ) -> List[Tuple[FileInfo, Path]]:
+        """各ファイルの移動先を決める
+
+        完全ペアは ARW/ と JPG/ に、孤立ファイルは orphans/ に振り分ける。
+        """
+        operations = []
+
+        for pair in complete_pairs:
+            operations.append((pair.raw_file, target_dir / "ARW" / pair.raw_file.name))
+            operations.append((pair.jpg_file, target_dir / "JPG" / pair.jpg_file.name))
+
+        for pair in orphan_pairs:
+            orphan = pair.raw_file or pair.jpg_file
+            operations.append((orphan, target_dir / "orphans" / orphan.name))
+
+        return operations
+
+    def _process_file(
+        self,
+        file_info: FileInfo,
+        destination: Path,
+        config: OrganizationConfig,
+        result: ProcessResult,
+    ):
+        """1ファイルを処理して結果を result に反映する"""
+        # 出力先に同名ファイルがある場合は取り込まず、ソース側に残す
+        if self.file_repository.exists(destination):
+            self.logger.info(f"スキップ（出力先に同名ファイルあり）: {destination}")
+            result.skipped_count += 1
+            return
+
+        try:
+            if not config.dry_run:
+                self.file_repository.create_directory(destination.parent)
+
+            if self._execute_file_operation(file_info.path, destination, config):
+                result.success_count += 1
+                result.processed_files.append(file_info)
+            else:
+                result.error_count += 1
+                result.errors.append(f"処理失敗: {file_info.name}")
+
+        except Exception as e:
+            result.error_count += 1
+            result.errors.append(f"処理エラー {file_info.name}: {e}")
+            self.logger.error(f"ファイル処理エラー: {e}")
 
     def _classify_photo_files(
         self, files: List[FileInfo]
@@ -162,52 +190,3 @@ class PhotoOrganizerService(FileOrganizerService):
         jpg_normalized = jpg_base.lstrip("_").upper()
 
         return raw_normalized == jpg_normalized
-
-    def _process_photo_pair(
-        self, pair: PhotoPair, target_dir: Path, config: OrganizationConfig
-    ) -> bool:
-        """ペアファイルの処理"""
-        try:
-            # ターゲットディレクトリの準備
-            raw_target_dir = target_dir / "ARW"
-            jpg_target_dir = target_dir / "JPG"
-
-            if not config.dry_run:
-                self.file_repository.create_directory(raw_target_dir)
-                self.file_repository.create_directory(jpg_target_dir)
-
-            # RAWファイルの処理
-            raw_target = raw_target_dir / pair.raw_file.name
-            raw_success = self._execute_file_operation(
-                pair.raw_file.path, raw_target, config
-            )
-
-            # JPGファイルの処理
-            jpg_target = jpg_target_dir / pair.jpg_file.name
-            jpg_success = self._execute_file_operation(
-                pair.jpg_file.path, jpg_target, config
-            )
-
-            return raw_success and jpg_success
-
-        except Exception as e:
-            self.logger.error(f"ペア処理エラー: {e}")
-            return False
-
-    def _process_orphan_file(
-        self, file: FileInfo, target_dir: Path, config: OrganizationConfig
-    ) -> bool:
-        """孤立ファイルの処理"""
-        try:
-            # 孤立ファイル用ディレクトリ
-            orphan_dir = target_dir / "orphans"
-
-            if not config.dry_run:
-                self.file_repository.create_directory(orphan_dir)
-
-            target = orphan_dir / file.name
-            return self._execute_file_operation(file.path, target, config)
-
-        except Exception as e:
-            self.logger.error(f"孤立ファイル処理エラー: {e}")
-            return False

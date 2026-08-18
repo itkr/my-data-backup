@@ -8,7 +8,8 @@
 ```toml
 dependencies = [
     "customtkinter>=5.2.0",  # GUI機能に必須
-    "click>=8.0.0",          # CLI機能に必須  
+    "typer>=0.9.0",          # CLI機能に必須
+    "click>=8.0.0",          # typer の依存
     "opencv-python>=4.8.0",  # 画像処理に必須
     "Pillow>=9.0.0",         # 画像処理に必須
 ]

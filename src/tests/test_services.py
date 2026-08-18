@@ -29,6 +29,9 @@ class TestPhotoOrganizerService(unittest.TestCase):
 
         # モックリポジトリを作成
         self.mock_repository = Mock()
+        # exists() の戻り値を明示しないと Mock が truthy を返し、
+        # 全ファイルが「出力先に同名あり」でスキップされてしまう
+        self.mock_repository.exists.return_value = False
 
         # サービスインスタンス作成
         self.service = PhotoOrganizerService(self.mock_repository, self.logger)
@@ -172,6 +175,28 @@ class TestPhotoOrganizerService(unittest.TestCase):
         }
         self.assertIn(self.target_dir / "ARW" / "image.arw", destinations)
         self.assertIn(self.target_dir / "JPG" / "image.jpg", destinations)
+
+    def test_existing_destination_is_skipped_instead_of_overwritten(self):
+        """出力先に同名ファイルがある場合は上書きせずスキップする"""
+        self.mock_repository.scan_directory.return_value = [
+            self.raw_file,
+            self.jpg_file,
+        ]
+        # JPG の移動先だけ既に存在する
+        existing = self.target_dir / "JPG" / "image.jpg"
+        self.mock_repository.exists.side_effect = lambda p: p == existing
+
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+
+        result = self.service.organize_photos(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        moved = {call.args[1] for call in self.mock_repository.move_file.call_args_list}
+        self.assertEqual(moved, {self.target_dir / "ARW" / "image.arw"})
+        self.assertEqual(result.skipped_count, 1)
+        self.assertEqual(result.success_count, 1)
+        self.assertEqual(result.error_count, 0)
 
     def test_organize_photos_moves_orphan_into_orphans_directory(self):
         """孤立ファイルは orphans/ に振り分けられる"""

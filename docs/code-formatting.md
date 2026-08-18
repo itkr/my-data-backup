@@ -64,7 +64,7 @@ ignore-init-module-imports = true
 ```ini
 [flake8]
 max-line-length = 88        # blackと統一
-exclude = venv/, legacy/, __pycache__
+exclude = venv/, __pycache__
 ```
 
 ## 🔍 トラブルシューティング

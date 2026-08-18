@@ -48,7 +48,6 @@ help: ## ヘルプを表示
 	@echo ""
 	@echo "📖 ドキュメント"
 	@echo "  開発パッケージの注意点: docs/development-package.md"
-	@echo "  アーキテクチャ情報: docs/architecture.md"
 
 # 仮想環境構築
 .PHONY: venv
@@ -78,22 +77,9 @@ install: venv ## 🏗️ 依存パッケージをインストール
 setup: venv install ## 🏗️ 開発環境を初期セットアップ
 	@echo "開発環境のセットアップが完了しました"
 	@echo "以下のコマンドで各ツールを実行できます:"
-	@echo "  make run-photo-organizer  # Photo Organizer GUI"
-	@echo "  make run-move            # Move GUI"
-	@echo "  make photo-cli           # Photo Organizer CLI"
-	@echo "  make move-cli            # Move CLI"
-
-# Photo Organizer GUI を実行（レガシー）
-.PHONY: run-photo-organizer-gui
-run-photo-organizer-gui: venv check-env ## 🏚️ 【レガシー】Photo Organizer GUI を実行
-	@echo "Photo Organizer GUI を起動中..."
-	cd legacy/photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
-
-# Move GUI を実行（レガシー）
-.PHONY: run-move-gui
-run-move-gui: venv check-env ## 🏚️ 【レガシー】Move GUI を実行
-	@echo "Move GUI を起動中..."
-	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) gui.py
+	@echo "  make run-gui             # 統合GUIアプリケーション"
+	@echo "  make run-photo-cli       # Photo Organizer CLI"
+	@echo "  make run-move-cli        # Move CLI"
 
 # 統合GUI を実行
 .PHONY: run-gui
@@ -101,59 +87,28 @@ run-gui: venv check-env ## 🚀 統合GUIアプリケーション を実行
 	@echo "統合GUIアプリケーション を起動中..."
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app
 
-# 新アーキテクチャ版CLI実行
-.PHONY: run-photo-cli-v2
-run-photo-cli-v2: venv check-env ## 🚀 Photo Organizer CLI (新アーキテクチャ版)
-	@echo "Photo Organizer CLI (新アーキテクチャ版) を起動中..."
-	@echo "使用例: make run-photo-cli-v2 SRC=/path/to/source DIR=/path/to/output"
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py cli photo --src $(SRC) --dir $(DIR) $(if $(DRY_RUN),--dry-run)
+# Photo Organizer CLI を実行
+.PHONY: run-photo-cli
+run-photo-cli: venv check-env ## 🚀 Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
+	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
+		echo "使用方法: make run-photo-cli SRC=<ソース> DIR=<出力先> [DRY_RUN=1]"; \
+		exit 1; \
+	fi
+	$(PYTHON) src/main.py photo organize "$(SRC)" "$(DIR)" $(if $(DRY_RUN),--dry-run)
 
-.PHONY: run-move-cli-v2
-run-move-cli-v2: venv check-env ## 🚀 Move CLI (新アーキテクチャ版)
-	@echo "Move CLI (新アーキテクチャ版) を起動中..."
-	@echo "使用例: make run-move-cli-v2 IMPORT_DIR=/path/to/import EXPORT_DIR=/path/to/export"
-	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) main.py cli move --import-dir $(IMPORT_DIR) --export-dir $(EXPORT_DIR) $(if $(DRY_RUN),--dry-run)
+# Move CLI を実行
+.PHONY: run-move-cli
+run-move-cli: venv check-env ## 🚀 Move CLI を実行（引数: SRC=ソース DEST=出力先）
+	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
+		echo "使用方法: make run-move-cli SRC=<ソース> DEST=<出力先> [DRY_RUN=1]"; \
+		exit 1; \
+	fi
+	$(PYTHON) src/main.py move organize "$(SRC)" "$(DEST)" $(if $(DRY_RUN),--dry-run)
 
 # テスト実行
 .PHONY: test
 test: venv ## 🧪 全てのテストを実行
-	@echo "新アーキテクチャのテストを実行中..."
-	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_domain_models.py && $(PYTHON) test_repositories.py
-
-.PHONY: test-domain
-test-domain: venv ## 🧪 ドメインモデルのテストを実行
-	@echo "ドメインモデルのテストを実行中..."
-	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_domain_models.py
-
-.PHONY: test-repositories
-test-repositories: venv ## 🧪 リポジトリのテストを実行
-	@echo "リポジトリのテストを実行中..."
-	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_repositories.py
-
-.PHONY: test-services
-test-services: venv ## 🧪 サービス層のテストを実行
-	@echo "サービス層のテストを実行中..."
-	cd src/tests && PYTHONPATH=$(shell pwd) $(PYTHON) test_services.py
-
-# Photo Organizer CLI を実行（レガシー）
-.PHONY: run-photo-organizer
-run-photo-organizer: venv ## 🏚️ 【レガシー】Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
-	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
-		echo "使用方法: make run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力先ディレクトリ>"; \
-		echo "例: make run-photo-organizer SRC=/path/to/source DIR=/path/to/output"; \
-		exit 1; \
-	fi
-	cd legacy/photo_organizer && PYTHONPATH=$(shell pwd) $(PYTHON) main.py "$(SRC)" "$(DIR)"
-
-# Move CLI を実行（レガシー）
-.PHONY: run-move
-run-move: venv ## 🏚️ 【レガシー】Move CLI を実行（引数: SRC=ソース DEST=移動先）
-	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
-		echo "使用方法: make run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
-		echo "例: make run-move SRC=/path/to/source DEST=/path/to/destination"; \
-		exit 1; \
-	fi
-	cd legacy/move && PYTHONPATH=$(shell pwd) $(PYTHON) main.py --import-dir "$(SRC)" --export-dir "$(DEST)"
+	$(PYTHON) -m pytest src/tests
 
 # ========================================
 # Code Quality & Formatting Commands
@@ -183,13 +138,6 @@ lint: venv ## 🔍 flake8 でコード品質をチェック
 	@echo "コード品質をチェック中..."
 	$(PYTHON) -m flake8 src/ --statistics
 	@echo "コード品質チェックが完了しました"
-
-# 共通ログ機構のテスト
-.PHONY: test-logger
-test-logger: venv ## 🏚️ 【レガシー】共通ログ機構のテスト実行
-	@echo "共通ログ機構をテスト中..."
-	$(PYTHON) legacy/test_common_logger.py
-	@echo "ログ機構のテストが完了しました"
 
 # 依存パッケージのバージョン確認
 .PHONY: list-packages
@@ -234,8 +182,8 @@ info: ## 🔍 環境情報を表示
 	@echo "仮想環境パス: $(VENV_DIR)"
 	@echo "Requirements ファイル: $(REQUIREMENTS)"
 	@echo "利用可能なツール:"
-	@echo "  - Photo Organizer (photo_organizer/)"
-	@echo "  - Move (move/)"
+	@echo "  - Photo Organizer (make run-photo-cli)"
+	@echo "  - Move (make run-move-cli)"
 	@echo ""
 
 # 環境チェック
@@ -287,7 +235,7 @@ clean-all: clean ## ✨ 仮想環境を含む全ての一時ファイルを削�
 
 # 開発用のクイックスタート
 .PHONY: dev
-dev: setup ## 🎯 開発環境を構築してPhoto Organizer GUI を起動
+dev: setup ## 🎯 開発環境を構築して統合GUI を起動
 	@echo "開発環境構築後、統合版 GUI を起動します..."
 	$(MAKE) run-gui
 
@@ -315,7 +263,7 @@ docker-run-gui-v2: ## 🐳 v2.0統合GUIアプリケーションコンテナを�
 
 docker-test-v2: ## 🐳 v2.0新アーキテクチャのテストを実行
 	@echo "🧪 v2.0新アーキテクチャのテストを実行中..."
-	docker-compose run --rm my-data-backup-v2 bash -c "cd src/tests && python test_domain_models.py"
+	docker-compose run --rm my-data-backup-v2 python -m pytest src/tests
 
 # レガシー版Dockerコマンド（互換性維持）
 docker-run-cli: ## 🏚️ 【レガシー】CLIモードでDockerコンテナを起動

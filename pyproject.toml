@@ -57,7 +57,6 @@ extend-exclude = '''
   | \.tox
   | \.venv
   | venv
-  | legacy
   | __pycache__
 )/
 '''
@@ -80,4 +79,4 @@ remove-all-unused-imports = true
 remove-unused-variables = true
 ignore-init-module-imports = true
 expand-star-imports = true
-exclude = ["venv", "legacy", "__pycache__"]
+exclude = ["venv", "__pycache__"]

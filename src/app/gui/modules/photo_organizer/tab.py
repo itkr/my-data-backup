@@ -110,15 +110,12 @@ class PhotoOrganizerTab(BaseTab):
         )
         dry_run_checkbox.pack(anchor="w", padx=30, pady=(0, 10))
 
-        # 重複スキップオプション
-        self.skip_duplicates_var = ctk.BooleanVar(value=True)
-        skip_checkbox = ctk.CTkCheckBox(
+        # 出力先に同名ファイルがある場合は常にスキップする
+        ctk.CTkLabel(
             options_frame,
-            text="⚡ 重複ファイルをスキップ",
-            variable=self.skip_duplicates_var,
+            text="⏭️ 出力先に同名ファイルがある場合はスキップします",
             font=ctk.CTkFont(size=11),
-        )
-        skip_checkbox.pack(anchor="w", padx=30, pady=(0, 15))
+        ).pack(anchor="w", padx=30, pady=(0, 15))
 
         # 共通ウィジェット（進捗表示）
         self.setup_common_widgets()
@@ -168,9 +165,6 @@ class PhotoOrganizerTab(BaseTab):
         # 設定作成
         config = OrganizationConfig(
             dry_run=self.dry_run_var.get(),
-            create_date_dirs=True,
-            create_type_dirs=True,
-            handle_duplicates=not self.skip_duplicates_var.get(),
             log_operations=True,
             preserve_original=False,
         )
