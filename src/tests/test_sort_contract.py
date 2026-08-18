@@ -20,7 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.core.domain.models import OrganizationConfig
-from src.core.services.move_service import MoveService
+from src.core.services.sort_service import SortService
 from src.infrastructure.repositories import FileSystemRepository
 
 # 2024-03-05 12:00 に固定したタイムスタンプ
@@ -28,14 +28,14 @@ FIXED_MTIME = datetime(2024, 3, 5, 12, 0, 0).timestamp()
 
 
 class TestMoveShContract(unittest.TestCase):
-    """samples/move.sh が依存する MoveService の挙動"""
+    """samples/move.sh が依存する SortService の挙動"""
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.work = Path(self._tmp.name) / "work"
         (self.work / "subdir").mkdir(parents=True)
 
-        self.service = MoveService(FileSystemRepository())
+        self.service = SortService(FileSystemRepository())
 
     def tearDown(self):
         self._tmp.cleanup()
@@ -58,7 +58,7 @@ class TestMoveShContract(unittest.TestCase):
             file_extensions=None,
             recursive=False,
         )
-        self.result = self.service.organize_by_date(self.work, self.work, config)
+        self.result = self.service.sort_by_date(self.work, self.work, config)
 
     def _relative_paths(self) -> set:
         return {

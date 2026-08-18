@@ -13,6 +13,6 @@ if ! python -c "import src.core.services" 2>/dev/null; then
     exit 1
 fi
 
-python src/main.py move organize \
+python src/main.py sort \
     "${current_dir}" \
     "${current_dir}"

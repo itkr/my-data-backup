@@ -11,12 +11,12 @@ from pathlib import Path
 from unittest.mock import Mock
 
 from src.core.domain.models import FileInfo, FileType, OrganizationConfig
-from src.core.services.move_service import MoveService
-from src.core.services.photo_organizer_service import PhotoOrganizerService
+from src.core.services.sort_service import SortService
+from src.core.services.sync_service import SyncService
 
 
-class TestPhotoOrganizerService(unittest.TestCase):
-    """PhotoOrganizerServiceクラスのテスト"""
+class TestSyncService(unittest.TestCase):
+    """SyncServiceクラスのテスト"""
 
     def setUp(self):
         """テスト前のセットアップ"""
@@ -34,7 +34,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
         self.mock_repository.exists.return_value = False
 
         # サービスインスタンス作成
-        self.service = PhotoOrganizerService(self.mock_repository, self.logger)
+        self.service = SyncService(self.mock_repository, self.logger)
 
         # テストデータ準備
         self.source_dir = self.temp_path / "source"
@@ -134,7 +134,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
         self.assertEqual(len(pairs), 1)
         self.assertTrue(pairs[0].is_complete_pair)
 
-    def test_organize_photos_dry_run(self):
+    def test_sync_photos_dry_run(self):
         """ドライランではファイル操作が実行されない"""
         self.mock_repository.scan_directory.return_value = [
             self.raw_file,
@@ -143,7 +143,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=True)
 
-        result = self.service.organize_photos(
+        result = self.service.sync_photos(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -156,7 +156,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
         self.assertEqual(result.success_count, 2)
         self.assertEqual(result.error_count, 0)
 
-    def test_organize_photos_moves_pair_into_type_directories(self):
+    def test_sync_photos_moves_pair_into_type_directories(self):
         """完全ペアは ARW/ と JPG/ に振り分けられる"""
         self.mock_repository.scan_directory.return_value = [
             self.raw_file,
@@ -166,7 +166,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=False, preserve_original=False)
 
-        self.service.organize_photos(
+        self.service.sync_photos(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -188,7 +188,7 @@ class TestPhotoOrganizerService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=False, preserve_original=False)
 
-        result = self.service.organize_photos(
+        result = self.service.sync_photos(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -198,14 +198,14 @@ class TestPhotoOrganizerService(unittest.TestCase):
         self.assertEqual(result.success_count, 1)
         self.assertEqual(result.error_count, 0)
 
-    def test_organize_photos_moves_orphan_into_orphans_directory(self):
+    def test_sync_photos_moves_orphan_into_orphans_directory(self):
         """孤立ファイルは orphans/ に振り分けられる"""
         self.mock_repository.scan_directory.return_value = [self.raw_file]
         self.mock_repository.move_file.return_value = True
 
         config = OrganizationConfig(dry_run=False, preserve_original=False)
 
-        self.service.organize_photos(
+        self.service.sync_photos(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -215,8 +215,8 @@ class TestPhotoOrganizerService(unittest.TestCase):
         self.assertEqual(destinations, {self.target_dir / "orphans" / "image.arw"})
 
 
-class TestMoveService(unittest.TestCase):
-    """MoveServiceクラスのテスト"""
+class TestSortService(unittest.TestCase):
+    """SortServiceクラスのテスト"""
 
     def setUp(self):
         """テスト前のセットアップ"""
@@ -234,7 +234,7 @@ class TestMoveService(unittest.TestCase):
         self.mock_repository.exists.return_value = False
 
         # サービスインスタンス作成
-        self.service = MoveService(self.mock_repository, self.logger)
+        self.service = SortService(self.mock_repository, self.logger)
 
         # テストデータ準備
         self.source_dir = self.temp_path / "source"
@@ -251,7 +251,7 @@ class TestMoveService(unittest.TestCase):
         """テスト後のクリーンアップ"""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_organize_by_date_dry_run(self):
+    def test_sort_by_date_dry_run(self):
         """ドライランモードでの日付別整理テスト"""
         # モックの設定
         self.service.file_repository.scan_directory = Mock(
@@ -260,7 +260,7 @@ class TestMoveService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=True)
 
-        result = self.service.organize_by_date(
+        result = self.service.sort_by_date(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -312,7 +312,7 @@ class TestMoveService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=False, preserve_original=True)
 
-        self.service.organize_by_date(
+        self.service.sort_by_date(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -357,7 +357,7 @@ class TestMoveService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=False, preserve_original=False)
 
-        result = self.service.organize_by_date(
+        result = self.service.sort_by_date(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -373,7 +373,7 @@ class TestMoveService(unittest.TestCase):
         self.service.stop()
 
         config = OrganizationConfig(dry_run=False, preserve_original=False)
-        result = self.service.organize_by_date(
+        result = self.service.sort_by_date(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 

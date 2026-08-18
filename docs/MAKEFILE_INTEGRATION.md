@@ -44,7 +44,7 @@ make run-gui                 # 統合GUI
 # Docker環境（エイリアス経由）
 make docker-help             # Dockerコマンド一覧
 make docker-build-image      # イメージビルド
-make docker-run-photo-organizer  # Photo Organizer CLI
+make docker-run-sync  # sync (RAW/JPG 突き合わせ)
 make docker-run-app-gui          # 統合GUI
 
 # Docker環境（直接呼び出し）

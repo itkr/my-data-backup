@@ -91,9 +91,9 @@ class UnifiedDataBackupApp:
         self.tabview = ctk.CTkTabview(parent)
         self.tabview.pack(fill="both", expand=True, pady=(0, 10))
 
-        # Moveタブ
-        self.move_tab = self.tabview.add("🗂️ Move")
-        self.setup_move_tab()
+        # Sortタブ
+        self.sort_tab = self.tabview.add("🗂️ Sort")
+        self.setup_sort_tab()
 
         # 設定タブ
         self.settings_tab = self.tabview.add("⚙️ 設定")
@@ -103,11 +103,11 @@ class UnifiedDataBackupApp:
         self.log_tab = self.tabview.add("📋 ログ")
         self.setup_log_tab()
 
-    def setup_move_tab(self):
-        """Move タブの設定"""
-        from src.app.gui.modules.move.tab import MoveTab
+    def setup_sort_tab(self):
+        """Sort タブの設定"""
+        from src.app.gui.modules.sort.tab import SortTab
 
-        self.move_tab_instance = MoveTab(parent=self.move_tab, logger=self.logger)
+        self.sort_tab_instance = SortTab(parent=self.sort_tab, logger=self.logger)
 
     def setup_settings_tab(self):
         """設定タブの設定"""

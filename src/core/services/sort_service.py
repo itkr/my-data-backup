@@ -1,5 +1,5 @@
 """
-Move サービス
+sort サービス — 日付・拡張子で仕分け
 """
 
 import logging
@@ -15,9 +15,9 @@ from src.core.services.base import FileOrganizerService
 MAX_DUPLICATE_ATTEMPTS = 1000
 
 
-class MoveService(FileOrganizerService):
+class SortService(FileOrganizerService):
     """
-    Move機能のビジネスロジックを実装するサービス
+    ファイルを日付・拡張子ごとに仕分けるサービス
 
     責任:
     - ファイルの日付ベース分類
@@ -41,7 +41,7 @@ class MoveService(FileOrganizerService):
         self._stop_requested = True
         self.logger.info("停止が要求されました")
 
-    def organize_by_date(
+    def sort_by_date(
         self,
         source_dir: Path,
         target_dir: Path,

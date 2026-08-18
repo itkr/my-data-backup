@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 # メンテナーの情報
 LABEL maintainer="itkr"
-LABEL description="Photo Organizer and File Move Tools with GUI"
+LABEL description="RAW/JPG file organizing tools with GUI"
 
 # 作業ディレクトリを設定
 WORKDIR /app
@@ -46,7 +46,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import customtkinter, typer; print('Dependencies OK')" || exit 1
 
 # デフォルトコマンド（v2.0新アーキテクチャ対応）
-CMD ["python", "-c", "print('Docker Container Ready\\n\\nコマンド:\\n  python src/main.py --help                 # ヘルプ\\n  python src/main.py gui                    # 統合GUI (requires X11)\\n  python src/main.py photo organize --help  # Photo Organizer CLI\\n  python src/main.py move organize --help   # Move CLI\\n\\nデータは /data ボリュームにマウントしてください')"]
+CMD ["python", "-c", "print('Docker Container Ready\\n\\nコマンド:\\n  python src/main.py --help        # ヘルプ\\n  python src/main.py sort --help   # 日付・拡張子で仕分け\\n  python src/main.py sync --help   # RAW/JPG の突き合わせ\\n  python src/main.py gui           # 統合GUI (requires X11)\\n\\nデータは /data ボリュームにマウントしてください')"]
 
 # メタデータ
 LABEL version="2.0"

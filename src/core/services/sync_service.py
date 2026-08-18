@@ -1,5 +1,5 @@
 """
-Photo Organizer サービス
+sync サービス — RAW と JPG の突き合わせ
 """
 
 from pathlib import Path
@@ -15,9 +15,9 @@ from src.core.domain.models import (
 from src.core.services.base import FileOrganizerService
 
 
-class PhotoOrganizerService(FileOrganizerService):
+class SyncService(FileOrganizerService):
     """
-    Photo Organizer のビジネスロジックを実装するサービス
+    RAW と JPG を突き合わせて振り分けるサービス
 
     責任:
     - RAW/JPGファイルの対応関係の判定
@@ -26,7 +26,7 @@ class PhotoOrganizerService(FileOrganizerService):
     - 処理結果の集計
     """
 
-    def organize_photos(
+    def sync_photos(
         self,
         source_dir: Path,
         target_dir: Path,

@@ -1,33 +1,31 @@
 #!/usr/bin/env python3
 """
-My Data Backup - Typer版のメインエントリーポイント（改良版）
-
-統一されたTyper CLI実装 - 二重管理解消版
+My Data Backup - エントリーポイント
 """
 
 import typer
 
-from src.app.cli.move import app as move_app
-from src.app.cli.photo_organizer import app as photo_app
+from src.app.cli.extensions import extensions
+from src.app.cli.sort import sort
+from src.app.cli.sync import sync
 from src.infrastructure.logging import get_logger
 
-# メインアプリケーション
 app = typer.Typer(
     name="my-data-backup",
-    help="My Data Backup - RAW/JPGファイル整理ツール統合版",
+    help="My Data Backup - RAW/JPGファイル整理ツール",
     rich_markup_mode="markdown",
 )
 
-# サブアプリケーション登録
-app.add_typer(photo_app, name="photo")
-app.add_typer(move_app, name="move")
+app.command()(sort)
+app.command()(sync)
+app.command()(extensions)
 
 logger = get_logger("MainApp")
 
 
 @app.command()
 def gui(theme: str = "auto"):
-    """統一GUIアプリケーションを起動
+    """統合GUIアプリケーションを起動
 
     Args:
         theme: UIテーマ (auto, light, dark)
@@ -35,10 +33,9 @@ def gui(theme: str = "auto"):
     try:
         from src.app.gui.app import UnifiedDataBackupApp
 
-        logger.info("統一GUIアプリケーション起動開始")
-        typer.echo("統一GUIアプリケーションを起動中...")
-        app = UnifiedDataBackupApp()
-        app.run()
+        logger.info("統合GUIアプリケーション起動開始")
+        typer.echo("統合GUIアプリケーションを起動中...")
+        UnifiedDataBackupApp().run()
 
     except ImportError as e:
         logger.error(f"GUIモジュールのインポートに失敗: {e}")

@@ -16,8 +16,8 @@ help: ## [docker] Docker用コマンドのヘルプを表示
 	@echo "  make -f Makefile.docker docker-shell           コンテナシェルにアクセス"
 	@echo ""
 	@echo "アプリケーション実行:"
-	@echo "  make -f Makefile.docker docker-photo-organizer Photo Organizer CLI"
-	@echo "  make -f Makefile.docker docker-move            Move CLI"
+	@echo "  make -f Makefile.docker docker-sync sync (RAW/JPG 突き合わせ)"
+	@echo "  make -f Makefile.docker docker-sort            sort (日付・拡張子で仕分け)"
 	@echo "  make -f Makefile.docker docker-app-gui         統合GUI"
 	@echo ""
 	@echo "管理・監視:"
@@ -32,7 +32,7 @@ help: ## [docker] Docker用コマンドのヘルプを表示
 	@echo ""
 	@echo "# 2a. CLI使用の場合"
 	@echo "make -f Makefile.docker docker-run"
-	@echo "make -f Makefile.docker docker-photo-organizer"
+	@echo "make -f Makefile.docker docker-sync"
 	@echo ""
 	@echo "# 2b. GUI使用の場合（macOS/Linux）"
 	@echo "make -f Makefile.docker docker-gui"
@@ -81,7 +81,7 @@ help-detailed: ## [docker] 詳細なヘルプとトラブルシューティン�
 	@echo "- トラブル報告: https://github.com/itkr/my-data-backup/issues"
 	@echo ""
 
-.PHONY: help help-detailed docker-build docker-run docker-gui docker-clean docker-logs docker-photo-organizer docker-move docker-app-gui docker-shell docker-clean-all docker-status
+.PHONY: help help-detailed docker-build docker-run docker-gui docker-clean docker-logs docker-sync docker-sort docker-app-gui docker-shell docker-clean-all docker-status
 
 # Dockerイメージをビルド
 docker-build: ## [docker] Dockerイメージをビルド
@@ -99,25 +99,25 @@ docker-gui: ## [docker] GUIモードの設定と起動（X11フォワーディ�
 	@echo "Setting up GUI environment..."
 	./scripts/docker-gui.sh
 
-# Photo Organizer CLIをDockerで実行
-docker-photo-organizer: ## [docker] Photo Organizer CLIをDockerで実行
-	@echo "Running Photo Organizer (CLI) in Docker..."
+# sync (RAW/JPG 突き合わせ)をDockerで実行
+docker-sync: ## [docker] sync (RAW/JPG 突き合わせ)をDockerで実行
+	@echo "Running sync in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
-		echo "使用方法: make docker-run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力ディレクトリ>"; \
-		echo "例: make docker-run-photo-organizer SRC=/data/source DIR=/data/output"; \
+		echo "使用方法: make docker-run-sync SRC=<ソースディレクトリ> DIR=<出力ディレクトリ>"; \
+		echo "例: make docker-run-sync SRC=/data/source DIR=/data/output"; \
 		exit 1; \
 	fi
-	docker exec -it my-data-backup-cli python src/main.py photo organize "$(SRC)" "$(DIR)"
+	docker exec -it my-data-backup-cli python src/main.py sync "$(SRC)" "$(DIR)"
 
-# Move CLIをDockerで実行
-docker-move: ## [docker] Move CLIをDockerで実行
-	@echo "Running Move tool (CLI) in Docker..."
+# sort (日付・拡張子で仕分け)をDockerで実行
+docker-sort: ## [docker] sort (日付・拡張子で仕分け)をDockerで実行
+	@echo "Running sort in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
-		echo "使用方法: make docker-run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
-		echo "例: make docker-run-move SRC=/data/source DEST=/data/organized"; \
+		echo "使用方法: make docker-run-sort SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
+		echo "例: make docker-run-sort SRC=/data/source DEST=/data/organized"; \
 		exit 1; \
 	fi
-	docker exec -it my-data-backup-cli python src/main.py move organize "$(SRC)" "$(DEST)"
+	docker exec -it my-data-backup-cli python src/main.py sort "$(SRC)" "$(DEST)"
 
 # 統合GUIをDockerで実行
 docker-app-gui: ## [docker] 統合GUIアプリケーションをDockerで実行

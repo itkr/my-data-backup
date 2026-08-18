@@ -5,11 +5,11 @@ RAW/JPG ファイルの整理と管理を効率化するツール集
 ## 概要
 
 デジタルカメラで撮影した RAW/JPG ファイルを整理・管理するための Python ツールです。
-Move は GUI と CLI の両方から、Photo Organizer は CLI から利用できます。
+`sort` は GUI と CLI の両方から、`sync` は CLI から利用できます。
 
 ## 主な機能
 
-### Photo Organizer（CLI のみ）
+### sync — RAW と JPG の突き合わせ（CLI のみ）
 
 RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 
@@ -34,7 +34,7 @@ RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 └── orphans/      # 対応関係のないファイル
 ```
 
-### Move
+### sort — 日付・拡張子で仕分け
 
 ファイルを撮影日・拡張子ごとのディレクトリに整理します。
 
@@ -59,7 +59,7 @@ RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 >
 > 対象拡張子は実行時にも確認できます:
 > ```bash
-> python src/main.py move get-suffixes
+> python src/main.py extensions
 > ```
 
 #### 出力構造
@@ -91,10 +91,10 @@ my-data-backup/
 │   │   ├── gui/          # GUI
 │   │   │   ├── app.py            # 統合GUIアプリケーション
 │   │   │   ├── base/             # タブの基底クラス
-│   │   │   └── modules/          # 機能ごとのタブ（Move）
+│   │   │   └── modules/          # 機能ごとのタブ（sort）
 │   │   └── cli/          # CLI
-│   │       ├── photo_organizer.py
-│   │       ├── move.py
+│   │       ├── sync.py
+│   │       ├── sort.py
 │   │       └── display.py        # 進捗・結果表示
 │   ├── core/             # ビジネスロジック層
 │   │   ├── config/       # 設定・拡張子定義
@@ -150,22 +150,22 @@ make run-gui
 ### CLI
 
 ```bash
-# Photo Organizer
-python src/main.py photo organize /path/to/source /path/to/output --dry-run
+# sync
+python src/main.py sync /path/to/source /path/to/output --dry-run
 
 # Move
-python src/main.py move organize /path/to/source /path/to/dest --dry-run
+python src/main.py sort /path/to/source /path/to/dest --dry-run
 
 # ヘルプ
 python src/main.py --help
-python src/main.py photo organize --help
-python src/main.py move organize --help
+python src/main.py sync --help
+python src/main.py sort --help
 ```
 
 `make setup` 後は `my-data-backup` コマンドでも同じように実行できます。
 
 ```bash
-my-data-backup move organize /path/to/source /path/to/dest --dry-run
+my-data-backup sort /path/to/source /path/to/dest --dry-run
 ```
 
 #### 主なオプション
@@ -180,19 +180,19 @@ my-data-backup move organize /path/to/source /path/to/dest --dry-run
 ### Makefile 経由での実行
 
 ```bash
-make run-photo-cli SRC=~/Pictures/Camera DIR=~/Pictures/Organized DRY_RUN=1
-make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
+make run-sync SRC=~/Pictures/Camera DIR=~/Pictures/Organized DRY_RUN=1
+make run-sort SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 ```
 
 ### サンプルスクリプト
 
 ```bash
 ./samples/gui.sh               # 統合GUI を起動
-./samples/photo_organizer.sh   # Photo Organizer をドライランで実行
+./samples/sync.sh              # sync をドライランで実行
 ./samples/move.sh              # スクリプトが置かれたディレクトリを整理
 ```
 
-`samples/move.sh` は**スクリプト自身が置かれたディレクトリ**を整理します。
+`samples/move.sh` は**スクリプト自身が置かれたディレクトリ**を `sort` で整理します。
 シンボリックリンクを整理したいディレクトリに置いて実行する使い方を想定しています。
 
 ## Makefile コマンド一覧
@@ -212,8 +212,8 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | コマンド | 説明 |
 |----------|------|
 | `make run-gui` | 統合GUIアプリケーションを起動 |
-| `make run-photo-cli SRC=<path> DIR=<path>` | Photo Organizer CLI を実行 |
-| `make run-move-cli SRC=<path> DEST=<path>` | Move CLI を実行 |
+| `make run-sync SRC=<path> DIR=<path>` | sync を実行 |
+| `make run-sort SRC=<path> DEST=<path>` | sort を実行 |
 | `make dev` | 環境構築 + 統合GUI 起動 |
 
 ### 開発・品質
@@ -239,8 +239,8 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | コマンド | 説明 |
 |----------|------|
 | `make docker-build-image` | Dockerイメージをビルド |
-| `make docker-run-photo-organizer` | Photo Organizer CLI をDockerで実行 |
-| `make docker-run-move` | Move CLI をDockerで実行 |
+| `make docker-run-sync` | sync をDockerで実行 |
+| `make docker-run-sort` | sort をDockerで実行 |
 | `make docker-run-app-gui` | 統合GUI をDockerで起動（X11必要） |
 | `make docker-shell` | Dockerコンテナのシェルにアクセス |
 | `make docker-status` | Docker環境の状態確認 |
@@ -262,13 +262,13 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 make setup
 
 # 2. まずドライランで結果を確認
-python src/main.py photo organize ~/Pictures/Camera ~/Pictures/Organized --dry-run
+python src/main.py sync ~/Pictures/Camera ~/Pictures/Organized --dry-run
 
 # 3. 問題なければ実行
-python src/main.py photo organize ~/Pictures/Camera ~/Pictures/Organized
+python src/main.py sync ~/Pictures/Camera ~/Pictures/Organized
 
 # 4. 日付ごとに整理
-python src/main.py move organize ~/Pictures/Organized ~/Pictures/Archive
+python src/main.py sort ~/Pictures/Organized ~/Pictures/Archive
 ```
 
 Move は `make run-gui` の GUI からも実行できます。

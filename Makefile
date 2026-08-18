@@ -65,8 +65,8 @@ setup: venv install ## [setup] 開発環境を初期セットアップ
 	@echo "開発環境のセットアップが完了しました"
 	@echo "以下のコマンドで各ツールを実行できます:"
 	@echo "  make run-gui             # 統合GUIアプリケーション"
-	@echo "  make run-photo-cli       # Photo Organizer CLI"
-	@echo "  make run-move-cli        # Move CLI"
+	@echo "  make run-sync       # sync (RAW/JPG 突き合わせ)"
+	@echo "  make run-sort        # sort (日付・拡張子で仕分け)"
 
 # 統合GUI を実行
 .PHONY: run-gui
@@ -74,23 +74,23 @@ run-gui: venv check-env ## [run] 統合GUIアプリケーション を実行
 	@echo "統合GUIアプリケーション を起動中..."
 	cd src && PYTHONPATH=$(shell pwd) $(PYTHON) -m app.gui.app
 
-# Photo Organizer CLI を実行
-.PHONY: run-photo-cli
-run-photo-cli: venv check-env ## [run] Photo Organizer CLI を実行（引数: SRC=ソース DIR=出力先）
+# sync を実行
+.PHONY: run-sync
+run-sync: venv check-env ## [run] sync を実行（引数: SRC=ソース DIR=出力先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
-		echo "使用方法: make run-photo-cli SRC=<ソース> DIR=<出力先> [DRY_RUN=1]"; \
+		echo "使用方法: make run-sync SRC=<ソース> DIR=<出力先> [DRY_RUN=1]"; \
 		exit 1; \
 	fi
-	$(PYTHON) src/main.py photo organize "$(SRC)" "$(DIR)" $(if $(DRY_RUN),--dry-run)
+	$(PYTHON) src/main.py sync "$(SRC)" "$(DIR)" $(if $(DRY_RUN),--dry-run)
 
-# Move CLI を実行
-.PHONY: run-move-cli
-run-move-cli: venv check-env ## [run] Move CLI を実行（引数: SRC=ソース DEST=出力先）
+# sort を実行
+.PHONY: run-sort
+run-sort: venv check-env ## [run] sort を実行（引数: SRC=ソース DEST=出力先）
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
-		echo "使用方法: make run-move-cli SRC=<ソース> DEST=<出力先> [DRY_RUN=1]"; \
+		echo "使用方法: make run-sort SRC=<ソース> DEST=<出力先> [DRY_RUN=1]"; \
 		exit 1; \
 	fi
-	$(PYTHON) src/main.py move organize "$(SRC)" "$(DEST)" $(if $(DRY_RUN),--dry-run)
+	$(PYTHON) src/main.py sort "$(SRC)" "$(DEST)" $(if $(DRY_RUN),--dry-run)
 
 # テスト実行
 .PHONY: test
@@ -169,8 +169,8 @@ info: ## [dev] 環境情報を表示
 	@echo "仮想環境パス: $(VENV_DIR)"
 	@echo "Requirements ファイル: $(REQUIREMENTS)"
 	@echo "利用可能なツール:"
-	@echo "  - Photo Organizer (make run-photo-cli)"
-	@echo "  - Move (make run-move-cli)"
+	@echo "  - sort: 日付・拡張子で仕分け (make run-sort)"
+	@echo "  - sync: RAW/JPG 突き合わせ (make run-sync)"
 	@echo ""
 
 # 環境チェック
@@ -249,23 +249,23 @@ docker-quickstart: ## [docker] Docker環境のワンクリックセットアッ�
 	@echo "2. CLIコンテナを起動中..."
 	@$(MAKE) docker-run-cli
 	@echo "3. セットアップ完了！テスト実行を開始..."
-	@echo "Move CLI をテスト実行中..."
-	@$(MAKE) docker-run-move
+	@echo "sort (日付・拡張子で仕分け) をテスト実行中..."
+	@$(MAKE) docker-run-sort
 	@echo ""
 	@echo "Docker環境のセットアップが完了しました！"
 	@echo "以下のコマンドでアプリケーションを使用できます："
-	@echo "   make docker-run-move                    # ファイル整理"
-	@echo "   make docker-run-photo-organizer         # RAW/JPG同期"
+	@echo "   make docker-run-sort                    # ファイル整理"
+	@echo "   make docker-run-sync         # RAW/JPG同期"
 	@echo "   make docker-shell                       # コンテナのシェルにアクセス"
 	@echo "   make docker-help                        # Docker専用ヘルプ"
 
 # Dockerでアプリケーション実行
-.PHONY: docker-run-photo-organizer docker-run-move docker-run-app-gui
-docker-run-photo-organizer: ## [docker] Photo Organizer CLI をDockerで実行
-	@$(MAKE) -f Makefile.docker docker-photo-organizer
+.PHONY: docker-run-sync docker-run-sort docker-run-app-gui
+docker-run-sync: ## [docker] sync をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-sync
 
-docker-run-move: ## [docker] Move CLI をDockerで実行
-	@$(MAKE) -f Makefile.docker docker-move
+docker-run-sort: ## [docker] sort をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-sort
 
 docker-run-app-gui: ## [docker] 統合GUI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-app-gui

@@ -1,5 +1,5 @@
 """
-Photo Organizer CLI - Typer統合版
+sync CLI
 """
 
 from pathlib import Path
@@ -9,15 +9,15 @@ import typer
 
 from src.app.cli.display import display_result, progress_callback
 from src.core.domain.models import OrganizationConfig
-from src.core.services import PhotoOrganizerService
+from src.core.services import SyncService
 from src.infrastructure.logging import get_logger
 from src.infrastructure.repositories import FileSystemRepository
 
-logger = get_logger("PhotoOrganizerCLI")
+logger = get_logger("SyncCLI")
 
 
-class PhotoOrganizerCLI:
-    """Photo Organizer CLI実装"""
+class SyncCLI:
+    """sync の CLI 実装"""
 
     def run(
         self,
@@ -26,9 +26,9 @@ class PhotoOrganizerCLI:
         dry_run: bool = False,
         copy: bool = False,
     ):
-        """Photo Organizer CLIメイン実行"""
+        """sync のメイン実行"""
 
-        logger.info(f"Photo Organizer開始: {src} -> {dir}")
+        logger.info(f"sync 開始: {src} -> {dir}")
         # パス検証
         source_path = Path(src)
         target_path = Path(dir)
@@ -39,7 +39,7 @@ class PhotoOrganizerCLI:
 
         # サービス初期化
         file_repository = FileSystemRepository(logger)
-        photo_service = PhotoOrganizerService(file_repository, logger)
+        photo_service = SyncService(file_repository, logger)
 
         # 設定作成
         config = OrganizationConfig(
@@ -47,7 +47,7 @@ class PhotoOrganizerCLI:
         )
 
         # 実行情報表示
-        typer.echo("Photo Organizer CLI")
+        typer.echo("sync - RAW/JPG 突き合わせ")
         typer.echo("=" * 50)
         typer.echo(f"ソース: {source_path}")
         typer.echo(f"出力先: {target_path}")
@@ -59,7 +59,7 @@ class PhotoOrganizerCLI:
             typer.echo("ドライランモード - 実際のファイル操作は行いません")
 
         # 実行
-        result = photo_service.organize_photos(
+        result = photo_service.sync_photos(
             source_dir=source_path,
             target_dir=target_path,
             config=config,
@@ -68,51 +68,38 @@ class PhotoOrganizerCLI:
 
         # 結果表示
         display_result(result)
-        logger.info("Photo Organizer完了")
+        logger.info("sync 完了")
 
 
-# サブアプリケーション
-app = typer.Typer(
-    name="photo",
-    help="Photo Organizer CLI - RAW/JPGファイル同期整理",
-    rich_markup_mode="markdown",
-)
-
-
-@app.command("organize")
-def organize(
-    src: Annotated[Path, typer.Argument(help="ソースディレクトリ")],
-    dir: Annotated[Path, typer.Argument(help="出力ディレクトリ")],
+def sync(
+    source_dir: Annotated[Path, typer.Argument(help="ソースディレクトリ")],
+    target_dir: Annotated[Path, typer.Argument(help="出力ディレクトリ")],
     dry_run: Annotated[
         bool, typer.Option("--dry-run", help="ドライランモード")
     ] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
 ):
-    """Photo Organizer - RAW/JPGファイル同期整理
+    """RAW と JPG を突き合わせて振り分ける
 
-    RAWとJPGファイルの同期処理を行います。
-    対応するJPGが無いRAW（およびその逆）は orphans/ に振り分けられます。
+    同名の RAW/JPG をペアとして ARW/ と JPG/ に分け、
+    対応相手のないファイルは orphans/ に隔離します。
+    JPG を手動で取捨選択したあとに実行すると、RAW をその選択に追従させられます。
 
     Examples:
         # ドライランで確認
-        python src/main.py photo organize /source /dest --dry-run
+        my-data-backup sync /source /dest --dry-run
 
         # 原本を残してコピー
-        python src/main.py photo organize /source /dest --copy
+        my-data-backup sync /source /dest --copy
     """
-
-    # CLI実行
     try:
-        cli = PhotoOrganizerCLI()
-        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy)
+        SyncCLI().run(
+            src=str(source_dir), dir=str(target_dir), dry_run=dry_run, copy=copy
+        )
     except typer.Exit:
         # 意図した終了は握りつぶさずそのまま伝播させる
         raise
     except Exception as e:
-        logger.error(f"Photo Organizer CLI実行エラー: {e}")
+        logger.error(f"sync 実行エラー: {e}")
         typer.echo(f"エラー: {str(e)}", err=True)
         raise typer.Exit(code=1)
-
-
-if __name__ == "__main__":
-    app()

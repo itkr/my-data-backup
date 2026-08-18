@@ -41,19 +41,19 @@ docker build -t my-data-backup:latest .
 
 ### 3. すぐに使用開始
 
-#### Move CLI でファイル整理
+#### sort (日付・拡張子で仕分け) でファイル整理
 ```bash
 # CLIコンテナを起動
 make docker-run-cli
 
 # ファイル整理を実行（テスト用）
-make docker-run-move
+make docker-run-sort
 ```
 
-#### Photo Organizer でRAW/JPG同期
+#### sync で RAW/JPG を突き合わせ
 ```bash
-# Photo Organizer を実行
-make docker-run-photo-organizer
+# sync を実行
+make docker-run-sync
 ```
 
 ### 3. コンテナの起動
@@ -68,8 +68,8 @@ docker-compose up -d my-data-backup-cli
 docker exec -it my-data-backup-cli bash
 
 # ツールを実行
-python src/main.py photo organize /data/source /data/output --dry-run
-python src/main.py move organize /data/source /data/organized --dry-run
+python src/main.py sync /data/source /data/output --dry-run
+python src/main.py sort /data/source /data/organized --dry-run
 ```
 
 #### GUIモードの場合
@@ -153,13 +153,13 @@ docker exec -it my-data-backup-gui python src/main.py gui
 
 ```bash
 # 新しい統一コマンド（推奨）
-# Photo Organizer CLI をDockerで実行
-make docker-run-photo-organizer
+# sync をDockerで実行
+make docker-run-sync
 
-# Move CLI をDockerで実行
-make docker-run-move
+# sort をDockerで実行
+make docker-run-sort
 
-# Photo Organizer GUI をDockerで実行
+# 統合GUI をDockerで実行
 make docker-run-app-gui
 
 # Move GUI をDockerで実行
@@ -178,11 +178,11 @@ make -f Makefile.docker docker-run
 # GUIモードの設定と起動
 make -f Makefile.docker docker-gui
 
-# Photo Organizer CLI
-make -f Makefile.docker docker-photo-organizer
+# sync (RAW/JPG 突き合わせ)
+make -f Makefile.docker docker-sync
 
-# Move CLI
-make -f Makefile.docker docker-move
+# sort (日付・拡張子で仕分け)
+make -f Makefile.docker docker-sort
 
 # 統合GUI
 make -f Makefile.docker docker-app-gui
@@ -206,11 +206,11 @@ make -f Makefile.docker docker-status
 ### 直接Dockerコマンド
 
 ```bash
-# Photo Organizer CLI
-docker exec -it my-data-backup-cli python src/main.py photo organize --help
+# sync (RAW/JPG 突き合わせ)
+docker exec -it my-data-backup-cli python src/main.py sync --help
 
-# Move CLI
-docker exec -it my-data-backup-cli python src/main.py move organize --help
+# sort (日付・拡張子で仕分け)
+docker exec -it my-data-backup-cli python src/main.py sort --help
 
 # 統合GUI
 docker exec -it my-data-backup-gui python src/main.py gui
