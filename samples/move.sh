@@ -1,5 +1,5 @@
 #!/bin/bash
-# Move サンプルスクリプト - v2.0 開発可能パッケージ版
+# sort サンプルスクリプト（スクリプトが置かれたディレクトリを整理）
 
 current_dir=$(cd $(dirname $0); pwd)
 cd ~/Projects/github.com/itkr/my-data-backup

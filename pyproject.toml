@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "my-data-backup"
-version = "2.0.0"
+version = "3.0.0"
 description = "RAW/JPGファイル整理ツール統合版"
 authors = [
     {name = "itkr", email = "itkr@example.com"}

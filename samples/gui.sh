@@ -1,11 +1,11 @@
 #!/bin/bash
-# 統合GUI サンプルスクリプト - v2.0 開発可能パッケージ版
+# 統合GUI サンプルスクリプト
 
 project_root="$(cd $(dirname $0)/.. && pwd)"
 
 cd "${project_root}"
 
-echo "統合GUIアプリケーション (v2.0) を起動中..."
+echo "統合GUIアプリケーションを起動中..."
 echo ""
 
 # パッケージが正しくインストールされているかチェック
