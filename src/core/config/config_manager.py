@@ -38,7 +38,7 @@ class ConfigManager:
         self.load_config()
 
         if self.validate_config() and self.auto_fix_config():
-            print("🔧 設定の問題を自動修正しました")
+            print("設定の問題を自動修正しました")
 
     # 読み書き
 
@@ -52,8 +52,8 @@ class ConfigManager:
             with open(self.config_file, "r", encoding="utf-8") as f:
                 self.config.update_from_dict(json.load(f))
         except Exception as e:
-            print(f"⚠️ 設定読み込みエラー: {e}")
-            print("📝 デフォルト設定を使用します")
+            print(f"設定読み込みエラー: {e}")
+            print("デフォルト設定を使用します")
 
     def save_config(self, backup: bool = True) -> bool:
         """設定を保存"""
@@ -67,7 +67,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
-            print(f"❌ 設定保存エラー: {e}")
+            print(f"設定保存エラー: {e}")
             return False
 
     def update_ui_settings(self, **kwargs):
@@ -92,7 +92,7 @@ class ConfigManager:
             shutil.copy2(self.config_file, self.backup_dir / f"config_{timestamp}.json")
             self._cleanup_old_backups()
         except Exception as e:
-            print(f"⚠️ バックアップ作成エラー: {e}")
+            print(f"バックアップ作成エラー: {e}")
 
     def _cleanup_old_backups(self):
         """MAX_BACKUPS を超えた古いバックアップを削除"""
@@ -113,7 +113,7 @@ class ConfigManager:
                 json.dump(self.config.to_dict(), f, indent=2, ensure_ascii=False)
             return True
         except Exception as e:
-            print(f"❌ 設定エクスポートエラー: {e}")
+            print(f"設定エクスポートエラー: {e}")
             return False
 
     def import_config(self, import_path: Path) -> bool:
@@ -127,7 +127,7 @@ class ConfigManager:
             return self.save_config(backup=False)
 
         except Exception as e:
-            print(f"❌ 設定インポートエラー: {e}")
+            print(f"設定インポートエラー: {e}")
             return False
 
     def reset_to_defaults(self) -> bool:
@@ -137,7 +137,7 @@ class ConfigManager:
             self.config.reset_to_defaults()
             return self.save_config(backup=False)
         except Exception as e:
-            print(f"❌ 設定リセットエラー: {e}")
+            print(f"設定リセットエラー: {e}")
             return False
 
     # 情報・検証

@@ -36,19 +36,19 @@ def gui(theme: str = "auto"):
         from src.app.gui.app import UnifiedDataBackupApp
 
         logger.info("統一GUIアプリケーション起動開始")
-        typer.echo("🚀 統一GUIアプリケーションを起動中...")
+        typer.echo("統一GUIアプリケーションを起動中...")
         app = UnifiedDataBackupApp()
         app.run()
 
     except ImportError as e:
         logger.error(f"GUIモジュールのインポートに失敗: {e}")
-        typer.echo(f"❌ GUIモジュールのインポートに失敗しました: {e}", err=True)
-        typer.echo("📋 必要な依存関係がインストールされているか確認してください:")
+        typer.echo(f"GUIモジュールのインポートに失敗しました: {e}", err=True)
+        typer.echo("必要な依存関係がインストールされているか確認してください:")
         typer.echo("   pip install customtkinter")
         raise typer.Exit(1)
     except Exception as e:
         logger.error(f"GUIアプリケーションの起動に失敗: {e}")
-        typer.echo(f"❌ GUIアプリケーションの起動に失敗しました: {e}", err=True)
+        typer.echo(f"GUIアプリケーションの起動に失敗しました: {e}", err=True)
         raise typer.Exit(1)
 
 

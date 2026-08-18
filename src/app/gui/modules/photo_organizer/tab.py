@@ -33,7 +33,7 @@ class PhotoOrganizerTab(BaseTab):
         # 説明
         description = ctk.CTkLabel(
             scroll_frame,
-            text="📸 RAW/JPGファイルペアの自動整理\n\n"
+            text="RAW/JPGファイルペアの自動整理\n\n"
             "RAWファイルとJPGファイルをペアとして認識し、指定された構造で整理します。",
             font=ctk.CTkFont(size=14),
             justify="left",
@@ -47,7 +47,7 @@ class PhotoOrganizerTab(BaseTab):
         # ソースディレクトリ
         ctk.CTkLabel(
             input_frame,
-            text="📂 ソースディレクトリ:",
+            text="ソースディレクトリ:",
             font=ctk.CTkFont(size=12, weight="bold"),
         ).pack(anchor="w", padx=15, pady=(15, 5))
 
@@ -63,14 +63,14 @@ class PhotoOrganizerTab(BaseTab):
         self.src_entry.pack(side="left", fill="x", expand=True, padx=(10, 5), pady=10)
 
         self.src_button = ctk.CTkButton(
-            src_frame, text="📁 選択", command=self.select_source_dir, width=80
+            src_frame, text="選択", command=self.select_source_dir, width=80
         )
         self.src_button.pack(side="right", padx=(5, 10), pady=10)
 
         # 出力ディレクトリ
         ctk.CTkLabel(
             input_frame,
-            text="📁 出力ディレクトリ:",
+            text="出力ディレクトリ:",
             font=ctk.CTkFont(size=12, weight="bold"),
         ).pack(anchor="w", padx=15, pady=(0, 5))
 
@@ -86,7 +86,7 @@ class PhotoOrganizerTab(BaseTab):
         self.dst_entry.pack(side="left", fill="x", expand=True, padx=(10, 5), pady=10)
 
         self.dst_button = ctk.CTkButton(
-            dst_frame, text="📁 選択", command=self.select_output_dir, width=80
+            dst_frame, text="選択", command=self.select_output_dir, width=80
         )
         self.dst_button.pack(side="right", padx=(5, 10), pady=10)
 
@@ -96,7 +96,7 @@ class PhotoOrganizerTab(BaseTab):
 
         ctk.CTkLabel(
             options_frame,
-            text="⚙️ 整理オプション:",
+            text="整理オプション:",
             font=ctk.CTkFont(size=12, weight="bold"),
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
@@ -104,7 +104,7 @@ class PhotoOrganizerTab(BaseTab):
         self.dry_run_var = ctk.BooleanVar(value=True)
         dry_run_checkbox = ctk.CTkCheckBox(
             options_frame,
-            text="🔍 ドライラン（実際にはファイルを移動せずに処理をシミュレート）",
+            text="ドライラン（実際にはファイルを移動せずに処理をシミュレート）",
             variable=self.dry_run_var,
             font=ctk.CTkFont(size=11),
         )
@@ -113,7 +113,7 @@ class PhotoOrganizerTab(BaseTab):
         # 出力先に同名ファイルがある場合は常にスキップする
         ctk.CTkLabel(
             options_frame,
-            text="⏭️ 出力先に同名ファイルがある場合はスキップします",
+            text="出力先に同名ファイルがある場合はスキップします",
             font=ctk.CTkFont(size=11),
         ).pack(anchor="w", padx=30, pady=(0, 15))
 
@@ -123,7 +123,7 @@ class PhotoOrganizerTab(BaseTab):
         # 実行ボタン
         self.execute_button = ctk.CTkButton(
             scroll_frame,
-            text="🚀 Photo Organizer実行",
+            text="Photo Organizer実行",
             command=self.execute,
             height=40,
             font=ctk.CTkFont(size=14, weight="bold"),

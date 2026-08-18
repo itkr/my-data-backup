@@ -38,7 +38,7 @@ class MoveCLI:
 
         if not source_path.exists():
             typer.echo(
-                f"❌ エラー: インポートディレクトリが存在しません: {import_dir}",
+                f"エラー: インポートディレクトリが存在しません: {import_dir}",
                 err=True,
             )
             raise typer.Exit(code=1)
@@ -69,7 +69,7 @@ class MoveCLI:
         )
 
         if dry_run:
-            typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
+            typer.echo("ドライランモード - 実際のファイル操作は行いません")
 
         # 実行
         result = move_service.organize_by_date(
@@ -87,7 +87,7 @@ class MoveCLI:
         self, source_path: Path, target_path: Path, config: OrganizationConfig
     ):
         """実行情報表示"""
-        typer.echo("📁 Move CLI - 日付ベースファイル整理")
+        typer.echo("Move CLI - 日付ベースファイル整理")
         typer.echo(f"- Import:\t{source_path}")
         typer.echo(f"- Export:\t{target_path}")
         typer.echo(f"- Filter:\t{', '.join(config.file_extensions)}")
@@ -149,7 +149,7 @@ def organize(
         raise
     except Exception as e:
         logger.error(f"Move CLI実行エラー: {e}")
-        typer.echo(f"❌ エラー: {str(e)}", err=True)
+        typer.echo(f"エラー: {str(e)}", err=True)
         raise typer.Exit(code=1)
 
 

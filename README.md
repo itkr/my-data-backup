@@ -1,15 +1,15 @@
 # My Data Backup
 
-📁 RAW/JPG ファイルの整理と管理を効率化するツール集
+RAW/JPG ファイルの整理と管理を効率化するツール集
 
-## 🚀 概要
+## 概要
 
 デジタルカメラで撮影した RAW/JPG ファイルを整理・管理するための Python ツールです。
 GUI と CLI の両方を備え、RAW/JPG の対応付けと、日付・拡張子ごとの自動整理を行います。
 
-## 🎯 主な機能
+## 主な機能
 
-### 📸 Photo Organizer
+### Photo Organizer
 
 RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 
@@ -34,7 +34,7 @@ RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 └── orphans/      # 対応関係のないファイル
 ```
 
-### 🗂️ Move
+### Move
 
 ファイルを撮影日・拡張子ごとのディレクトリに整理します。
 
@@ -78,7 +78,7 @@ RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 └── 2025/
 ```
 
-## 📦 プロジェクト構造
+## プロジェクト構造
 
 ```
 my-data-backup/
@@ -108,13 +108,13 @@ my-data-backup/
 └── docs/
 ```
 
-### 🏛️ アーキテクチャ
+### アーキテクチャ
 
 - **サービス層パターン**: ビジネスロジックとファイル操作を分離
 - **リポジトリパターン**: `core/domain/repositories` の interface に対して `infrastructure` が実装を提供
 - **依存性注入**: サービスはリポジトリを受け取るため、テストで差し替え可能
 
-## 🛠️ セットアップ
+## セットアップ
 
 ### 前提条件
 
@@ -139,7 +139,7 @@ make info
 make check-env
 ```
 
-## 🎮 使用方法
+## 使用方法
 
 ### 統合GUI
 
@@ -195,9 +195,9 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 `samples/move.sh` は**スクリプト自身が置かれたディレクトリ**を整理します。
 シンボリックリンクを整理したいディレクトリに置いて実行する使い方を想定しています。
 
-## 📋 Makefile コマンド一覧
+## Makefile コマンド一覧
 
-### 🏗️ 環境構築
+### 環境構築
 
 | コマンド | 説明 |
 |----------|------|
@@ -207,7 +207,7 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | `make reinstall` | 開発可能パッケージの再インストール |
 | `make clean-venv` | 仮想環境の再作成 |
 
-### 🚀 アプリケーション実行
+### アプリケーション実行
 
 | コマンド | 説明 |
 |----------|------|
@@ -216,7 +216,7 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | `make run-move-cli SRC=<path> DEST=<path>` | Move CLI を実行 |
 | `make dev` | 環境構築 + 統合GUI 起動 |
 
-### 🔍 開発・品質
+### 開発・品質
 
 | コマンド | 説明 |
 |----------|------|
@@ -226,7 +226,7 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | `make check-env` | 実行環境をチェック |
 | `make check-package` | パッケージの状態をチェック |
 
-### 📦 依存パッケージ管理
+### 依存パッケージ管理
 
 | コマンド | 説明 |
 |----------|------|
@@ -234,7 +234,7 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | `make update-packages` | 依存パッケージのアップデート |
 | `make freeze` | 現在の環境から requirements を生成 |
 
-### 🐳 Docker
+### Docker
 
 | コマンド | 説明 |
 |----------|------|
@@ -249,14 +249,14 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 
 詳細は [docs/DOCKER.md](docs/DOCKER.md) を参照してください。
 
-### ✨ クリーンアップ
+### クリーンアップ
 
 | コマンド | 説明 |
 |----------|------|
 | `make clean` | 一時ファイルの削除 |
 | `make clean-all` | 仮想環境を含む全ての一時ファイルの削除 |
 
-## 🔄 ワークフロー例
+## ワークフロー例
 
 ```bash
 # 1. 環境構築
@@ -274,7 +274,7 @@ python src/main.py move organize ~/Pictures/Organized ~/Pictures/Archive
 
 GUI で操作する場合は `make run-gui` から同じ処理を実行できます。
 
-## 📝 ログ
+## ログ
 
 処理内容は標準出力に記録されます。
 
@@ -285,7 +285,7 @@ GUI で操作する場合は `make run-gui` から同じ処理を実行できま
 
 ドライラン時は `[DRY RUN]` 付きで、実行された場合の移動先が出力されます。
 
-## 🐛 トラブルシューティング
+## トラブルシューティング
 
 ### 仮想環境が作成できない
 

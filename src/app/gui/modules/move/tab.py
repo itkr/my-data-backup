@@ -54,7 +54,7 @@ class MoveTab(BaseTab):
 
         self.label_source = customtkinter.CTkLabel(
             self.frame_source,
-            text="📂 ソースディレクトリ:",
+            text="ソースディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_source.pack(pady=(10, 5), anchor="w")
@@ -83,7 +83,7 @@ class MoveTab(BaseTab):
 
         self.label_dest = customtkinter.CTkLabel(
             self.frame_dest,
-            text="📁 出力先ディレクトリ:",
+            text="出力先ディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_dest.pack(pady=(10, 5), anchor="w")
@@ -108,7 +108,7 @@ class MoveTab(BaseTab):
 
         self.label_filter = customtkinter.CTkLabel(
             self.frame_filter,
-            text="📋 ファイル拡張子:",
+            text="ファイル拡張子:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_filter.pack(pady=(10, 5), anchor="w")
@@ -174,7 +174,7 @@ class MoveTab(BaseTab):
 
         self.label_options = customtkinter.CTkLabel(
             self.frame_options,
-            text="⚙️ オプション:",
+            text="オプション:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_options.pack(pady=(10, 5), anchor="w")
@@ -213,7 +213,7 @@ class MoveTab(BaseTab):
 
         self.button_start = customtkinter.CTkButton(
             self.frame_buttons,
-            text="🚀 ファイル整理開始",
+            text="ファイル整理開始",
             command=self.start_move,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
@@ -222,7 +222,7 @@ class MoveTab(BaseTab):
 
         self.button_stop = customtkinter.CTkButton(
             self.frame_buttons,
-            text="⏹️ 停止",
+            text="停止",
             command=self.stop_move,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
@@ -237,7 +237,7 @@ class MoveTab(BaseTab):
 
         self.label_progress = customtkinter.CTkLabel(
             self.frame_progress,
-            text="📊 進捗状況:",
+            text="進捗状況:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_progress.pack(pady=(10, 5), anchor="w")
@@ -324,14 +324,14 @@ class MoveTab(BaseTab):
                 recursive=recursive,
             )
 
-            self._set_progress_text("🚀 ファイル整理を開始しています...")
-            self.logger.info(f"📁 ソース: {source_path}")
-            self.logger.info(f"📁 出力先: {dest_path}")
-            self.logger.info(f"🔧 モード: {'コピー' if copy_mode else '移動'}")
-            self.logger.info(f"🧪 ドライラン: {dry_run}")
-            self.logger.info(f"🔍 再帰検索: {recursive}")
+            self._set_progress_text("ファイル整理を開始しています...")
+            self.logger.info(f"ソース: {source_path}")
+            self.logger.info(f"出力先: {dest_path}")
+            self.logger.info(f"モード: {'コピー' if copy_mode else '移動'}")
+            self.logger.info(f"ドライラン: {dry_run}")
+            self.logger.info(f"再帰検索: {recursive}")
             if selected_extensions:
-                self.logger.info(f"📋 拡張子: {', '.join(selected_extensions)}")
+                self.logger.info(f"拡張子: {', '.join(selected_extensions)}")
 
             # Start move operation
             result = self.move_service.organize_by_date(
@@ -342,14 +342,14 @@ class MoveTab(BaseTab):
             )
 
             # Display results
-            self._set_progress_text("📊 処理が完了しました！")
-            self.logger.info("📊 処理が完了しました！")
-            self.logger.info(f"✅ 成功: {result.success_count} ファイル")
-            self.logger.info(f"❌ 失敗: {result.error_count} ファイル")
-            self.logger.info(f"📈 成功率: {result.success_rate * 100:.1f}%")
+            self._set_progress_text("処理が完了しました")
+            self.logger.info("処理が完了しました")
+            self.logger.info(f"成功: {result.success_count} ファイル")
+            self.logger.info(f"失敗: {result.error_count} ファイル")
+            self.logger.info(f"成功率: {result.success_rate * 100:.1f}%")
 
             if result.errors:
-                self.logger.error("❌ エラー:")
+                self.logger.error("エラー:")
                 for error in result.errors[:5]:
                     self.logger.error(f"  • {error}")
 
@@ -392,7 +392,7 @@ class MoveTab(BaseTab):
         """Move処理を停止"""
         if self.move_service:
             self.move_service.stop()
-        self.progress_var.set("🛑 停止が要求されました...")
+        self.progress_var.set("停止が要求されました...")
         self.button_stop.configure(state="disabled")
 
     def select_all_extensions(self):

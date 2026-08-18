@@ -43,7 +43,7 @@ class UnifiedDataBackupApp:
 
     def setup_window(self):
         """ウィンドウの基本設定"""
-        self.root.title("📁 My Data Backup v2.0 - 統合ファイル整理ツール")
+        self.root.title("My Data Backup - 統合ファイル整理ツール")
         self.root.geometry(
             f"{self.config.ui.window_width}x{self.config.ui.window_height}"
         )
@@ -75,14 +75,14 @@ class UnifiedDataBackupApp:
         # タイトル
         title_label = ctk.CTkLabel(
             header_frame,
-            text="📁 My Data Backup v2.0",
+            text="My Data Backup",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title_label.pack(side="left", padx=20, pady=15)
 
         # テーマ切り替えボタン
         theme_button = ctk.CTkButton(
-            header_frame, text="🎨 テーマ切り替え", command=self.toggle_theme, width=120
+            header_frame, text="テーマ切り替え", command=self.toggle_theme, width=120
         )
         theme_button.pack(side="right", padx=20, pady=15)
 
@@ -133,7 +133,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             app_settings_frame,
-            text="🎨 外観設定",
+            text="外観設定",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -158,7 +158,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             log_settings_frame,
-            text="📋 ログ設定",
+            text="ログ設定",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -182,7 +182,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             config_management_frame,
-            text="⚙️ 設定管理",
+            text="設定管理",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -191,21 +191,21 @@ class UnifiedDataBackupApp:
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="📤 設定エクスポート",
+            text="設定エクスポート",
             command=self.export_config,
             width=120,
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="📥 設定インポート",
+            text="設定インポート",
             command=self.import_config,
             width=120,
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="🔄 設定リセット",
+            text="設定リセット",
             command=self.reset_config,
             width=120,
         ).pack(side="left", padx=5)
@@ -229,7 +229,7 @@ class UnifiedDataBackupApp:
         log_button_frame.pack(fill="x", padx=10, pady=(0, 10))
 
         ctk.CTkButton(
-            log_button_frame, text="🗑️ ログクリア", command=self.clear_log, width=100
+            log_button_frame, text="ログクリア", command=self.clear_log, width=100
         ).pack(side="right", padx=10, pady=5)
 
     def setup_status_bar(self, parent):
@@ -238,9 +238,7 @@ class UnifiedDataBackupApp:
         self.status_frame.pack(fill="x")
         self.status_frame.pack_propagate(False)
 
-        self.status_label = ctk.CTkLabel(
-            self.status_frame, text="📍 準備完了", anchor="w"
-        )
+        self.status_label = ctk.CTkLabel(self.status_frame, text="準備完了", anchor="w")
         self.status_label.pack(side="left", padx=10, pady=5)
 
     def toggle_theme(self):
@@ -250,18 +248,18 @@ class UnifiedDataBackupApp:
         ctk.set_appearance_mode(new_theme)
         self.theme_var.set(new_theme)
         self.config_manager.update_ui_settings(theme=new_theme)
-        self.log_message(f"🎨 テーマを {new_theme} に変更しました")
+        self.log_message(f"テーマを {new_theme} に変更しました")
 
     def change_theme(self, theme):
         """テーマを変更"""
         ctk.set_appearance_mode(theme)
         self.config_manager.update_ui_settings(theme=theme)
-        self.log_message(f"🎨 テーマを {theme} に変更しました")
+        self.log_message(f"テーマを {theme} に変更しました")
 
     def change_log_level(self, level):
         """ログレベルを変更"""
         self.config_manager.update_ui_settings(log_level=level)
-        self.log_message(f"📋 ログレベルを {level} に変更しました")
+        self.log_message(f"ログレベルを {level} に変更しました")
 
     def export_config(self):
         """設定をエクスポート"""
@@ -274,7 +272,7 @@ class UnifiedDataBackupApp:
         if file_path:
             if self.config_manager.export_config(Path(file_path)):
                 messagebox.showinfo("成功", f"設定をエクスポートしました:\n{file_path}")
-                self.log_message(f"📤 設定エクスポート: {file_path}")
+                self.log_message(f"設定エクスポート: {file_path}")
             else:
                 messagebox.showerror("エラー", "設定のエクスポートに失敗しました")
 
@@ -291,7 +289,7 @@ class UnifiedDataBackupApp:
                     "成功",
                     f"設定をインポートしました:\n{file_path}\n\nアプリケーションを再起動してください",
                 )
-                self.log_message(f"📥 設定インポート: {file_path}")
+                self.log_message(f"設定インポート: {file_path}")
                 self.update_config_info()
             else:
                 messagebox.showerror("エラー", "設定のインポートに失敗しました")
@@ -307,7 +305,7 @@ class UnifiedDataBackupApp:
                     "成功",
                     "設定をリセットしました\n\nアプリケーションを再起動してください",
                 )
-                self.log_message("🔄 設定をリセットしました")
+                self.log_message("設定をリセットしました")
                 self.update_config_info()
             else:
                 messagebox.showerror("エラー", "設定のリセットに失敗しました")
@@ -347,13 +345,12 @@ class UnifiedDataBackupApp:
             window_width=int(width), window_height=int(height)
         )
 
-        self.log_message("👋 アプリケーションを終了します")
+        self.log_message("アプリケーションを終了します")
         self.root.destroy()
 
     def run(self):
         """アプリケーション実行"""
-        self.log_message("🚀 My Data Backup v2.0 起動完了")
-        self.log_message("📋 統合GUIアプリケーションへようこそ！")
+        self.log_message("My Data Backup 起動完了")
         self.root.mainloop()
 
 

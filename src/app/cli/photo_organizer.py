@@ -34,7 +34,7 @@ class PhotoOrganizerCLI:
         target_path = Path(dir)
 
         if not source_path.exists():
-            typer.echo(f"❌ エラー: ソースディレクトリが存在しません: {src}", err=True)
+            typer.echo(f"エラー: ソースディレクトリが存在しません: {src}", err=True)
             raise typer.Exit(code=1)
 
         # サービス初期化
@@ -47,7 +47,7 @@ class PhotoOrganizerCLI:
         )
 
         # 実行情報表示
-        typer.echo("📸 Photo Organizer CLI")
+        typer.echo("Photo Organizer CLI")
         typer.echo("=" * 50)
         typer.echo(f"ソース: {source_path}")
         typer.echo(f"出力先: {target_path}")
@@ -56,7 +56,7 @@ class PhotoOrganizerCLI:
         typer.echo("=" * 50)
 
         if dry_run:
-            typer.echo("🧪 ドライランモード - 実際のファイル操作は行いません")
+            typer.echo("ドライランモード - 実際のファイル操作は行いません")
 
         # 実行
         result = photo_service.organize_photos(
@@ -110,7 +110,7 @@ def organize(
         raise
     except Exception as e:
         logger.error(f"Photo Organizer CLI実行エラー: {e}")
-        typer.echo(f"❌ エラー: {str(e)}", err=True)
+        typer.echo(f"エラー: {str(e)}", err=True)
         raise typer.Exit(code=1)
 
 

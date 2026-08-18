@@ -5,13 +5,13 @@ project_root="$(cd $(dirname $0)/.. && pwd)"
 
 cd "${project_root}"
 
-echo "🚀 統合GUIアプリケーション (v2.0) を起動中..."
+echo "統合GUIアプリケーション (v2.0) を起動中..."
 echo ""
 
 # パッケージが正しくインストールされているかチェック
 if ! python -c "import src.core.services" 2>/dev/null; then
-    echo "⚠️  パッケージが正しくインストールされていません"
-    echo "🔧 make install を実行してください"
+    echo "パッケージが正しくインストールされていません"
+    echo "make install を実行してください"
     exit 1
 fi
 
@@ -19,4 +19,4 @@ fi
 make run-gui
 
 echo ""
-echo "✅ GUI起動完了！"
+echo "GUI起動完了！"

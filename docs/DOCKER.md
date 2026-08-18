@@ -1,15 +1,15 @@
-# 🐳 Docker 使用ガイド
+# Docker 使用ガイド
 
 このガイドでは、my-data-backupツールをDockerで使用する方法を詳しく説明します。Dockerを使用することで、ローカル環境にPythonや依存関係をインストールすることなく、すぐにツールを利用できます。
 
-## 🎯 Docker使用のメリット
+## Docker使用のメリット
 
 - **環境構築不要**: Python環境の構築やパッケージインストールが不要
 - **一貫性**: どの環境でも同じ動作を保証
 - **隔離性**: ホストシステムに影響を与えない
 - **簡単な削除**: 不要になったら簡単にクリーンアップ可能
 
-## 📋 必要な環境
+## 必要な環境
 
 - **Docker**: 20.10 以上
 - **Docker Compose**: 2.0 以上（オプション）
@@ -17,7 +17,7 @@
   - **macOS**: XQuartz
   - **Linux**: X11サーバー
 
-## 🚀 クイックスタート
+## クイックスタート
 
 ### 1. リポジトリのクローン
 
@@ -82,7 +82,7 @@ make run-move-gui             # Move GUI
 docker-compose up -d my-data-backup-gui
 ```
 
-## 📂 データのマウント
+## データのマウント
 
 ### ディレクトリ構造
 
@@ -107,7 +107,7 @@ volumes:
   - /your/photo/directory:/data
 ```
 
-## 🎨 GUI アプリケーションの使用
+## GUI アプリケーションの使用
 
 ### macOS での GUI 使用
 
@@ -147,7 +147,7 @@ xhost +local:docker
 docker exec -it my-data-backup-gui python photo_organizer/gui.py
 ```
 
-## 📋 利用可能なコマンド
+## 利用可能なコマンド
 
 ### Makefileコマンド（統一インターフェース）
 
@@ -222,7 +222,7 @@ docker exec -it my-data-backup-gui python photo_organizer/gui.py
 docker exec -it my-data-backup-gui python move/gui.py
 ```
 
-## 🔧 カスタマイズ
+## カスタマイズ
 
 ### 環境変数
 
@@ -243,7 +243,7 @@ volumes:
   - /your/path:/custom/path        # カスタムパス
 ```
 
-## 🐛 トラブルシューティング
+## トラブルシューティング
 
 ### GUI が表示されない
 
@@ -293,7 +293,7 @@ ls -la data/
 chmod -R 755 data/
 ```
 
-## 🔄 アップデート
+## アップデート
 
 ```bash
 # 最新のコードを取得
@@ -307,7 +307,7 @@ docker-compose down
 docker-compose up -d
 ```
 
-## 📊 パフォーマンス最適化
+## パフォーマンス最適化
 
 ### マルチステージビルド（高度な用途）
 
@@ -346,4 +346,4 @@ services:
 
 ---
 
-📝 このドキュメントに関する質問や改善提案があれば、お気軽にお知らせください。
+ このドキュメントに関する質問や改善提案があれば、お気軽にお知らせください。

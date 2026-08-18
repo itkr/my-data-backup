@@ -7,16 +7,16 @@ project_root="$(cd $(dirname $0)/.. && pwd)"
 cd "${project_root}"
 source ./venv/bin/activate
 
-echo "🚀 Photo Organizer CLI (v2.0) を実行中..."
-echo "📂 ソースディレクトリ: ${current_dir}"
-echo "📁 出力ディレクトリ: ${current_dir}/organized"
+echo "Photo Organizer CLI (v2.0) を実行中..."
+echo "ソースディレクトリ: ${current_dir}"
+echo "出力ディレクトリ: ${current_dir}/organized"
 echo ""
 
 # 開発可能パッケージとしてインストール済みのため、PYTHONPATHの設定は不要
 # パッケージが正しくインストールされているかチェック
 if ! python -c "import src.core.services" 2>/dev/null; then
-    echo "⚠️  パッケージが正しくインストールされていません"
-    echo "🔧 make install を実行してください"
+    echo "パッケージが正しくインストールされていません"
+    echo "make install を実行してください"
     exit 1
 fi
 
@@ -30,5 +30,5 @@ python src/main.py photo organize \
     --dry-run
 
 echo ""
-echo "✅ 実行完了！"
-echo "💡 実際のファイル整理を行う場合は --dry-run オプションを削除してください"
+echo "実行完了！"
+echo "実際のファイル整理を行う場合は --dry-run オプションを削除してください"
