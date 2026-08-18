@@ -68,8 +68,8 @@ docker-compose up -d my-data-backup-cli
 docker exec -it my-data-backup-cli bash
 
 # ツールを実行
-make run-photo-organizer-gui  # Photo Organizer GUI
-make run-move-gui             # Move GUI
+python src/main.py photo organize /data/source /data/output --dry-run
+python src/main.py move organize /data/source /data/organized --dry-run
 ```
 
 #### GUIモードの場合
@@ -134,7 +134,7 @@ open -a XQuartz
 # 手動起動
 export DISPLAY=host.docker.internal:0
 xhost +localhost
-docker exec -it my-data-backup-gui python photo_organizer/gui.py
+docker exec -it my-data-backup-gui python src/main.py gui
 ```
 
 ### Linux での GUI 使用
@@ -144,7 +144,7 @@ docker exec -it my-data-backup-gui python photo_organizer/gui.py
 xhost +local:docker
 
 # GUIアプリケーションを起動
-docker exec -it my-data-backup-gui python photo_organizer/gui.py
+docker exec -it my-data-backup-gui python src/main.py gui
 ```
 
 ## 利用可能なコマンド
@@ -160,10 +160,10 @@ make docker-run-photo-organizer
 make docker-run-move
 
 # Photo Organizer GUI をDockerで実行
-make docker-run-photo-organizer-gui
+make docker-run-app-gui
 
 # Move GUI をDockerで実行
-make docker-run-move-gui
+make docker-run-app-gui
 
 # Docker専用ヘルプを表示
 make docker-help
@@ -184,11 +184,8 @@ make -f Makefile.docker docker-photo-organizer
 # Move CLI
 make -f Makefile.docker docker-move
 
-# Photo Organizer GUI
-make -f Makefile.docker docker-photo-organizer-gui
-
-# Move GUI
-make -f Makefile.docker docker-move-gui
+# 統合GUI
+make -f Makefile.docker docker-app-gui
 
 # コンテナシェルにアクセス
 make -f Makefile.docker docker-shell
@@ -210,16 +207,13 @@ make -f Makefile.docker docker-status
 
 ```bash
 # Photo Organizer CLI
-docker exec -it my-data-backup-cli python photo_organizer/main.py --help
+docker exec -it my-data-backup-cli python src/main.py photo organize --help
 
-# Move CLI  
-docker exec -it my-data-backup-cli python move/main.py --help
+# Move CLI
+docker exec -it my-data-backup-cli python src/main.py move organize --help
 
-# Photo Organizer GUI
-docker exec -it my-data-backup-gui python photo_organizer/gui.py
-
-# Move GUI
-docker exec -it my-data-backup-gui python move/gui.py
+# 統合GUI
+docker exec -it my-data-backup-gui python src/main.py gui
 ```
 
 ## カスタマイズ

@@ -251,25 +251,10 @@ docker-help: ## 🐳 Dockerコマンドのヘルプを表示
 docker-build-image: ## 🐳 Dockerイメージをビルド
 	@$(MAKE) -f Makefile.docker docker-build
 
-# v2.0 新アーキテクチャ用Dockerコマンド
-docker-run-v2: ## 🐳 v2.0統合アプリケーションコンテナを起動
-	@echo "🚀 v2.0統合アプリケーションコンテナを起動中..."
-	docker-compose run --rm my-data-backup-v2 /bin/bash
-
-docker-run-gui-v2: ## 🐳 v2.0統合GUIアプリケーションコンテナを起動
-	@echo "🚀 v2.0統合GUIアプリケーションコンテナを起動中..."
-	@echo "⚠️  注意: X11フォワーディングが設定されていることを確認してください"
-	docker-compose run --rm my-data-backup-gui-v2 /bin/bash
-
-docker-test-v2: ## 🐳 v2.0新アーキテクチャのテストを実行
-	@echo "🧪 v2.0新アーキテクチャのテストを実行中..."
-	docker-compose run --rm my-data-backup-v2 python -m pytest src/tests
-
-# レガシー版Dockerコマンド（互換性維持）
-docker-run-cli: ## 🏚️ 【レガシー】CLIモードでDockerコンテナを起動
+docker-run-cli: ## 🐳 CLIモードでDockerコンテナを起動
 	@$(MAKE) -f Makefile.docker docker-run
 
-docker-run-gui: ## 🏚️ 【レガシー】GUIモードでDockerコンテナを起動
+docker-run-gui: ## 🐳 GUIモードでDockerコンテナを起動（X11の設定を含む）
 	@$(MAKE) -f Makefile.docker docker-gui
 
 docker-quickstart: ## 🐳 Docker環境のワンクリックセットアップ（ビルド→起動→テスト実行）
@@ -290,18 +275,15 @@ docker-quickstart: ## 🐳 Docker環境のワンクリックセットアップ�
 	@echo "   make docker-help                        # Docker専用ヘルプ"
 
 # Dockerでアプリケーション実行
-.PHONY: docker-run-photo-organizer docker-run-move docker-run-photo-organizer-gui docker-run-move-gui
+.PHONY: docker-run-photo-organizer docker-run-move docker-run-app-gui
 docker-run-photo-organizer: ## 📸 Photo Organizer CLI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-photo-organizer
 
 docker-run-move: ## 📁 Move CLI をDockerで実行
 	@$(MAKE) -f Makefile.docker docker-move
 
-docker-run-photo-organizer-gui: ## 🎨 Photo Organizer GUI をDockerで実行
-	@$(MAKE) -f Makefile.docker docker-photo-organizer-gui
-
-docker-run-move-gui: ## 🎨 Move GUI をDockerで実行
-	@$(MAKE) -f Makefile.docker docker-move-gui
+docker-run-app-gui: ## 🎨 統合GUI をDockerで実行
+	@$(MAKE) -f Makefile.docker docker-app-gui
 
 # Docker管理
 .PHONY: docker-status docker-logs docker-shell docker-clean-docker

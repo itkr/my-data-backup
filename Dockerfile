@@ -16,12 +16,12 @@ RUN apt-get update && apt-get install -y \
     x11-apps \
     xvfb \
     # OpenCV用の依存関係
+    # libgl1 は Debian 12 で廃止された libgl1-mesa-glx の後継
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
+    libgl1 \
     libgtk-3-0 \
     # その他の必要なパッケージ
     curl \

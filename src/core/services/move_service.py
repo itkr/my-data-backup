@@ -74,8 +74,8 @@ class MoveService(FileOrganizerService):
         # 2. 拡張子フィルタリング
         filtered_files = [f for f in files if config.should_process_file(f.path)]
         self.logger.info(
-            f"フィルタリング後: {len(filtered_files)} ファイル (拡張子: {
-                config.file_extensions})"
+            f"フィルタリング後: {len(filtered_files)} ファイル "
+            f"(拡張子: {config.file_extensions})"
         )
 
         # 3. 日付ベースでグループ化

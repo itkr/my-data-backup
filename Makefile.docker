@@ -18,8 +18,7 @@ help: ## 📋 Docker用コマンドのヘルプを表示
 	@echo "📱 アプリケーション実行:"
 	@echo "  make -f Makefile.docker docker-photo-organizer    📸 Photo Organizer CLI"
 	@echo "  make -f Makefile.docker docker-move               📁 Move CLI"
-	@echo "  make -f Makefile.docker docker-photo-organizer-gui 🎨 Photo Organizer GUI"
-	@echo "  make -f Makefile.docker docker-move-gui           🎨 Move GUI"
+	@echo "  make -f Makefile.docker docker-app-gui            🎨 統合GUI"
 	@echo ""
 	@echo "🔧 管理・監視:"
 	@echo "  make -f Makefile.docker docker-status             📊 Docker環境の状態確認"
@@ -82,7 +81,7 @@ help-detailed: ## 📖 詳細なヘルプとトラブルシューティング情
 	@echo "  - トラブル報告: https://github.com/itkr/my-data-backup/issues"
 	@echo ""
 
-.PHONY: help help-detailed docker-build docker-run docker-gui docker-clean docker-logs docker-photo-organizer docker-move docker-photo-organizer-gui docker-move-gui docker-shell docker-clean-all docker-status
+.PHONY: help help-detailed docker-build docker-run docker-gui docker-clean docker-logs docker-photo-organizer docker-move docker-app-gui docker-shell docker-clean-all docker-status
 
 # Dockerイメージをビルド
 docker-build: ## 🐳 Dockerイメージをビルド
@@ -105,30 +104,25 @@ docker-photo-organizer: ## 📸 Photo Organizer CLIをDockerで実行
 	@echo "📸 Running Photo Organizer (CLI) in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DIR)" ]; then \
 		echo "使用方法: make docker-run-photo-organizer SRC=<ソースディレクトリ> DIR=<出力ディレクトリ>"; \
-		echo "例: make docker-run-photo-organizer SRC=/tmp/test_source DIR=/tmp/test_output"; \
+		echo "例: make docker-run-photo-organizer SRC=/data/source DIR=/data/output"; \
 		exit 1; \
 	fi
-	docker exec -it my-data-backup-cli bash -c "cd /app/photo_organizer && python main.py --src $(SRC) --dir $(DIR)"
+	docker exec -it my-data-backup-cli python src/main.py photo organize "$(SRC)" "$(DIR)"
 
 # Move CLIをDockerで実行
 docker-move: ## 📁 Move CLIをDockerで実行
 	@echo "📁 Running Move tool (CLI) in Docker..."
 	@if [ -z "$(SRC)" ] || [ -z "$(DEST)" ]; then \
 		echo "使用方法: make docker-run-move SRC=<ソースディレクトリ> DEST=<移動先ディレクトリ>"; \
-		echo "例: make docker-run-move SRC=/tmp/test_source DEST=/tmp/test_dest"; \
+		echo "例: make docker-run-move SRC=/data/source DEST=/data/organized"; \
 		exit 1; \
 	fi
-	docker exec -it my-data-backup-cli bash -c "cd /app/move && python main.py --import-dir $(SRC) --export-dir $(DEST)"
+	docker exec -it my-data-backup-cli python src/main.py move organize "$(SRC)" "$(DEST)"
 
-# Photo Organizer GUIをDockerで実行
-docker-photo-organizer-gui: ## 🎨 Photo Organizer GUIをDockerで実行
-	@echo "🎨 Running Photo Organizer (GUI) in Docker..."
-	docker exec -it my-data-backup-gui python photo_organizer/gui.py
-
-# Move GUIをDockerで実行
-docker-move-gui: ## 🎨 Move GUIをDockerで実行
-	@echo "🎨 Running Move tool (GUI) in Docker..."
-	docker exec -it my-data-backup-gui python move/gui.py
+# 統合GUIをDockerで実行
+docker-app-gui: ## 🎨 統合GUIアプリケーションをDockerで実行
+	@echo "🎨 Running unified GUI in Docker..."
+	docker exec -it my-data-backup-gui python src/main.py gui
 
 # Dockerコンテナに入る
 docker-shell: ## 🐚 Dockerコンテナのシェルにアクセス

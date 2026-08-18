@@ -241,8 +241,7 @@ make run-move-cli SRC=~/Downloads DEST=~/Documents/Organized DRY_RUN=1
 | `make docker-build-image` | Dockerイメージをビルド |
 | `make docker-run-photo-organizer` | Photo Organizer CLI をDockerで実行 |
 | `make docker-run-move` | Move CLI をDockerで実行 |
-| `make docker-run-photo-organizer-gui` | Photo Organizer GUI をDockerで起動（X11必要） |
-| `make docker-run-move-gui` | Move GUI をDockerで起動（X11必要） |
+| `make docker-run-app-gui` | 統合GUI をDockerで起動（X11必要） |
 | `make docker-shell` | Dockerコンテナのシェルにアクセス |
 | `make docker-status` | Docker環境の状態確認 |
 | `make docker-help` | Docker専用ヘルプを表示 |

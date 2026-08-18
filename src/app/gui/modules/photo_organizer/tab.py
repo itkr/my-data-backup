@@ -157,8 +157,7 @@ class PhotoOrganizerTab(BaseTab):
         if not target_path.parent.exists():
             self.show_error(
                 "Photo Organizer",
-                f"出力先の親ディレクトリが存在しません: {
-                    target_path.parent}",
+                f"出力先の親ディレクトリが存在しません: {target_path.parent}",
             )
             return
 
