@@ -8,13 +8,14 @@ from typing import Callable, Dict, List, Optional
 
 from src.core.domain.models import FileInfo, OrganizationConfig, ProcessResult
 from src.core.domain.repositories import FileRepository
+from src.core.services.base import FileOrganizerService
 
 # 重複ファイル名の連番を試行する上限。
 # これを超える同名ファイルは異常とみなし、無限ループさせずにエラーにする。
 MAX_DUPLICATE_ATTEMPTS = 1000
 
 
-class MoveService:
+class MoveService(FileOrganizerService):
     """
     Move機能のビジネスロジックを実装するサービス
 
@@ -28,8 +29,7 @@ class MoveService:
     def __init__(
         self, file_repository: FileRepository, logger: Optional[logging.Logger] = None
     ):
-        self.file_repository = file_repository
-        self.logger = logger or logging.getLogger(__name__)
+        super().__init__(file_repository, logger)
         self._stop_requested = False
 
     def stop(self):
@@ -174,24 +174,16 @@ class MoveService:
     def _execute_file_operation(
         self, source: Path, destination: Path, config: OrganizationConfig
     ) -> bool:
-        """ファイル操作の実行"""
-        if config.dry_run:
-            self.logger.info(f"[DRY RUN] {source} -> {destination}")
-            return True
+        """ファイル操作の実行（移動先が重複する場合は連番を付ける）"""
+        if not config.dry_run and config.handle_duplicates:
+            try:
+                if self.file_repository.exists(destination):
+                    destination = self._generate_unique_path(destination)
+            except Exception as e:
+                self.logger.error(f"ファイル操作エラー: {e}")
+                return False
 
-        try:
-            # 重複ファイルのチェック
-            if config.handle_duplicates and self.file_repository.exists(destination):
-                destination = self._generate_unique_path(destination)
-
-            if config.preserve_original:
-                return self.file_repository.copy_file(source, destination)
-            else:
-                return self.file_repository.move_file(source, destination)
-
-        except Exception as e:
-            self.logger.error(f"ファイル操作エラー: {e}")
-            return False
+        return super()._execute_file_operation(source, destination, config)
 
     def _generate_unique_path(self, path: Path) -> Path:
         """重複ファイル用のユニークパスを生成

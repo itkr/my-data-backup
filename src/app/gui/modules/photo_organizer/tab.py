@@ -19,8 +19,8 @@ class PhotoOrganizerTab(BaseTab):
 
     def __init__(self, parent, logger):
         # サービスの初期化
-        self.file_repository = FileSystemRepository(logger.logger)
-        self.photo_service = PhotoOrganizerService(self.file_repository, logger.logger)
+        self.file_repository = FileSystemRepository(logger)
+        self.photo_service = PhotoOrganizerService(self.file_repository, logger)
 
         super().__init__(parent, logger)
 

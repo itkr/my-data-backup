@@ -324,16 +324,7 @@ class MoveTab(BaseTab):
                 recursive=recursive,
             )
 
-            # Progress callback setup
-            def progress_callback(current, total):
-                if total > 0:
-                    progress = current / total
-                    message = f"処理中 {current}/{total} ファイル..."
-                    self.progress_var.set(message)
-                    if self.progress_bar:
-                        self.progress_bar.set(progress)
-
-            self.progress_var.set("🚀 ファイル整理を開始しています...")
+            self._set_progress_text("🚀 ファイル整理を開始しています...")
             self.logger.info(f"📁 ソース: {source_path}")
             self.logger.info(f"📁 出力先: {dest_path}")
             self.logger.info(f"🔧 モード: {'コピー' if copy_mode else '移動'}")
@@ -347,11 +338,11 @@ class MoveTab(BaseTab):
                 source_dir=source_path,
                 target_dir=dest_path,
                 config=config,
-                progress_callback=progress_callback,
+                progress_callback=self._progress_callback,
             )
 
             # Display results
-            self.progress_var.set("📊 処理が完了しました！")
+            self._set_progress_text("📊 処理が完了しました！")
             self.logger.info("📊 処理が完了しました！")
             self.logger.info(f"✅ 成功: {result.success_count} ファイル")
             self.logger.info(f"❌ 失敗: {result.error_count} ファイル")
@@ -363,11 +354,19 @@ class MoveTab(BaseTab):
                     self.logger.error(f"  • {error}")
 
             # Show result dialog
-            self.show_result(result)
+            self.parent.after(0, lambda: self.show_result(result))
 
         except Exception as e:
             self.show_error("実行エラー", f"ファイル整理処理に失敗しました: {str(e)}")
             self.logger.error(f"Move operation error: {e}")
+
+    def _progress_callback(self, current: int, total: int):
+        """進捗更新コールバック（ワーカースレッドから呼ばれる）"""
+        self.parent.after(0, lambda: self.update_progress(current, total, "処理中"))
+
+    def _set_progress_text(self, message: str):
+        """進捗テキストを更新（ワーカースレッドから呼ばれる）"""
+        self.parent.after(0, lambda: self.progress_var.set(message))
 
     def start_move(self):
         """Move処理を開始"""

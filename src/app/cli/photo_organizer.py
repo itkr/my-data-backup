@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from src.app.cli.display import display_result, progress_callback
 from src.core.domain.models import OrganizationConfig
 from src.core.services import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
@@ -24,7 +25,6 @@ class PhotoOrganizerCLI:
         dir: str,
         dry_run: bool = False,
         copy: bool = False,
-        isolate: bool = False,
     ):
         """Photo Organizer CLIメイン実行"""
 
@@ -38,8 +38,8 @@ class PhotoOrganizerCLI:
             raise typer.Exit(code=1)
 
         # サービス初期化
-        file_repository = FileSystemRepository(logger.logger)
-        photo_service = PhotoOrganizerService(file_repository, logger.logger)
+        file_repository = FileSystemRepository(logger)
+        photo_service = PhotoOrganizerService(file_repository, logger)
 
         # 設定作成
         config = OrganizationConfig(
@@ -63,39 +63,12 @@ class PhotoOrganizerCLI:
             source_dir=source_path,
             target_dir=target_path,
             config=config,
-            progress_callback=self._progress_callback,
+            progress_callback=progress_callback,
         )
 
         # 結果表示
-        self._display_result(result)
+        display_result(result)
         logger.info("Photo Organizer完了")
-
-    def _progress_callback(self, current: int, total: int):
-        """進捗表示コールバック"""
-        if total > 0:
-            progress = current / total * 100
-            typer.echo(f"進捗: {current}/{total} ({progress:.1f}%)")
-
-    def _display_result(self, result):
-        """結果表示"""
-        typer.echo("\n📊 実行結果")
-        typer.echo("=" * 30)
-        typer.echo(f"✅ 成功: {result.success_count} ファイル")
-        typer.echo(f"❌ 失敗: {result.error_count} ファイル")
-        typer.echo(f"📈 成功率: {result.success_rate * 100:.1f}%")
-
-        if result.processed_files:
-            typer.echo("\n処理済みファイル (最初の10件):")
-            for i, file_info in enumerate(result.processed_files[:10]):
-                typer.echo(f"  {i + 1:2d}. {file_info.name}")
-
-            if len(result.processed_files) > 10:
-                typer.echo(f"  ... 他 {len(result.processed_files) - 10} ファイル")
-
-        if result.errors:
-            typer.echo("\nエラー:")
-            for error in result.errors[:5]:
-                typer.echo(f"  • {error}")
 
 
 # サブアプリケーション
@@ -114,24 +87,24 @@ def organize(
         bool, typer.Option("--dry-run", help="ドライランモード")
     ] = False,
     copy: Annotated[bool, typer.Option("--copy", help="コピーモード")] = False,
-    isolate: Annotated[bool, typer.Option("--isolate", help="分離モード")] = False,
 ):
     """Photo Organizer - RAW/JPGファイル同期整理
 
     RAWとJPGファイルの同期処理を行います。
+    対応するJPGが無いRAW（およびその逆）は orphans/ に振り分けられます。
 
     Examples:
         # ドライランで確認
-        python -m src.app.cli.photo_organizer_typer organize /source /dest --dry-run
+        python src/main.py photo organize /source /dest --dry-run
 
-        # 実際に実行
-        python -m src.app.cli.photo_organizer_typer organize /source /dest --no-dry-run
+        # 原本を残してコピー
+        python src/main.py photo organize /source /dest --copy
     """
 
     # CLI実行
     try:
         cli = PhotoOrganizerCLI()
-        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy, isolate=isolate)
+        cli.run(src=str(src), dir=str(dir), dry_run=dry_run, copy=copy)
     except typer.Exit:
         # 意図した終了は握りつぶさずそのまま伝播させる
         raise

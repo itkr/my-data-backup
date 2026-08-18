@@ -280,6 +280,20 @@ class TestMoveService(unittest.TestCase):
         expected = self.target_dir / "2024/01月/2024-01-15/test.jpg"
         self.assertEqual(target_path, expected)
 
+    def test_copy_mode_preserves_the_original(self):
+        """preserve_original=True のときは移動ではなくコピーする"""
+        self.mock_repository.scan_directory.return_value = [self.test_file]
+        self.mock_repository.copy_file.return_value = True
+
+        config = OrganizationConfig(dry_run=False, preserve_original=True)
+
+        self.service.organize_by_date(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        self.mock_repository.copy_file.assert_called_once()
+        self.mock_repository.move_file.assert_not_called()
+
     def test_generate_unique_path_skips_existing_files(self):
         """重複時は連番を付けて空いているパスを返す"""
         taken = self.target_dir / "test_001.jpg"

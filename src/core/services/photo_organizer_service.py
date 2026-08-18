@@ -2,7 +2,6 @@
 Photo Organizer サービス
 """
 
-import logging
 from pathlib import Path
 from typing import Callable, List, Optional, Tuple
 
@@ -13,10 +12,10 @@ from src.core.domain.models import (
     PhotoPair,
     ProcessResult,
 )
-from src.core.domain.repositories import FileRepository
+from src.core.services.base import FileOrganizerService
 
 
-class PhotoOrganizerService:
+class PhotoOrganizerService(FileOrganizerService):
     """
     Photo Organizer のビジネスロジックを実装するサービス
 
@@ -26,12 +25,6 @@ class PhotoOrganizerService:
     - 孤立ファイルの管理
     - 処理結果の集計
     """
-
-    def __init__(
-        self, file_repository: FileRepository, logger: Optional[logging.Logger] = None
-    ):
-        self.file_repository = file_repository
-        self.logger = logger or logging.getLogger(__name__)
 
     def organize_photos(
         self,
@@ -217,21 +210,4 @@ class PhotoOrganizerService:
 
         except Exception as e:
             self.logger.error(f"孤立ファイル処理エラー: {e}")
-            return False
-
-    def _execute_file_operation(
-        self, source: Path, destination: Path, config: OrganizationConfig
-    ) -> bool:
-        """ファイル操作の実行"""
-        if config.dry_run:
-            self.logger.info(f"[DRY RUN] {source} -> {destination}")
-            return True
-
-        try:
-            if config.preserve_original:
-                return self.file_repository.copy_file(source, destination)
-            else:
-                return self.file_repository.move_file(source, destination)
-        except Exception as e:
-            self.logger.error(f"ファイル操作エラー: {e}")
             return False

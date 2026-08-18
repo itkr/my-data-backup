@@ -7,6 +7,7 @@ from typing import Annotated, List, Optional
 
 import typer
 
+from src.app.cli.display import display_result, progress_callback
 from src.core.domain.models import OrganizationConfig
 from src.core.services import MoveService
 from src.infrastructure.logging import get_logger
@@ -23,6 +24,7 @@ class MoveCLI:
         import_dir: str,
         export_dir: str,
         dry_run: bool = False,
+        copy: bool = False,
         suffixes: Optional[List[str]] = None,
         recursive: bool = False,
     ):
@@ -42,8 +44,8 @@ class MoveCLI:
             raise typer.Exit(code=1)
 
         # サービス初期化
-        file_repository = FileSystemRepository(logger.logger)
-        move_service = MoveService(file_repository, logger.logger)
+        file_repository = FileSystemRepository(logger)
+        move_service = MoveService(file_repository, logger)
 
         # ドット付きの拡張子に変換
         file_extensions = [f".{s.lstrip('.')}" for s in suffixes] if suffixes else None
@@ -55,7 +57,7 @@ class MoveCLI:
             create_type_dirs=True,
             handle_duplicates=True,
             log_operations=True,
-            preserve_original=False,
+            preserve_original=copy,
             file_extensions=file_extensions,
             recursive=recursive,
         )
@@ -74,18 +76,12 @@ class MoveCLI:
             source_dir=source_path,
             target_dir=target_path,
             config=config,
-            progress_callback=self._progress_callback,
+            progress_callback=progress_callback,
         )
 
         # 結果表示
-        self._display_result(result)
+        display_result(result)
         logger.info("Move完了")
-
-    def _progress_callback(self, current: int, total: int):
-        """進捗表示コールバック"""
-        if total > 0:
-            progress = current / total * 100
-            typer.echo(f"進捗: {current}/{total} ({progress:.1f}%)")
 
     def _display_start_info(
         self, source_path: Path, target_path: Path, config: OrganizationConfig
@@ -98,28 +94,9 @@ class MoveCLI:
         typer.echo(
             f"- Search:\t{'Recursive' if config.recursive else 'Current directory'}"
         )
+        typer.echo(f"- Action:\t{'COPY' if config.preserve_original else 'MOVE'}")
         typer.echo(f"-   Mode:\t{'DRY RUN' if config.dry_run else 'EXECUTE'}")
         typer.echo("")
-
-    def _display_result(self, result):
-        """結果表示"""
-        typer.echo("\n📊 実行結果")
-        typer.echo(f"✅   成功:\t{result.success_count} ファイル")
-        typer.echo(f"❌   失敗:\t{result.error_count} ファイル")
-        typer.echo(f"📈 成功率:\t{result.success_rate * 100:.1f}%")
-
-        if result.processed_files:
-            typer.echo("\n処理済みファイル (最初の10件):")
-            for i, file_info in enumerate(result.processed_files[:10]):
-                typer.echo(f"  {i + 1:2d}. {file_info.name}")
-
-            if len(result.processed_files) > 10:
-                typer.echo(f"  ... 他 {len(result.processed_files) - 10} ファイル")
-
-        if result.errors:
-            typer.echo("\nエラー:")
-            for error in result.errors[:5]:
-                typer.echo(f"  • {error}")
 
 
 # サブアプリケーション
@@ -150,10 +127,10 @@ def organize(
 
     Examples:
         # ドライランで確認
-        python -m src.app.cli.move_typer organize /import /export --dry-run
+        python src/main.py move organize /import /export --dry-run
 
         # 特定拡張子のみ処理
-        python -m src.app.cli.move_typer organize /import /export \\
+        python src/main.py move organize /import /export \\
             --suffix jpg --suffix arw
     """
 
@@ -163,6 +140,7 @@ def organize(
             import_dir=str(import_dir),
             export_dir=str(export_dir),
             dry_run=dry_run,
+            copy=copy,
             suffixes=suffix,
             recursive=recursive,
         )

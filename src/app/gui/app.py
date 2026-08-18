@@ -8,10 +8,7 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
 from src.core.config import ConfigManager
-from src.core.services.move_service import MoveService
-from src.core.services.photo_organizer_service import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
-from src.infrastructure.repositories import FileSystemRepository
 
 # CustomTkinter の外観設定
 ctk.set_appearance_mode("auto")
@@ -30,15 +27,8 @@ class UnifiedDataBackupApp:
         self.config_manager = ConfigManager()
         self.config = self.config_manager.config
 
-        # ロガー初期化
+        # ロガー初期化（サービスは各タブが生成する）
         self.logger = get_logger("UnifiedDataBackupGUI")
-
-        # サービス初期化
-        self.file_repository = FileSystemRepository(self.logger.logger)
-        self.photo_service = PhotoOrganizerService(
-            self.file_repository, self.logger.logger
-        )
-        self.move_service = MoveService(self.file_repository, self.logger.logger)
 
         # メインウィンドウの初期化
         self.root = ctk.CTk()
