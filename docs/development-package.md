@@ -2,7 +2,7 @@
 
 `pip install -e .`（開発可能インストール）を使用する際の重要な注意点とベストプラクティスをまとめます。
 
-## 🔑 主要な注意点
+## 主要な注意点
 
 ### 1. ファイル変更の即座反映
 - **利点**: Pythonファイルの変更が即座に反映される
@@ -24,7 +24,7 @@
 - **内容**: パッケージのパスが記録される
 - **注意**: このファイルが壊れるとインポートエラーが発生
 
-## 🛠️ トラブルシューティング
+## トラブルシューティング
 
 ### インポートエラーが発生した場合
 ```bash
@@ -52,12 +52,12 @@ make list-packages
 **原因**: Pythonプロセスでモジュールがキャッシュされている
 **解決**: プロセスを再起動
 
-## 📋 日常の開発ワークフロー
+## 日常の開発ワークフロー
 
 ### 1. 新しい開発セッション開始時
 ```bash
 # 仮想環境をアクティベート
-make venv-activate
+source venv/bin/activate
 
 # パッケージ状態を確認
 make check-package
@@ -66,7 +66,7 @@ make check-package
 ### 2. コード変更後
 ```bash
 # CLIツールのテスト
-make test-cli
+make test
 
 # GUIアプリケーションのテスト
 make run-gui
@@ -78,10 +78,10 @@ make run-gui
 make reinstall
 
 # すべてのテストを実行
-make test-all
+make test
 ```
 
-## 🔍 パッケージ状態の監視
+## パッケージ状態の監視
 
 ### 自動チェックスクリプト
 `scripts/check_package.sh`が以下を確認：
@@ -98,26 +98,26 @@ make check-package
 make list-packages
 ```
 
-## 🚨 エラー対応
+## エラー対応
 
 ### 緊急時の復旧手順
 1. `make clean` - 一時ファイルをクリーンアップ
-2. `make venv-clean` - 仮想環境を再作成
+2. `make clean-venv` - 仮想環境を再作成
 3. `make install` - パッケージを再インストール
 4. `make check-package` - 状態を確認
 
 ### ログの確認
 - エラーが発生した場合は詳細なログを確認
-- `make run-gui`や`make test-cli`の出力をチェック
+- `make run-gui`や`make test`の出力をチェック
 
-## 💡 ベストプラクティス
+## ベストプラクティス
 
 1. **定期的な状態確認**: 開発セッション開始時に`make check-package`
 2. **クリーンな環境**: 問題が発生したら仮想環境の再作成を検討
 3. **バージョン管理**: `pyproject.toml`でバージョンを適切に管理
 4. **依存関係の明示**: 新しい依存関係は必ず`pyproject.toml`に追加
 
-## 🔗 関連コマンド
+## 関連コマンド
 
 | コマンド | 用途 |
 |---------|------|
@@ -125,6 +125,6 @@ make list-packages
 | `make check-package` | パッケージ状態のチェック |
 | `make reinstall` | パッケージの再インストール |
 | `make list-packages` | インストール済みパッケージの確認 |
-| `make venv-clean` | 仮想環境のリセット |
+| `make clean-venv` | 仮想環境のリセット |
 
 この開発可能パッケージ方式により、`PROJECT_ROOT`のような動的パス設定が不要になり、より標準的で保守しやすいPythonプロジェクト構造を実現できます。

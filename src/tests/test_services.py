@@ -8,15 +8,15 @@ import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from src.core.domain.models import FileInfo, FileType, OrganizationConfig
-from src.core.services.move_service import MoveService
-from src.core.services.photo_organizer_service import PhotoOrganizerService
+from src.core.services.sort_service import SortService
+from src.core.services.sync_service import SyncService
 
 
-class TestPhotoOrganizerService(unittest.TestCase):
-    """PhotoOrganizerServiceクラスのテスト"""
+class TestSyncService(unittest.TestCase):
+    """SyncServiceクラスのテスト"""
 
     def setUp(self):
         """テスト前のセットアップ"""
@@ -29,9 +29,12 @@ class TestPhotoOrganizerService(unittest.TestCase):
 
         # モックリポジトリを作成
         self.mock_repository = Mock()
+        # exists() の戻り値を明示しないと Mock が truthy を返し、
+        # 全ファイルが「出力先に同名あり」でスキップされてしまう
+        self.mock_repository.exists.return_value = False
 
         # サービスインスタンス作成
-        self.service = PhotoOrganizerService(self.mock_repository, self.logger)
+        self.service = SyncService(self.mock_repository, self.logger)
 
         # テストデータ準備
         self.source_dir = self.temp_path / "source"
@@ -55,24 +58,18 @@ class TestPhotoOrganizerService(unittest.TestCase):
         """テスト後のクリーンアップ"""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_find_photo_pairs_with_matching_files(self):
-        """マッチングするファイルペアの検索テスト"""
-        # モックの設定
-        self.mock_repository.get_files_by_extensions.side_effect = [
-            [self.raw_file],  # RAWファイル
-            [self.jpg_file],  # JPGファイル
-        ]
-
-        pairs = self.service.find_photo_pairs(self.source_dir)
+    def test_analyze_photo_pairs_with_matching_files(self):
+        """同名のRAW/JPGが1つのペアとして認識される"""
+        pairs = self.service._analyze_photo_pairs([self.raw_file], [self.jpg_file])
 
         self.assertEqual(len(pairs), 1)
         pair = pairs[0]
-        self.assertTrue(pair.has_both)
+        self.assertTrue(pair.is_complete_pair)
         self.assertEqual(pair.raw_file.name, "image.arw")
         self.assertEqual(pair.jpg_file.name, "image.jpg")
 
-    def test_find_photo_pairs_with_orphan_raw(self):
-        """孤立RAWファイルの検索テスト"""
+    def test_analyze_photo_pairs_with_orphan_raw(self):
+        """対応するJPGが無いRAWは孤立RAWになる"""
         orphan_raw = FileInfo(
             path=self.source_dir / "orphan.arw",
             file_type=FileType.RAW,
@@ -80,28 +77,22 @@ class TestPhotoOrganizerService(unittest.TestCase):
             size=2048,
         )
 
-        # モックの設定
-        self.mock_repository.get_files_by_extensions.side_effect = [
-            [self.raw_file, orphan_raw],  # RAWファイル
-            [self.jpg_file],  # JPGファイル
-        ]
-
-        pairs = self.service.find_photo_pairs(self.source_dir)
+        pairs = self.service._analyze_photo_pairs(
+            [self.raw_file, orphan_raw], [self.jpg_file]
+        )
 
         self.assertEqual(len(pairs), 2)
 
-        # ペアになったファイル
         paired = [p for p in pairs if p.is_complete_pair][0]
         self.assertEqual(paired.raw_file.name, "image.arw")
         self.assertEqual(paired.jpg_file.name, "image.jpg")
 
-        # 孤立RAWファイル
         orphan = [p for p in pairs if p.is_orphan_raw][0]
         self.assertEqual(orphan.raw_file.name, "orphan.arw")
         self.assertIsNone(orphan.jpg_file)
 
-    def test_find_photo_pairs_with_orphan_jpg(self):
-        """孤立JPGファイルの検索テスト"""
+    def test_analyze_photo_pairs_with_orphan_jpg(self):
+        """対応するRAWが無いJPGは孤立JPGになる"""
         orphan_jpg = FileInfo(
             path=self.source_dir / "orphan.jpg",
             file_type=FileType.JPG,
@@ -109,52 +100,123 @@ class TestPhotoOrganizerService(unittest.TestCase):
             size=1024,
         )
 
-        # モックの設定
-        self.mock_repository.get_files_by_extensions.side_effect = [
-            [self.raw_file],  # RAWファイル
-            [self.jpg_file, orphan_jpg],  # JPGファイル
-        ]
-
-        pairs = self.service.find_photo_pairs(self.source_dir)
+        pairs = self.service._analyze_photo_pairs(
+            [self.raw_file], [self.jpg_file, orphan_jpg]
+        )
 
         self.assertEqual(len(pairs), 2)
 
-        # ペアになったファイル
         paired = [p for p in pairs if p.is_complete_pair][0]
         self.assertEqual(paired.raw_file.name, "image.arw")
         self.assertEqual(paired.jpg_file.name, "image.jpg")
 
-        # 孤立JPGファイル
         orphan = [p for p in pairs if p.is_orphan_jpg][0]
         self.assertEqual(orphan.jpg_file.name, "orphan.jpg")
         self.assertIsNone(orphan.raw_file)
 
-    @patch("src.core.services.PhotoOrganizerService.find_photo_pairs")
-    def test_organize_photos_dry_run(self, mock_find_pairs):
-        """ドライランモードでの写真整理テスト"""
-        # テスト用のフォトペアを設定
-        from src.core.domain.models import PhotoPair
+    def test_analyze_photo_pairs_ignores_leading_underscore_and_case(self):
+        """_DSC1234.ARW と DSC1234.JPG のような命名差を吸収する"""
+        raw = FileInfo(
+            path=self.source_dir / "_DSC1234.arw",
+            file_type=FileType.RAW,
+            created_date=datetime(2024, 1, 15),
+            size=2048,
+        )
+        jpg = FileInfo(
+            path=self.source_dir / "dsc1234.jpg",
+            file_type=FileType.JPG,
+            created_date=datetime(2024, 1, 15),
+            size=1024,
+        )
 
-        test_pair = PhotoPair(raw_file=self.raw_file, jpg_file=self.jpg_file)
-        mock_find_pairs.return_value = [test_pair]
+        pairs = self.service._analyze_photo_pairs([raw], [jpg])
+
+        self.assertEqual(len(pairs), 1)
+        self.assertTrue(pairs[0].is_complete_pair)
+
+    def test_sync_photos_dry_run(self):
+        """ドライランではファイル操作が実行されない"""
+        self.mock_repository.scan_directory.return_value = [
+            self.raw_file,
+            self.jpg_file,
+        ]
 
         config = OrganizationConfig(dry_run=True)
 
-        result = self.service.organize_photos(
+        result = self.service.sync_photos(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
-        # ドライランではファイル操作が実行されない
+        # ドライランではファイル操作もディレクトリ作成も行われない
         self.mock_repository.copy_file.assert_not_called()
         self.mock_repository.move_file.assert_not_called()
+        self.mock_repository.create_directory.assert_not_called()
 
-        # 結果の検証
+        # 完全ペア1組 = RAW/JPG の2ファイル分が成功として数えられる
+        self.assertEqual(result.success_count, 2)
+        self.assertEqual(result.error_count, 0)
+
+    def test_sync_photos_moves_pair_into_type_directories(self):
+        """完全ペアは ARW/ と JPG/ に振り分けられる"""
+        self.mock_repository.scan_directory.return_value = [
+            self.raw_file,
+            self.jpg_file,
+        ]
+        self.mock_repository.move_file.return_value = True
+
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+
+        self.service.sync_photos(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        destinations = {
+            call.args[1] for call in self.mock_repository.move_file.call_args_list
+        }
+        self.assertIn(self.target_dir / "ARW" / "image.arw", destinations)
+        self.assertIn(self.target_dir / "JPG" / "image.jpg", destinations)
+
+    def test_existing_destination_is_skipped_instead_of_overwritten(self):
+        """出力先に同名ファイルがある場合は上書きせずスキップする"""
+        self.mock_repository.scan_directory.return_value = [
+            self.raw_file,
+            self.jpg_file,
+        ]
+        # JPG の移動先だけ既に存在する
+        existing = self.target_dir / "JPG" / "image.jpg"
+        self.mock_repository.exists.side_effect = lambda p: p == existing
+
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+
+        result = self.service.sync_photos(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        moved = {call.args[1] for call in self.mock_repository.move_file.call_args_list}
+        self.assertEqual(moved, {self.target_dir / "ARW" / "image.arw"})
+        self.assertEqual(result.skipped_count, 1)
         self.assertEqual(result.success_count, 1)
         self.assertEqual(result.error_count, 0)
 
+    def test_sync_photos_moves_orphan_into_orphans_directory(self):
+        """孤立ファイルは orphans/ に振り分けられる"""
+        self.mock_repository.scan_directory.return_value = [self.raw_file]
+        self.mock_repository.move_file.return_value = True
 
-class TestMoveService(unittest.TestCase):
-    """MoveServiceクラスのテスト"""
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+
+        self.service.sync_photos(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        destinations = {
+            call.args[1] for call in self.mock_repository.move_file.call_args_list
+        }
+        self.assertEqual(destinations, {self.target_dir / "orphans" / "image.arw"})
+
+
+class TestSortService(unittest.TestCase):
+    """SortServiceクラスのテスト"""
 
     def setUp(self):
         """テスト前のセットアップ"""
@@ -167,9 +229,12 @@ class TestMoveService(unittest.TestCase):
 
         # モックリポジトリを作成
         self.mock_repository = Mock()
+        # exists() の戻り値を明示しないと Mock が truthy を返し、
+        # 重複回避の _generate_unique_path が無限ループする
+        self.mock_repository.exists.return_value = False
 
         # サービスインスタンス作成
-        self.service = MoveService(self.mock_repository, self.logger)
+        self.service = SortService(self.mock_repository, self.logger)
 
         # テストデータ準備
         self.source_dir = self.temp_path / "source"
@@ -186,7 +251,7 @@ class TestMoveService(unittest.TestCase):
         """テスト後のクリーンアップ"""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_organize_by_date_dry_run(self):
+    def test_sort_by_date_dry_run(self):
         """ドライランモードでの日付別整理テスト"""
         # モックの設定
         self.service.file_repository.scan_directory = Mock(
@@ -195,7 +260,7 @@ class TestMoveService(unittest.TestCase):
 
         config = OrganizationConfig(dry_run=True)
 
-        result = self.service.organize_by_date(
+        result = self.service.sort_by_date(
             source_dir=self.source_dir, target_dir=self.target_dir, config=config
         )
 
@@ -215,7 +280,7 @@ class TestMoveService(unittest.TestCase):
             self.test_file, self.target_dir, config
         )
 
-        expected = self.target_dir / "2024/01月/2024-01-15/jpg/test.jpg"
+        expected = self.target_dir / "2024/01月/2024-01-15/JPG/test.jpg"
         self.assertEqual(target_path, expected)
 
     def test_generate_target_path_no_date_dirs(self):
@@ -226,7 +291,7 @@ class TestMoveService(unittest.TestCase):
             self.test_file, self.target_dir, config
         )
 
-        expected = self.target_dir / "jpg/test.jpg"
+        expected = self.target_dir / "JPG/test.jpg"
         self.assertEqual(target_path, expected)
 
     def test_generate_target_path_no_type_dirs(self):
@@ -239,6 +304,80 @@ class TestMoveService(unittest.TestCase):
 
         expected = self.target_dir / "2024/01月/2024-01-15/test.jpg"
         self.assertEqual(target_path, expected)
+
+    def test_copy_mode_preserves_the_original(self):
+        """preserve_original=True のときは移動ではなくコピーする"""
+        self.mock_repository.scan_directory.return_value = [self.test_file]
+        self.mock_repository.copy_file.return_value = True
+
+        config = OrganizationConfig(dry_run=False, preserve_original=True)
+
+        self.service.sort_by_date(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        self.mock_repository.copy_file.assert_called_once()
+        self.mock_repository.move_file.assert_not_called()
+
+    def test_generate_unique_path_skips_existing_files(self):
+        """重複時は連番を付けて空いているパスを返す"""
+        taken = self.target_dir / "test_001.jpg"
+        self.mock_repository.exists.side_effect = lambda p: p == taken
+
+        unique = self.service._generate_unique_path(self.target_dir / "test.jpg")
+
+        self.assertEqual(unique, self.target_dir / "test_002.jpg")
+
+    def test_generate_unique_path_gives_up_instead_of_looping_forever(self):
+        """空きが見つからない場合は無限ループせずエラーにする"""
+        self.mock_repository.exists.return_value = True
+
+        with self.assertRaises(RuntimeError):
+            self.service._generate_unique_path(self.target_dir / "test.jpg")
+
+    def test_stop_interrupts_processing(self):
+        """stop() を呼ぶと残りのファイル処理が中断される"""
+        second_file = FileInfo(
+            path=self.source_dir / "second.jpg",
+            file_type=FileType.JPG,
+            created_date=datetime(2024, 1, 15, 10, 30, 0),
+            size=1024,
+        )
+        self.mock_repository.scan_directory.return_value = [
+            self.test_file,
+            second_file,
+        ]
+
+        # 1件目の移動が終わった時点で停止を要求する
+        def move_then_stop(source, destination):
+            self.service.stop()
+            return True
+
+        self.mock_repository.move_file.side_effect = move_then_stop
+
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+
+        result = self.service.sort_by_date(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        # 2件目は処理されない
+        self.assertEqual(self.mock_repository.move_file.call_count, 1)
+        self.assertEqual(result.success_count, 1)
+
+    def test_stop_flag_is_reset_on_next_run(self):
+        """停止後に再実行すると最初から処理できる"""
+        self.mock_repository.scan_directory.return_value = [self.test_file]
+        self.mock_repository.move_file.return_value = True
+
+        self.service.stop()
+
+        config = OrganizationConfig(dry_run=False, preserve_original=False)
+        result = self.service.sort_by_date(
+            source_dir=self.source_dir, target_dir=self.target_dir, config=config
+        )
+
+        self.assertEqual(result.success_count, 1)
 
 
 if __name__ == "__main__":

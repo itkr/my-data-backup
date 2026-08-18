@@ -44,11 +44,6 @@ class FileInfo:
         return self.path.suffix.lower()
 
     @property
-    def raw_extension(self) -> str:
-        """ファイル拡張子を取得（大文字小文字を保持）"""
-        return self.path.suffix
-
-    @property
     def stem(self) -> str:
         """ファイル名（拡張子なし）を取得"""
         return self.path.stem
@@ -65,6 +60,7 @@ class ProcessResult:
 
     success_count: int = 0
     error_count: int = 0
+    skipped_count: int = 0
     processed_files: List[FileInfo] = None
     errors: List[str] = None
 
@@ -77,7 +73,7 @@ class ProcessResult:
     @property
     def total_count(self) -> int:
         """総処理ファイル数"""
-        return self.success_count + self.error_count
+        return self.success_count + self.error_count + self.skipped_count
 
     @property
     def success_rate(self) -> float:

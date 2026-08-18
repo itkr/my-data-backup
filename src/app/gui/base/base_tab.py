@@ -77,11 +77,13 @@ class BaseTab(ABC):
     def show_result(self, result: Any):
         """結果表示の共通メソッド"""
         if hasattr(result, "success_count") and hasattr(result, "error_count"):
-            message = f"✅ 成功: {
-                result.success_count} ファイル\n❌ 失敗: {
-                result.error_count} ファイル"
+            lines = [f"成功: {result.success_count} ファイル"]
+            if getattr(result, "skipped_count", 0):
+                lines.append(f"スキップ: {result.skipped_count} ファイル")
+            lines.append(f"失敗: {result.error_count} ファイル")
             if hasattr(result, "success_rate"):
-                message += f"\n📈 成功率: {result.success_rate * 100:.1f}%"
+                lines.append(f"成功率: {result.success_rate * 100:.1f}%")
+            message = "\n".join(lines)
         else:
             message = "処理が完了しました"
 

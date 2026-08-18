@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional
 
-from ..models import FileInfo, FileOperation
+from ..models import FileInfo
 
 
 class FileRepository(ABC):
@@ -109,44 +109,4 @@ class FileRepository(ABC):
 
         Returns:
             チェックサム文字列、計算できない場合はNone
-        """
-
-
-class OperationRepository(ABC):
-    """ファイル操作の履歴管理インターフェース"""
-
-    @abstractmethod
-    def save_operation(self, operation: FileOperation) -> bool:
-        """
-        操作履歴を保存
-
-        Args:
-            operation: 保存する操作
-
-        Returns:
-            成功した場合はTrue
-        """
-
-    @abstractmethod
-    def get_operations(self, file_path: Optional[Path] = None) -> List[FileOperation]:
-        """
-        操作履歴を取得
-
-        Args:
-            file_path: 特定ファイルの履歴を取得する場合はパスを指定
-
-        Returns:
-            操作履歴のリスト
-        """
-
-    @abstractmethod
-    def rollback_operation(self, operation: FileOperation) -> bool:
-        """
-        操作をロールバック
-
-        Args:
-            operation: ロールバック対象操作
-
-        Returns:
-            成功した場合はTrue
         """

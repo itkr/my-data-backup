@@ -1,6 +1,6 @@
 """
-Move Tab モジュール
-File Move 機能のGUIタブ実装
+Sort Tab モジュール
+ファイル仕分け機能のGUIタブ実装
 """
 
 import threading
@@ -11,11 +11,11 @@ import customtkinter
 
 from src.app.gui.base.base_tab import BaseTab
 from src.core.config.file_extensions import FileExtensions
-from src.core.services.move_service import MoveService
+from src.core.services.sort_service import SortService
 
 
-class MoveTab(BaseTab):
-    """Move機能のタブクラス"""
+class SortTab(BaseTab):
+    """ファイル仕分け機能のタブクラス"""
 
     def __init__(self, parent, logger):
         # Variables (setup_widgets()で使用するため先に初期化)
@@ -32,9 +32,9 @@ class MoveTab(BaseTab):
             for ext in extensions:
                 self.extension_vars[ext] = customtkinter.BooleanVar(value=True)
 
-        # Move service
-        self.move_service = None
-        self.move_thread = None
+        # Sort service
+        self.sort_service = None
+        self.sort_thread = None
 
         super().__init__(parent, logger)
 
@@ -54,7 +54,7 @@ class MoveTab(BaseTab):
 
         self.label_source = customtkinter.CTkLabel(
             self.frame_source,
-            text="📂 ソースディレクトリ:",
+            text="ソースディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_source.pack(pady=(10, 5), anchor="w")
@@ -83,7 +83,7 @@ class MoveTab(BaseTab):
 
         self.label_dest = customtkinter.CTkLabel(
             self.frame_dest,
-            text="📁 出力先ディレクトリ:",
+            text="出力先ディレクトリ:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_dest.pack(pady=(10, 5), anchor="w")
@@ -108,7 +108,7 @@ class MoveTab(BaseTab):
 
         self.label_filter = customtkinter.CTkLabel(
             self.frame_filter,
-            text="📋 ファイル拡張子:",
+            text="ファイル拡張子:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_filter.pack(pady=(10, 5), anchor="w")
@@ -174,7 +174,7 @@ class MoveTab(BaseTab):
 
         self.label_options = customtkinter.CTkLabel(
             self.frame_options,
-            text="⚙️ オプション:",
+            text="オプション:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_options.pack(pady=(10, 5), anchor="w")
@@ -213,8 +213,8 @@ class MoveTab(BaseTab):
 
         self.button_start = customtkinter.CTkButton(
             self.frame_buttons,
-            text="🚀 ファイル整理開始",
-            command=self.start_move,
+            text="ファイル整理開始",
+            command=self.start_sort,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
         )
@@ -222,8 +222,8 @@ class MoveTab(BaseTab):
 
         self.button_stop = customtkinter.CTkButton(
             self.frame_buttons,
-            text="⏹️ 停止",
-            command=self.stop_move,
+            text="停止",
+            command=self.stop_sort,
             height=40,
             font=customtkinter.CTkFont(size=16, weight="bold"),
             state="disabled",
@@ -237,7 +237,7 @@ class MoveTab(BaseTab):
 
         self.label_progress = customtkinter.CTkLabel(
             self.frame_progress,
-            text="📊 進捗状況:",
+            text="進捗状況:",
             font=customtkinter.CTkFont(size=14, weight="bold"),
         )
         self.label_progress.pack(pady=(10, 5), anchor="w")
@@ -293,7 +293,7 @@ class MoveTab(BaseTab):
         return True
 
     def execute(self):
-        """Move処理の実行"""
+        """仕分け処理の実行"""
         if not self.validate_inputs():
             return
 
@@ -310,7 +310,7 @@ class MoveTab(BaseTab):
 
             # サービス初期化
             file_repository = FileSystemRepository(self.logger)
-            self.move_service = MoveService(file_repository, self.logger)
+            self.sort_service = SortService(file_repository, self.logger)
 
             # 設定作成
             config = OrganizationConfig(
@@ -324,64 +324,63 @@ class MoveTab(BaseTab):
                 recursive=recursive,
             )
 
-            # Progress callback setup
-            def progress_callback(current, total):
-                if total > 0:
-                    progress = current / total
-                    message = f"処理中 {current}/{total} ファイル..."
-                    self.progress_var.set(message)
-                    if self.progress_bar:
-                        self.progress_bar.set(progress)
-
-            self.progress_var.set("🚀 ファイル整理を開始しています...")
-            self.logger.info(f"📁 ソース: {source_path}")
-            self.logger.info(f"📁 出力先: {dest_path}")
-            self.logger.info(f"🔧 モード: {'コピー' if copy_mode else '移動'}")
-            self.logger.info(f"🧪 ドライラン: {dry_run}")
-            self.logger.info(f"🔍 再帰検索: {recursive}")
+            self._set_progress_text("ファイル整理を開始しています...")
+            self.logger.info(f"ソース: {source_path}")
+            self.logger.info(f"出力先: {dest_path}")
+            self.logger.info(f"モード: {'コピー' if copy_mode else '移動'}")
+            self.logger.info(f"ドライラン: {dry_run}")
+            self.logger.info(f"再帰検索: {recursive}")
             if selected_extensions:
-                self.logger.info(f"📋 拡張子: {', '.join(selected_extensions)}")
+                self.logger.info(f"拡張子: {', '.join(selected_extensions)}")
 
-            # Start move operation
-            result = self.move_service.organize_by_date(
+            # Start sort operation
+            result = self.sort_service.sort_by_date(
                 source_dir=source_path,
                 target_dir=dest_path,
                 config=config,
-                progress_callback=progress_callback,
+                progress_callback=self._progress_callback,
             )
 
             # Display results
-            self.progress_var.set("📊 処理が完了しました！")
-            self.logger.info("📊 処理が完了しました！")
-            self.logger.info(f"✅ 成功: {result.success_count} ファイル")
-            self.logger.info(f"❌ 失敗: {result.error_count} ファイル")
-            self.logger.info(f"📈 成功率: {result.success_rate * 100:.1f}%")
+            self._set_progress_text("処理が完了しました")
+            self.logger.info("処理が完了しました")
+            self.logger.info(f"成功: {result.success_count} ファイル")
+            self.logger.info(f"失敗: {result.error_count} ファイル")
+            self.logger.info(f"成功率: {result.success_rate * 100:.1f}%")
 
             if result.errors:
-                self.logger.error("❌ エラー:")
+                self.logger.error("エラー:")
                 for error in result.errors[:5]:
                     self.logger.error(f"  • {error}")
 
             # Show result dialog
-            self.show_result(result)
+            self.parent.after(0, lambda: self.show_result(result))
 
         except Exception as e:
             self.show_error("実行エラー", f"ファイル整理処理に失敗しました: {str(e)}")
-            self.logger.error(f"Move operation error: {e}")
+            self.logger.error(f"Sort operation error: {e}")
 
-    def start_move(self):
-        """Move処理を開始"""
+    def _progress_callback(self, current: int, total: int):
+        """進捗更新コールバック（ワーカースレッドから呼ばれる）"""
+        self.parent.after(0, lambda: self.update_progress(current, total, "処理中"))
+
+    def _set_progress_text(self, message: str):
+        """進捗テキストを更新（ワーカースレッドから呼ばれる）"""
+        self.parent.after(0, lambda: self.progress_var.set(message))
+
+    def start_sort(self):
+        """仕分け処理を開始"""
         self.reset_ui()
         self.button_start.configure(state="disabled")
         self.button_stop.configure(state="normal")
 
         # Start in separate thread
-        self.move_thread = threading.Thread(target=self._run_move_thread)
-        self.move_thread.daemon = True
-        self.move_thread.start()
+        self.sort_thread = threading.Thread(target=self._run_sort_thread)
+        self.sort_thread.daemon = True
+        self.sort_thread.start()
 
-    def _run_move_thread(self):
-        """Move処理のスレッド実行"""
+    def _run_sort_thread(self):
+        """仕分け処理のスレッド実行"""
         try:
             self.execute()
         finally:
@@ -389,11 +388,11 @@ class MoveTab(BaseTab):
             self.parent.after(0, lambda: self.button_start.configure(state="normal"))
             self.parent.after(0, lambda: self.button_stop.configure(state="disabled"))
 
-    def stop_move(self):
-        """Move処理を停止"""
-        if self.move_service:
-            self.move_service.stop()
-        self.progress_var.set("🛑 停止が要求されました...")
+    def stop_sort(self):
+        """仕分け処理を停止"""
+        if self.sort_service:
+            self.sort_service.stop()
+        self.progress_var.set("停止が要求されました...")
         self.button_stop.configure(state="disabled")
 
     def select_all_extensions(self):

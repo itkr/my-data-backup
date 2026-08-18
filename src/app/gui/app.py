@@ -2,17 +2,13 @@
 統合GUIアプリケーション
 """
 
-import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
 from src.core.config import ConfigManager
-from src.core.services.move_service import MoveService
-from src.core.services.photo_organizer_service import PhotoOrganizerService
 from src.infrastructure.logging import get_logger
-from src.infrastructure.repositories import FileSystemRepository
 
 # CustomTkinter の外観設定
 ctk.set_appearance_mode("auto")
@@ -31,21 +27,13 @@ class UnifiedDataBackupApp:
         self.config_manager = ConfigManager()
         self.config = self.config_manager.config
 
-        # ロガー初期化
+        # ロガー初期化（サービスは各タブが生成する）
         self.logger = get_logger("UnifiedDataBackupGUI")
-
-        # サービス初期化
-        self.file_repository = FileSystemRepository(self.logger.logger)
-        self.photo_service = PhotoOrganizerService(
-            self.file_repository, self.logger.logger
-        )
-        self.move_service = MoveService(self.file_repository, self.logger.logger)
 
         # メインウィンドウの初期化
         self.root = ctk.CTk()
         self.setup_window()
         self.setup_widgets()
-        self.load_saved_settings()
 
         # 処理状態管理
         self.processing = False
@@ -55,7 +43,7 @@ class UnifiedDataBackupApp:
 
     def setup_window(self):
         """ウィンドウの基本設定"""
-        self.root.title("📁 My Data Backup v2.0 - 統合ファイル整理ツール")
+        self.root.title("My Data Backup - 統合ファイル整理ツール")
         self.root.geometry(
             f"{self.config.ui.window_width}x{self.config.ui.window_height}"
         )
@@ -87,14 +75,14 @@ class UnifiedDataBackupApp:
         # タイトル
         title_label = ctk.CTkLabel(
             header_frame,
-            text="📁 My Data Backup v2.0",
+            text="My Data Backup",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title_label.pack(side="left", padx=20, pady=15)
 
         # テーマ切り替えボタン
         theme_button = ctk.CTkButton(
-            header_frame, text="🎨 テーマ切り替え", command=self.toggle_theme, width=120
+            header_frame, text="テーマ切り替え", command=self.toggle_theme, width=120
         )
         theme_button.pack(side="right", padx=20, pady=15)
 
@@ -103,13 +91,9 @@ class UnifiedDataBackupApp:
         self.tabview = ctk.CTkTabview(parent)
         self.tabview.pack(fill="both", expand=True, pady=(0, 10))
 
-        # Photo Organizerタブ
-        self.photo_tab = self.tabview.add("📸 Photo Organizer")
-        self.setup_photo_organizer_tab()
-
-        # Moveタブ
-        self.move_tab = self.tabview.add("🗂️ Move")
-        self.setup_move_tab()
+        # Sortタブ
+        self.sort_tab = self.tabview.add("🗂️ Sort")
+        self.setup_sort_tab()
 
         # 設定タブ
         self.settings_tab = self.tabview.add("⚙️ 設定")
@@ -119,20 +103,11 @@ class UnifiedDataBackupApp:
         self.log_tab = self.tabview.add("📋 ログ")
         self.setup_log_tab()
 
-    def setup_photo_organizer_tab(self):
-        """Photo Organizer タブの設定"""
-        from src.app.gui.modules.photo_organizer.tab import PhotoOrganizerTab
+    def setup_sort_tab(self):
+        """Sort タブの設定"""
+        from src.app.gui.modules.sort.tab import SortTab
 
-        self.photo_organizer_tab = PhotoOrganizerTab(
-            parent=self.photo_tab,
-            logger=self.logger,
-        )
-
-    def setup_move_tab(self):
-        """Move タブの設定"""
-        from src.app.gui.modules.move.tab import MoveTab
-
-        self.move_tab_instance = MoveTab(parent=self.move_tab, logger=self.logger)
+        self.sort_tab_instance = SortTab(parent=self.sort_tab, logger=self.logger)
 
     def setup_settings_tab(self):
         """設定タブの設定"""
@@ -145,7 +120,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             app_settings_frame,
-            text="🎨 外観設定",
+            text="外観設定",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -170,7 +145,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             log_settings_frame,
-            text="📋 ログ設定",
+            text="ログ設定",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -194,7 +169,7 @@ class UnifiedDataBackupApp:
 
         ctk.CTkLabel(
             config_management_frame,
-            text="⚙️ 設定管理",
+            text="設定管理",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 10))
 
@@ -203,21 +178,21 @@ class UnifiedDataBackupApp:
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="📤 設定エクスポート",
+            text="設定エクスポート",
             command=self.export_config,
             width=120,
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="📥 設定インポート",
+            text="設定インポート",
             command=self.import_config,
             width=120,
         ).pack(side="left", padx=5)
 
         ctk.CTkButton(
             config_buttons_frame,
-            text="🔄 設定リセット",
+            text="設定リセット",
             command=self.reset_config,
             width=120,
         ).pack(side="left", padx=5)
@@ -241,7 +216,7 @@ class UnifiedDataBackupApp:
         log_button_frame.pack(fill="x", padx=10, pady=(0, 10))
 
         ctk.CTkButton(
-            log_button_frame, text="🗑️ ログクリア", command=self.clear_log, width=100
+            log_button_frame, text="ログクリア", command=self.clear_log, width=100
         ).pack(side="right", padx=10, pady=5)
 
     def setup_status_bar(self, parent):
@@ -250,77 +225,8 @@ class UnifiedDataBackupApp:
         self.status_frame.pack(fill="x")
         self.status_frame.pack_propagate(False)
 
-        self.status_label = ctk.CTkLabel(
-            self.status_frame, text="📍 準備完了", anchor="w"
-        )
+        self.status_label = ctk.CTkLabel(self.status_frame, text="準備完了", anchor="w")
         self.status_label.pack(side="left", padx=10, pady=5)
-
-    def load_saved_settings(self):
-        """保存された設定を読み込み"""
-        # モジュール化後は各タブが独自に設定を管理
-
-    def select_directory(self, entry_widget, config_key: str):
-        """ディレクトリ選択ダイアログ"""
-        directory = filedialog.askdirectory()
-        if directory:
-            entry_widget.delete(0, tk.END)
-            entry_widget.insert(0, directory)
-
-            # 設定を更新
-            if config_key.startswith("photo_"):
-                self.config_manager.update_photo_settings(
-                    **{config_key.replace("photo_", ""): directory}
-                )
-            elif config_key.startswith("move_"):
-                self.config_manager.update_move_settings(
-                    **{config_key.replace("move_", ""): directory}
-                )
-
-            # 最近使用したディレクトリに追加
-            self.config_manager.update_recent_directory(directory)
-
-    def show_recent_directories(self, entry_widget):
-        """最近使用したディレクトリを表示"""
-        recent_dirs = self.config_manager.get_recent_directories(limit=10)
-        if not recent_dirs:
-            messagebox.showinfo("情報", "最近使用したディレクトリはありません")
-            return
-
-        # 選択ダイアログ作成
-        dialog = ctk.CTkToplevel(self.root)
-        dialog.title("📋 最近使用したディレクトリ")
-        dialog.geometry("600x400")
-        dialog.transient(self.root)
-
-        # リストボックス
-        listbox_frame = ctk.CTkFrame(dialog)
-        listbox_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Tkinterのリストボックスを使用（CustomTkinterにはListboxがない）
-        listbox = tk.Listbox(listbox_frame)
-        listbox.pack(fill="both", expand=True, padx=10, pady=10)
-
-        for directory in recent_dirs:
-            listbox.insert(tk.END, directory)
-
-        # ボタンフレーム
-        button_frame = ctk.CTkFrame(dialog)
-        button_frame.pack(fill="x", padx=20, pady=(0, 20))
-
-        def select_directory():
-            selection = listbox.curselection()
-            if selection:
-                selected_dir = recent_dirs[selection[0]]
-                entry_widget.delete(0, tk.END)
-                entry_widget.insert(0, selected_dir)
-                dialog.destroy()
-
-        ctk.CTkButton(button_frame, text="選択", command=select_directory).pack(
-            side="right", padx=5
-        )
-        ctk.CTkButton(button_frame, text="キャンセル", command=dialog.destroy).pack(
-            side="right", padx=5
-        )
 
     def toggle_theme(self):
         """テーマを切り替え"""
@@ -329,18 +235,18 @@ class UnifiedDataBackupApp:
         ctk.set_appearance_mode(new_theme)
         self.theme_var.set(new_theme)
         self.config_manager.update_ui_settings(theme=new_theme)
-        self.log_message(f"🎨 テーマを {new_theme} に変更しました")
+        self.log_message(f"テーマを {new_theme} に変更しました")
 
     def change_theme(self, theme):
         """テーマを変更"""
         ctk.set_appearance_mode(theme)
         self.config_manager.update_ui_settings(theme=theme)
-        self.log_message(f"🎨 テーマを {theme} に変更しました")
+        self.log_message(f"テーマを {theme} に変更しました")
 
     def change_log_level(self, level):
         """ログレベルを変更"""
         self.config_manager.update_ui_settings(log_level=level)
-        self.log_message(f"📋 ログレベルを {level} に変更しました")
+        self.log_message(f"ログレベルを {level} に変更しました")
 
     def export_config(self):
         """設定をエクスポート"""
@@ -353,7 +259,7 @@ class UnifiedDataBackupApp:
         if file_path:
             if self.config_manager.export_config(Path(file_path)):
                 messagebox.showinfo("成功", f"設定をエクスポートしました:\n{file_path}")
-                self.log_message(f"📤 設定エクスポート: {file_path}")
+                self.log_message(f"設定エクスポート: {file_path}")
             else:
                 messagebox.showerror("エラー", "設定のエクスポートに失敗しました")
 
@@ -370,7 +276,7 @@ class UnifiedDataBackupApp:
                     "成功",
                     f"設定をインポートしました:\n{file_path}\n\nアプリケーションを再起動してください",
                 )
-                self.log_message(f"📥 設定インポート: {file_path}")
+                self.log_message(f"設定インポート: {file_path}")
                 self.update_config_info()
             else:
                 messagebox.showerror("エラー", "設定のインポートに失敗しました")
@@ -386,7 +292,7 @@ class UnifiedDataBackupApp:
                     "成功",
                     "設定をリセットしました\n\nアプリケーションを再起動してください",
                 )
-                self.log_message("🔄 設定をリセットしました")
+                self.log_message("設定をリセットしました")
                 self.update_config_info()
             else:
                 messagebox.showerror("エラー", "設定のリセットに失敗しました")
@@ -402,15 +308,6 @@ class UnifiedDataBackupApp:
 
         self.config_info_text.delete("1.0", "end")
         self.config_info_text.insert("1.0", info_text)
-
-    def show_error(self, operation: str, error: str):
-        """エラー表示"""
-        messagebox.showerror(f"{operation}エラー", f"エラーが発生しました:\n{error}")
-        self.log_message(f"❌ {operation}エラー: {error}")
-
-    def update_status(self, message: str):
-        """ステータス更新"""
-        self.status_label.configure(text=message)
 
     def log_message(self, message: str):
         """ログにメッセージを追加"""
@@ -435,13 +332,12 @@ class UnifiedDataBackupApp:
             window_width=int(width), window_height=int(height)
         )
 
-        self.log_message("👋 アプリケーションを終了します")
+        self.log_message("アプリケーションを終了します")
         self.root.destroy()
 
     def run(self):
         """アプリケーション実行"""
-        self.log_message("🚀 My Data Backup v2.0 起動完了")
-        self.log_message("📋 統合GUIアプリケーションへようこそ！")
+        self.log_message("My Data Backup 起動完了")
         self.root.mainloop()
 
 

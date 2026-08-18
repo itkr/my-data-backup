@@ -1,5 +1,5 @@
 """
-Move サービス
+sort サービス — 日付・拡張子で仕分け
 """
 
 import logging
@@ -8,11 +8,16 @@ from typing import Callable, Dict, List, Optional
 
 from src.core.domain.models import FileInfo, OrganizationConfig, ProcessResult
 from src.core.domain.repositories import FileRepository
+from src.core.services.base import FileOrganizerService
+
+# 重複ファイル名の連番を試行する上限。
+# これを超える同名ファイルは異常とみなし、無限ループさせずにエラーにする。
+MAX_DUPLICATE_ATTEMPTS = 1000
 
 
-class MoveService:
+class SortService(FileOrganizerService):
     """
-    Move機能のビジネスロジックを実装するサービス
+    ファイルを日付・拡張子ごとに仕分けるサービス
 
     責任:
     - ファイルの日付ベース分類
@@ -24,10 +29,19 @@ class MoveService:
     def __init__(
         self, file_repository: FileRepository, logger: Optional[logging.Logger] = None
     ):
-        self.file_repository = file_repository
-        self.logger = logger or logging.getLogger(__name__)
+        super().__init__(file_repository, logger)
+        self._stop_requested = False
 
-    def organize_by_date(
+    def stop(self):
+        """処理の中断を要求する（GUIの停止ボタンから呼ばれる）
+
+        実行中のファイル単位のループが次のファイルに進む前に中断する。
+        処理済みのファイルは元に戻さない。
+        """
+        self._stop_requested = True
+        self.logger.info("停止が要求されました")
+
+    def sort_by_date(
         self,
         source_dir: Path,
         target_dir: Path,
@@ -47,6 +61,7 @@ class MoveService:
             ProcessResult: 処理結果
         """
         self.logger.info(f"日付ベース整理を開始: {source_dir} -> {target_dir}")
+        self._stop_requested = False
 
         # 1. ファイルスキャン（recursive設定を使用）
         files = self.file_repository.scan_directory(
@@ -59,8 +74,8 @@ class MoveService:
         # 2. 拡張子フィルタリング
         filtered_files = [f for f in files if config.should_process_file(f.path)]
         self.logger.info(
-            f"フィルタリング後: {len(filtered_files)} ファイル (拡張子: {
-                config.file_extensions})"
+            f"フィルタリング後: {len(filtered_files)} ファイル "
+            f"(拡張子: {config.file_extensions})"
         )
 
         # 3. 日付ベースでグループ化
@@ -74,6 +89,12 @@ class MoveService:
 
         for date_key, file_group in date_groups.items():
             for file_info in file_group:
+                if self._stop_requested:
+                    self.logger.info(
+                        f"停止要求により中断: {processed}/{total_files} ファイル処理済み"
+                    )
+                    return result
+
                 try:
                     target_path = self._generate_target_path(
                         file_info, target_dir, config
@@ -140,7 +161,10 @@ class MoveService:
             path_parts.extend([year, month, day])
 
         if config.create_type_dirs:
-            extension = file_info.raw_extension.lstrip(".")
+            # 大文字に統一する。元ファイルの綴りをそのまま使うと、macOS のような
+            # 大文字小文字を区別しないファイルシステムでは .ARW と .arw が同じ
+            # ディレクトリに解決され、綴りが処理順に依存して非決定的になるため。
+            extension = file_info.extension.lstrip(".").upper()
             path_parts.append(extension)
 
         path_parts.append(file_info.name)
@@ -150,35 +174,33 @@ class MoveService:
     def _execute_file_operation(
         self, source: Path, destination: Path, config: OrganizationConfig
     ) -> bool:
-        """ファイル操作の実行"""
-        if config.dry_run:
-            self.logger.info(f"[DRY RUN] {source} -> {destination}")
-            return True
+        """ファイル操作の実行（移動先が重複する場合は連番を付ける）"""
+        if not config.dry_run and config.handle_duplicates:
+            try:
+                if self.file_repository.exists(destination):
+                    destination = self._generate_unique_path(destination)
+            except Exception as e:
+                self.logger.error(f"ファイル操作エラー: {e}")
+                return False
 
-        try:
-            # 重複ファイルのチェック
-            if config.handle_duplicates and self.file_repository.exists(destination):
-                destination = self._generate_unique_path(destination)
-
-            if config.preserve_original:
-                return self.file_repository.copy_file(source, destination)
-            else:
-                return self.file_repository.move_file(source, destination)
-
-        except Exception as e:
-            self.logger.error(f"ファイル操作エラー: {e}")
-            return False
+        return super()._execute_file_operation(source, destination, config)
 
     def _generate_unique_path(self, path: Path) -> Path:
-        """重複ファイル用のユニークパスを生成"""
-        counter = 1
+        """重複ファイル用のユニークパスを生成
+
+        Raises:
+            RuntimeError: MAX_DUPLICATE_ATTEMPTS 回試しても空きが見つからない場合
+        """
         stem = path.stem
         suffix = path.suffix
         parent = path.parent
 
-        while True:
-            new_name = f"{stem}_{counter:03d}{suffix}"
-            new_path = parent / new_name
+        for counter in range(1, MAX_DUPLICATE_ATTEMPTS + 1):
+            new_path = parent / f"{stem}_{counter:03d}{suffix}"
             if not self.file_repository.exists(new_path):
                 return new_path
-            counter += 1
+
+        raise RuntimeError(
+            f"重複回避のファイル名を {MAX_DUPLICATE_ATTEMPTS} 件試しましたが "
+            f"空きが見つかりませんでした: {path}"
+        )

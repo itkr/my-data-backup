@@ -3,26 +3,18 @@ FROM python:3.11-slim
 
 # メンテナーの情報
 LABEL maintainer="itkr"
-LABEL description="Photo Organizer and File Move Tools with GUI"
+LABEL description="RAW/JPG file organizing tools with GUI"
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
 # システムパッケージの更新とGUI関連ライブラリのインストール
-# tkinter、customtkinter、opencv用の依存関係を含む
+# tkinter / customtkinter の動作に必要なものだけを入れる
 RUN apt-get update && apt-get install -y \
     # GUI関連
     python3-tk \
     x11-apps \
     xvfb \
-    # OpenCV用の依存関係
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libgtk-3-0 \
     # その他の必要なパッケージ
     curl \
     make \
@@ -51,12 +43,10 @@ USER appuser
 
 # ヘルスチェック
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys; import customtkinter; import cv2; print('Dependencies OK')" || exit 1
+    CMD python -c "import customtkinter, typer; print('Dependencies OK')" || exit 1
 
-# デフォルトコマンド（v2.0新アーキテクチャ対応）
-CMD ["python", "-c", "print('🐳 Docker Container Ready! (v2.0)\\n\\n📋 v2.0 統合アプリケーション:\\n  cd src && python main.py --help        # 統合CLI ヘルプ\\n  cd src && python main.py gui            # 統合GUI (requires X11)\\n  cd src && python main.py cli photo --help # Photo Organizer CLI\\n  cd src && python main.py cli move --help  # Move CLI\\n\\n🏛️ レガシー版コマンド:\\n  make run-photo-organizer   # Photo Organizer CLI\\n  make run-move              # Move CLI\\n  make run-photo-organizer-gui # Photo Organizer GUI (requires X11)\\n  make run-move-gui          # Move GUI (requires X11)\\n\\n📁 Mount your data to /data volume')"]
+# デフォルトコマンド
+CMD ["python", "-c", "print('Docker Container Ready\\n\\nコマンド:\\n  python src/main.py --help        # ヘルプ\\n  python src/main.py sort --help   # 日付・拡張子で仕分け\\n  python src/main.py sync --help   # RAW/JPG の突き合わせ\\n  python src/main.py gui           # 統合GUI (requires X11)\\n\\nデータは /data ボリュームにマウントしてください')"]
 
 # メタデータ
-LABEL version="2.0"
-LABEL architecture="modular-component"
 LABEL org.opencontainers.image.source="https://github.com/itkr/my-data-backup"
