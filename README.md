@@ -5,11 +5,11 @@ RAW/JPG ファイルの整理と管理を効率化するツール集
 ## 概要
 
 デジタルカメラで撮影した RAW/JPG ファイルを整理・管理するための Python ツールです。
-GUI と CLI の両方を備え、RAW/JPG の対応付けと、日付・拡張子ごとの自動整理を行います。
+Move は GUI と CLI の両方から、Photo Organizer は CLI から利用できます。
 
 ## 主な機能
 
-### Photo Organizer
+### Photo Organizer（CLI のみ）
 
 RAW と JPG の対応関係を判定し、種類ごとに振り分けます。
 
@@ -91,7 +91,7 @@ my-data-backup/
 │   │   ├── gui/          # GUI
 │   │   │   ├── app.py            # 統合GUIアプリケーション
 │   │   │   ├── base/             # タブの基底クラス
-│   │   │   └── modules/          # 機能ごとのタブ
+│   │   │   └── modules/          # 機能ごとのタブ（Move）
 │   │   └── cli/          # CLI
 │   │       ├── photo_organizer.py
 │   │       ├── move.py
@@ -271,7 +271,7 @@ python src/main.py photo organize ~/Pictures/Camera ~/Pictures/Organized
 python src/main.py move organize ~/Pictures/Organized ~/Pictures/Archive
 ```
 
-GUI で操作する場合は `make run-gui` から同じ処理を実行できます。
+Move は `make run-gui` の GUI からも実行できます。
 
 ## ログ
 

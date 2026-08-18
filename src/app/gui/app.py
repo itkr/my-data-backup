@@ -91,10 +91,6 @@ class UnifiedDataBackupApp:
         self.tabview = ctk.CTkTabview(parent)
         self.tabview.pack(fill="both", expand=True, pady=(0, 10))
 
-        # Photo Organizerタブ
-        self.photo_tab = self.tabview.add("📸 Photo Organizer")
-        self.setup_photo_organizer_tab()
-
         # Moveタブ
         self.move_tab = self.tabview.add("🗂️ Move")
         self.setup_move_tab()
@@ -106,15 +102,6 @@ class UnifiedDataBackupApp:
         # ログタブ
         self.log_tab = self.tabview.add("📋 ログ")
         self.setup_log_tab()
-
-    def setup_photo_organizer_tab(self):
-        """Photo Organizer タブの設定"""
-        from src.app.gui.modules.photo_organizer.tab import PhotoOrganizerTab
-
-        self.photo_organizer_tab = PhotoOrganizerTab(
-            parent=self.photo_tab,
-            logger=self.logger,
-        )
 
     def setup_move_tab(self):
         """Move タブの設定"""
